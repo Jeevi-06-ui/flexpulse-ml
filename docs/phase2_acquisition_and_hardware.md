@@ -142,3 +142,4 @@ When your Presidency University lab hardware is assembled:
    flexpulse status
    ```
    The HAL will automatically establish the serial stream, validate incoming packets, and begin recording to `data/raw/real/`.
+

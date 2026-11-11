@@ -349,3 +349,4 @@ class SimulatedESP32Stream:
                 }
                 lines.append(json.dumps(pkt))
         return lines
+

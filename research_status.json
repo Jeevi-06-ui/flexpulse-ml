@@ -27,31 +27,31 @@
       "verification": "PASSED_TESTS"
     },
     "phase_3": {
+      "name": "Electrical Feature Engineering & Calibration Reference",
+      "status": "COMPLETED",
+      "implemented_date": "2026-11-11",
+      "verification": "PASSED_TESTS"
+    },
+    "phase_4": {
       "name": "Classical ML Benchmark Suite & Cable-Holdout Cross-Validation",
       "status": "NOT_STARTED",
       "implemented_date": null,
       "verification": "NOT_RUN"
     },
-    "phase_4": {
+    "phase_5": {
       "name": "Measurement Correction, Probability Calibration & Abstention Policy",
       "status": "NOT_STARTED",
       "implemented_date": null,
       "verification": "NOT_RUN"
     },
-    "phase_5": {
+    "phase_6": {
       "name": "Uncertainty-Aware Active Test Selection",
       "status": "NOT_STARTED",
       "implemented_date": null,
       "verification": "NOT_RUN"
     },
-    "phase_6": {
-      "name": "Interactive Streamlit Scientific Research Dashboard",
-      "status": "NOT_STARTED",
-      "implemented_date": null,
-      "verification": "NOT_RUN"
-    },
     "phase_7": {
-      "name": "IEEE Manuscript Export Engine & End-to-End Verification",
+      "name": "Interactive Streamlit Dashboard & Manuscript Export Engine",
       "status": "NOT_STARTED",
       "implemented_date": null,
       "verification": "NOT_RUN"

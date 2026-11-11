@@ -5,6 +5,8 @@ Supports:
 - env-check: Inspects Python, libraries, platform, and git integrity.
 - validate-data: Validates dataset CSV files against physical and schema constraints.
 - import-csv: Ingests 22-column canonical CSV dataset into managed storage.
+- extract-features: Runs Phase 3 electrical feature extraction pipeline on raw datasets.
+- feature-dict: Displays or exports the formal feature dictionary.
 - register-cable: Enrolls a physical cable in the research registry.
 - list-cables: Displays all registered physical cables.
 - status: Displays research progress across all 7 phases and hardware status.
@@ -22,6 +24,7 @@ import platform
 import subprocess
 import sys
 from typing import List, Optional
+import pandas as pd
 
 from flexpulse_ml.acquisition.csv_loader import (
     load_canonical_csv,
@@ -34,8 +37,14 @@ from flexpulse_ml.acquisition.synthetic_generator import (
     export_synthetic_dataset_to_csv,
 )
 from flexpulse_ml.acquisition.validator import DataIntegrityValidator
+from flexpulse_ml.processing.features import (
+    FEATURE_DICTIONARY,
+    export_feature_dictionary_docs,
+    extract_feature_dataset,
+)
 from flexpulse_ml.utils.paths import (
     DEMO_DATA_DIR,
+    PROCESSED_DATA_DIR,
     PROJECT_ROOT,
     RAW_REAL_DIR,
     RESEARCH_STATUS_FILE,
@@ -173,7 +182,6 @@ def cmd_validate_data(csv_path_str: str, disallow_synthetic: bool = False) -> in
         return 1
 
     try:
-        # First attempt canonical 22-column validation
         valid_records, report = load_canonical_csv(
             csv_path, disallow_synthetic=disallow_synthetic, quarantine_invalid=True
         )
@@ -204,8 +212,6 @@ def cmd_validate_data(csv_path_str: str, disallow_synthetic: bool = False) -> in
             return 1 if report.invalid_rows > 0 or report.missing_columns else 0
 
     except Exception as e:
-        # Fallback to Phase 1 validator
-        print(f"Notice: Falling back to legacy validator ({e})...")
         validator = DataIntegrityValidator(disallow_synthetic=disallow_synthetic)
         valid_records, legacy_report = load_dataset_from_csv(
             csv_path, disallow_synthetic=disallow_synthetic, validator=validator
@@ -214,6 +220,72 @@ def cmd_validate_data(csv_path_str: str, disallow_synthetic: bool = False) -> in
             print("[RESULT: PASSED] Dataset conforms to legacy schema.")
             return 0
         return 1
+
+
+def cmd_extract_features(
+    input_csv_str: str,
+    output_features_str: Optional[str] = None,
+    disallow_synthetic: bool = False,
+) -> int:
+    """Run Phase 3 electrical feature engineering pipeline on a raw CSV dataset."""
+    input_path = Path(input_csv_str).resolve()
+    print("=" * 68)
+    print(" FlexPulse-ML :: Physics-Guided Feature Extraction Engine")
+    print(f" Input Raw Dataset : {input_path}")
+    print("=" * 68)
+
+    if not input_path.exists():
+        print(f"[ERROR] Input CSV does not exist: {input_path}")
+        return 1
+
+    records, report = load_canonical_csv(input_path, disallow_synthetic=disallow_synthetic)
+    if not records:
+        print("[ERROR] No valid records found in dataset to extract features.")
+        return 1
+
+    print(f"[*] Processing {len(records)} raw observations across {len(report.unique_cables)} cables...")
+    features_df, metadata_df = extract_feature_dataset(records)
+
+    # Determine output path
+    if output_features_str:
+        out_features_path = Path(output_features_str).resolve()
+    else:
+        out_features_path = PROCESSED_DATA_DIR / f"features_{input_path.stem}.csv"
+
+    out_features_path.parent.mkdir(parents=True, exist_ok=True)
+    # Combine metadata and features for storage while keeping clear column prefixes
+    combined_df = pd.concat([metadata_df, features_df], axis=1)
+    combined_df.to_csv(out_features_path, index=False)
+
+    print("\nFeature Extraction Summary:")
+    print(f"  - Extracted Trials       : {len(features_df)}")
+    print(f"  - Distinct Features      : {features_df.shape[1]}")
+    print(f"  - Physical Cables        : {len(metadata_df['cable_id'].unique())}")
+    print(f"  - Multi-Load Slopes Fit  : {int(features_df['has_multiload_fit'].sum())} trials")
+    print(f"  - Output Features File   : {out_features_path}")
+
+    # Generate feature dictionary docs
+    md_doc, json_doc = export_feature_dictionary_docs()
+    print(f"  - Feature Dict (Markdown): {md_doc}")
+    print(f"  - Feature Dict (JSON)    : {json_doc}")
+    print("=" * 68)
+    print("[SUCCESS] Feature engineering complete.")
+    return 0
+
+
+def cmd_feature_dict(export_only: bool = False) -> int:
+    """Display or export the formal feature dictionary."""
+    md_doc, json_doc = export_feature_dictionary_docs()
+    print(f"[✓] Feature dictionary exported to:")
+    print(f"    Markdown : {md_doc}")
+    print(f"    JSON     : {json_doc}")
+    if not export_only:
+        print("\n" + "=" * 68)
+        print(" FlexPulse-ML :: Core Electrical Features")
+        print("=" * 68)
+        for name, meta in FEATURE_DICTIONARY.items():
+            print(f"{name:<28} | {meta['unit']:<14} | {meta['description']}")
+    return 0
 
 
 def cmd_import_csv(csv_path_str: str, disallow_synthetic: bool = False) -> int:
@@ -336,6 +408,16 @@ def main(args: Optional[List[str]] = None) -> None:
     import_parser.add_argument("path", help="Path to the CSV file to import")
     import_parser.add_argument("--disallow-synthetic", action="store_true", help="Reject synthetic records")
 
+    # extract-features (Phase 3)
+    feat_parser = subparsers.add_parser("extract-features", help="Extract electrical features from raw CSV")
+    feat_parser.add_argument("input", help="Path to the raw CSV dataset")
+    feat_parser.add_argument("--output", help="Optional output path for extracted features CSV")
+    feat_parser.add_argument("--disallow-synthetic", action="store_true", help="Reject synthetic demo rows")
+
+    # feature-dict
+    dict_parser = subparsers.add_parser("feature-dict", help="Display or export formal feature dictionary")
+    dict_parser.add_argument("--export-only", action="store_true", help="Export without printing table")
+
     # register-cable
     reg_parser = subparsers.add_parser("register-cable", help="Register a physical cable in lab inventory")
     reg_parser.add_argument("--id", required=True, help="Unique cable ID (e.g. CABLE-ANK-001)")
@@ -374,6 +456,16 @@ def main(args: Optional[List[str]] = None) -> None:
         sys.exit(cmd_validate_data(parsed.path, disallow_synthetic=parsed.disallow_synthetic))
     elif parsed.command == "import-csv":
         sys.exit(cmd_import_csv(parsed.path, disallow_synthetic=parsed.disallow_synthetic))
+    elif parsed.command == "extract-features":
+        sys.exit(
+            cmd_extract_features(
+                input_csv_str=parsed.input,
+                output_features_str=parsed.output,
+                disallow_synthetic=parsed.disallow_synthetic,
+            )
+        )
+    elif parsed.command == "feature-dict":
+        sys.exit(cmd_feature_dict(export_only=parsed.export_only))
     elif parsed.command == "register-cable":
         sys.exit(
             cmd_register_cable(

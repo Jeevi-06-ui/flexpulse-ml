@@ -1,0 +1,2 @@
+timestamp_utc,cable_id,session_id,trial_id,sample_index,vin_v,vout_v,current_a,load_setpoint_a,temperature_c,source_type,ground_truth_label,ground_truth_source,fault_origin,fault_condition,fixture_id,instrument_id,calibration_id,action_id,motion_region,is_settled,measurement_quality
+2023-11-14T22:13:20+00:00,DEMO-CABLE-INTACT-01,SESS-DEMO-01,TR-DEMO-001,0,4.9948,4.8734,1.506,1.5,25.0,SYNTHETIC_DEMO,INTACT,CONTROLLED_FIXTURE_INJECTION,FIXTURE_INJECTED,NONE,SYNTHETIC_DEMO_GENERATOR,SIMULATED_INA226_CH0,CAL_SYNTHETIC_01,STATIC,STATIC,True,OK

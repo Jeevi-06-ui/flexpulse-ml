@@ -1,0 +1,171 @@
+{
+  "delta_v_mean_v": {
+    "unit": "Volts (V)",
+    "formula": "mean(vin_v - vout_v)",
+    "description": "Mean voltage drop across the cable assembly under test.",
+    "physical_meaning": "Primary indicator of total series path impedance."
+  },
+  "delta_v_median_v": {
+    "unit": "Volts (V)",
+    "formula": "median(vin_v - vout_v)",
+    "description": "Median voltage drop across the cable assembly.",
+    "physical_meaning": "Robust central tendency resistant to transient measurement spikes."
+  },
+  "delta_v_std_v": {
+    "unit": "Volts (V)",
+    "formula": "std(vin_v - vout_v)",
+    "description": "Standard deviation of voltage drop.",
+    "physical_meaning": "Measures voltage fluctuations caused by mechanical flex or contact flutter."
+  },
+  "delta_v_iqr_v": {
+    "unit": "Volts (V)",
+    "formula": "Q75(delta_v) - Q25(delta_v)",
+    "description": "Interquartile range (IQR) of voltage drop.",
+    "physical_meaning": "Robust measure of voltage dispersion unaffected by extreme outlier glitches."
+  },
+  "delta_v_mad_v": {
+    "unit": "Volts (V)",
+    "formula": "median(|delta_v - median(delta_v)|)",
+    "description": "Median Absolute Deviation (MAD) of voltage drop.",
+    "physical_meaning": "Scale-invariant robust spread metric for non-Gaussian noise."
+  },
+  "r_loop_slope_ohms": {
+    "unit": "Ohms (\u03a9)",
+    "formula": "Slope R from linear fit: delta_v = offset + R * current (settled intervals only)",
+    "description": "Effective multi-load loop resistance from settled measurements.",
+    "physical_meaning": "True dynamic DC loop resistance independent of contact zero-offsets.",
+    "validity_condition": "Computed ONLY when distinct settled current levels >= 2."
+  },
+  "v_offset_fit_v": {
+    "unit": "Volts (V)",
+    "formula": "Intercept of linear fit: delta_v = offset + R * current",
+    "description": "Extrapolated zero-current voltage drop offset.",
+    "physical_meaning": "Characterizes thermoelectric EMF or ADC instrumentation bias."
+  },
+  "has_multiload_fit": {
+    "unit": "Boolean",
+    "formula": "distinct_current_levels >= 2 and settled_samples >= 6",
+    "description": "Flag indicating if multi-load slope resistance could be legitimately computed.",
+    "physical_meaning": "Guarantees scientific integrity by preventing single-load slope estimation."
+  },
+  "r_point_mean_ohms": {
+    "unit": "Ohms (\u03a9)",
+    "formula": "mean(delta_v / current) on settled samples where current > 0.05A",
+    "description": "Single-point apparent resistance calculated during settled intervals.",
+    "physical_meaning": "Fallback resistance metric when multi-load sweep is not performed."
+  },
+  "fit_rmse_v": {
+    "unit": "Volts (V)",
+    "formula": "sqrt(mean((delta_v - (offset + R*current))^2))",
+    "description": "Root Mean Squared Error of the multi-load linear resistance fit.",
+    "physical_meaning": "Quantifies deviation from ideal Ohmic behavior (e.g. non-linear contact resistance)."
+  },
+  "fit_r2": {
+    "unit": "Dimensionless [0, 1]",
+    "formula": "1 - (SS_res / SS_tot)",
+    "description": "Coefficient of determination of the linear V-I fit.",
+    "physical_meaning": "Measures goodness-of-fit to Ohm's Law."
+  },
+  "fit_max_residual_v": {
+    "unit": "Volts (V)",
+    "formula": "max(|delta_v - (offset + R*current)|)",
+    "description": "Maximum individual sample deviation from the multi-load linear fit.",
+    "physical_meaning": "Identifies localized non-linear spikes or thermal jumps."
+  },
+  "current_mean_a": {
+    "unit": "Amperes (A)",
+    "formula": "mean(current_a) during settled intervals",
+    "description": "Average current flowing through the cable during steady-state testing.",
+    "physical_meaning": "Operating electrical load."
+  },
+  "current_std_a": {
+    "unit": "Amperes (A)",
+    "formula": "std(current_a) during settled intervals",
+    "description": "Current standard deviation during settled intervals.",
+    "physical_meaning": "Measures power supply and electronic load current regulation stability."
+  },
+  "current_cv": {
+    "unit": "Dimensionless",
+    "formula": "current_std_a / (current_mean_a + 1e-6)",
+    "description": "Coefficient of variation of the current signal.",
+    "physical_meaning": "Normalized current flutter index."
+  },
+  "settled_current_stability": {
+    "unit": "Ratio [0, 1]",
+    "formula": "fraction of settled samples within +/- 2.5% of commanded load setpoint",
+    "description": "Settled current compliance ratio.",
+    "physical_meaning": "Verifies that the electronic load reached steady-state regulation."
+  },
+  "distinct_current_levels_count": {
+    "unit": "Count",
+    "formula": "count of distinct settled load clusters separated by at least 0.2A",
+    "description": "Number of distinct current setpoint plateaus observed in the trial.",
+    "physical_meaning": "Prerequisite condition for multi-load resistance slope extraction."
+  },
+  "settled_sample_ratio": {
+    "unit": "Ratio [0, 1]",
+    "formula": "count(is_settled == True) / count(total_samples)",
+    "description": "Fraction of trial duration spent in settled electrical steady state.",
+    "physical_meaning": "Separates dynamic switching transitions from steady-state measurements."
+  },
+  "missing_sample_count": {
+    "unit": "Count",
+    "formula": "sum(sample_index_diff - 1 for diff > 1)",
+    "description": "Total number of missing or dropped telemetry packets.",
+    "physical_meaning": "Acquisition pipeline reliability indicator."
+  },
+  "missing_sample_ratio": {
+    "unit": "Ratio [0, 1]",
+    "formula": "missing_sample_count / (total_samples + missing_sample_count)",
+    "description": "Proportion of dropped frames relative to nominal expected sample count.",
+    "physical_meaning": "Telemetry channel packet loss metric."
+  },
+  "quality_ok_ratio": {
+    "unit": "Ratio [0, 1]",
+    "formula": "count(measurement_quality == 'OK') / total_samples",
+    "description": "Fraction of samples with sensor health confirmed as OK.",
+    "physical_meaning": "Sensor reliability metric."
+  },
+  "temp_mean_c": {
+    "unit": "Degrees Celsius (\u00b0C)",
+    "formula": "mean(temperature_c)",
+    "description": "Mean temperature observed during trial.",
+    "physical_meaning": "Thermal context for resistance normalization (copper tempco is ~0.393%/\u00b0C)."
+  },
+  "temp_drift_c": {
+    "unit": "Degrees Celsius (\u00b0C)",
+    "formula": "max(temperature_c) - min(temperature_c)",
+    "description": "Temperature excursion observed across the trial duration.",
+    "physical_meaning": "Joule heating or environmental drift."
+  },
+  "has_valid_temperature": {
+    "unit": "Boolean",
+    "formula": "True if -20.0 <= temp_mean_c <= 100.0 else False",
+    "description": "Indicates whether valid thermal telemetry was present.",
+    "physical_meaning": "Thermal context validity check."
+  },
+  "fast_capture_source_present": {
+    "unit": "Boolean",
+    "formula": "Explicit hardware registration flag for sub-microsecond comparator / fast ADC",
+    "description": "Flag indicating if a dedicated fast-sampling hardware channel was active.",
+    "physical_meaning": "SCIENTIFIC RIGOR: The INA226 cannot capture microsecond interrupts. Set to False for INA226."
+  },
+  "fast_interruption_count": {
+    "unit": "Count",
+    "formula": "NaN if not fast_capture_source_present else count(fast micro-interrupts)",
+    "description": "Number of validated fast electrical interruptions (< 100 us).",
+    "physical_meaning": "Transient event counts are NEVER fabricated from slow INA226 channels."
+  },
+  "r_loop_calibrated_ohms": {
+    "unit": "Ohms (\u03a9)",
+    "formula": "max(0.0, r_loop_slope_ohms - fixture_tare_resistance_ohms)",
+    "description": "Effective loop resistance corrected for characterized test fixture tare resistance.",
+    "physical_meaning": "Isolated cable resistance (fixture tare subtracted; reference cable NOT assumed to be 0 \u03a9)."
+  },
+  "r_point_calibrated_ohms": {
+    "unit": "Ohms (\u03a9)",
+    "formula": "max(0.0, r_point_mean_ohms - fixture_tare_resistance_ohms)",
+    "description": "Point resistance corrected for characterized fixture tare resistance.",
+    "physical_meaning": "Isolated cable point resistance."
+  }
+}

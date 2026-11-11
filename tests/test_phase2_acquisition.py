@@ -336,3 +336,4 @@ def test_experiment_manager_cable_registration_and_session(tmp_path: Path):
     assert completed_session.status == "COMPLETED"
     assert completed_session.total_samples == 150
     assert (sess_dir / "SESS-20261111-TEST.json").exists()
+

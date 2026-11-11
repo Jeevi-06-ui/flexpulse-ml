@@ -1,5 +1,17 @@
 """
-Reference-Based Measurement Correction & Probability Calibration Package for FlexPulse-ML.
-Scheduled for full implementation in Phase 4.
+Calibration and Reference Fixture Subsystem for FlexPulse-ML.
 """
 
+from flexpulse_ml.calibration.reference import (
+    CalibrationRecord,
+    CalibrationRegistry,
+    CharacterizedReferenceCable,
+    FixtureTareProfile,
+)
+
+__all__ = [
+    "CalibrationRecord",
+    "CalibrationRegistry",
+    "CharacterizedReferenceCable",
+    "FixtureTareProfile",
+]
