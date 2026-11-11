@@ -39,3 +39,4 @@ def test_cli_demo_and_validation(tmp_path: Path):
     # Validate with disallow_synthetic should return error code 1 (since it contains synthetic data)
     val_disallow_code = cmd_validate_data(str(demo_file), disallow_synthetic=True)
     assert val_disallow_code == 1
+

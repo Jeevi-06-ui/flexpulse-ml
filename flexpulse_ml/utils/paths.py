@@ -50,3 +50,4 @@ def ensure_directories_exist() -> None:
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
+

@@ -123,3 +123,4 @@ def test_unverified_label_normalization(base_record: CableMeasurementRecord, tmp
 
     validator.validate_record(base_record)
     assert base_record.ground_truth == FaultClass.UNKNOWN
+

@@ -56,3 +56,4 @@ def test_csv_loader_blocks_synthetic_when_demanded(tmp_path: Path):
     assert report.valid_records == 0
     assert report.invalid_records == 40
     assert "SYNTHETIC_CONTAMINATION" in report.validation_errors_summary
+

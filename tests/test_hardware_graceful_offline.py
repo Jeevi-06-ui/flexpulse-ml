@@ -31,3 +31,4 @@ def test_hardware_read_without_connection_raises_informative_error():
         next(stream)
 
     assert "Physical hardware is not connected" in str(exc_info.value)
+

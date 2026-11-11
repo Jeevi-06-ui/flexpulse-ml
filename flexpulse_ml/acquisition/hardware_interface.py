@@ -128,3 +128,4 @@ class ESP32SerialAdapter(BaseAcquisitionSource):
             # Future Phase: parse real hardware packets from JSON/CSV serial stream
             samples_read += 1
             time.sleep(0.01)
+

@@ -19,3 +19,4 @@ def get_logger(name: str = "flexpulse") -> logging.Logger:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
+

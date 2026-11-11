@@ -114,3 +114,4 @@ def test_record_sha256_reproducibility(sample_valid_record: CableMeasurementReco
     assert isinstance(sha1, str)
     assert len(sha1) == 64
     assert sha1 == sha2
+

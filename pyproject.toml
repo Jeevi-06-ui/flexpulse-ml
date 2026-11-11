@@ -48,3 +48,4 @@ addopts = "-ra -q --strict-markers"
 testpaths = [
     "tests",
 ]
+
