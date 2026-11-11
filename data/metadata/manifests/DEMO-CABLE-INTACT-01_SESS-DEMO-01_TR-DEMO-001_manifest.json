@@ -1,0 +1,11 @@
+{
+  "file_name": "DEMO-CABLE-INTACT-01_SESS-DEMO-01_TR-DEMO-001_raw.csv",
+  "relative_path": "raw/synthetic_demo/DEMO-CABLE-INTACT-01_SESS-DEMO-01_TR-DEMO-001_raw.csv",
+  "sha256_checksum": "50273bf683cf999ffa59ffb2a4726d2b49f08a0bf5d150583da9dd7bee4c1b58",
+  "record_count": 200,
+  "cable_id": "DEMO-CABLE-INTACT-01",
+  "session_id": "SESS-DEMO-01",
+  "trial_id": "TR-DEMO-001",
+  "source_type": "SYNTHETIC_DEMO",
+  "stored_at_utc": "2026-11-11T15:10:57.045086+00:00"
+}

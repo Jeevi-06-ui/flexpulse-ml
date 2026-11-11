@@ -4,6 +4,9 @@ Command Line Interface (CLI) for FlexPulse-ML Research Application.
 Supports:
 - env-check: Inspects Python, libraries, platform, and git integrity.
 - validate-data: Validates dataset CSV files against physical and schema constraints.
+- import-csv: Ingests 22-column canonical CSV dataset into managed storage.
+- register-cable: Enrolls a physical cable in the research registry.
+- list-cables: Displays all registered physical cables.
 - status: Displays research progress across all 7 phases and hardware status.
 - test: Executes automated pytest test suite.
 - generate-demo: Generates a strictly-labeled SYNTHETIC_DEMO dataset for testing.
@@ -18,14 +21,23 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
-from flexpulse_ml.acquisition.csv_loader import load_dataset_from_csv
-from flexpulse_ml.acquisition.synthetic_generator import export_synthetic_dataset_to_csv
+from flexpulse_ml.acquisition.csv_loader import (
+    load_canonical_csv,
+    load_dataset_from_csv,
+)
+from flexpulse_ml.acquisition.experiment_manager import ExperimentManager
+from flexpulse_ml.acquisition.raw_storage import RawDataStorage
+from flexpulse_ml.acquisition.synthetic_generator import (
+    export_canonical_synthetic_csv,
+    export_synthetic_dataset_to_csv,
+)
 from flexpulse_ml.acquisition.validator import DataIntegrityValidator
 from flexpulse_ml.utils.paths import (
     DEMO_DATA_DIR,
     PROJECT_ROOT,
+    RAW_REAL_DIR,
     RESEARCH_STATUS_FILE,
     ensure_directories_exist,
 )
@@ -37,7 +49,6 @@ def cmd_env_check() -> int:
     print(" FlexPulse-ML :: Environment & Platform Validation")
     print("=" * 68)
 
-    # 1. Python version check
     py_ver = sys.version.split()[0]
     py_major, py_minor = sys.version_info.major, sys.version_info.minor
     print(f"[*] Python Version: {py_ver}")
@@ -46,13 +57,11 @@ def cmd_env_check() -> int:
         return 1
     print(" [✓] Python version requirement (>= 3.11) satisfied.")
 
-    # 2. Operating System & Hardware Platform
     os_name = platform.system()
     machine = platform.machine()
     print(f"[*] Host OS: {os_name} ({platform.platform()})")
     print(f"[*] Architecture: {machine} (Apple Silicon: {'Yes' if machine == 'arm64' else 'No'})")
 
-    # 3. Required Scientific Packages
     packages = [
         "numpy",
         "pandas",
@@ -76,7 +85,6 @@ def cmd_env_check() -> int:
             print(f"  - {pkg:<12} : MISSING [!]")
             all_packages_ok = False
 
-    # 4. Git Repository Integrity
     print("\n[*] Git Repository:")
     git_dir = PROJECT_ROOT / ".git"
     if git_dir.exists():
@@ -141,6 +149,12 @@ def cmd_status() -> int:
     print(f"  - Real Experiment    : {hw.get('real_experiments_status')}")
     print(f"  - Synthetic Demo Data: {hw.get('synthetic_demo_records_count')} records (Strictly Isolated)")
 
+    exp_mgr = ExperimentManager()
+    cables = exp_mgr.list_cables()
+    print(f"\nRegistered Physical Cables: {len(cables)}")
+    for c in cables:
+        print(f"    * {c.cable_id:<18} ({c.manufacturer}, {c.cable_type}, {c.rated_length_m}m)")
+
     print("=" * 72)
     return 0
 
@@ -149,7 +163,7 @@ def cmd_validate_data(csv_path_str: str, disallow_synthetic: bool = False) -> in
     """Validate a CSV dataset file against physical and schema constraints."""
     csv_path = Path(csv_path_str).resolve()
     print("=" * 68)
-    print(f" FlexPulse-ML :: Dataset Validation Audit")
+    print(" FlexPulse-ML :: Dataset Validation Audit")
     print(f" Target File: {csv_path}")
     print(f" Disallow Synthetic Data: {disallow_synthetic}")
     print("=" * 68)
@@ -158,46 +172,124 @@ def cmd_validate_data(csv_path_str: str, disallow_synthetic: bool = False) -> in
         print(f"[ERROR] File does not exist: {csv_path}")
         return 1
 
-    validator = DataIntegrityValidator(disallow_synthetic=disallow_synthetic)
     try:
-        valid_records, report = load_dataset_from_csv(
+        # First attempt canonical 22-column validation
+        valid_records, report = load_canonical_csv(
+            csv_path, disallow_synthetic=disallow_synthetic, quarantine_invalid=True
+        )
+        print("\nCanonical Validation Summary:")
+        print(f"  - Total Ingested Records : {report.total_rows}")
+        print(f"  - Valid Usable Records   : {report.valid_rows}")
+        print(f"  - Invalid (Quarantined)  : {report.invalid_rows}")
+        print(f"  - Real Measurements      : {report.real_measurement_rows}")
+        print(f"  - Synthetic Demo Records : {report.synthetic_demo_rows}")
+        print(f"  - Duplicate Records      : {report.duplicate_rows}")
+        print(f"  - Unique Physical Cables : {len(report.unique_cables)} ({', '.join(report.unique_cables)})")
+        print(f"  - Unique Sessions        : {len(report.unique_sessions)}")
+        if report.missing_columns:
+            print(f"  - Missing Canonical Cols : {report.missing_columns}")
+        if report.error_summary:
+            print("\nRejection Breakdown (Saved to audit log):")
+            for err_code, count in report.error_summary.items():
+                print(f"    * {err_code:<28} : {count} occurrences")
+            if report.quarantine_path:
+                print(f"  Quarantine file: {report.quarantine_path}")
+
+        print("=" * 68)
+        if report.is_valid:
+            print("[RESULT: PASSED] Dataset conforms to 22-column canonical schema.")
+            return 0
+        else:
+            print(f"[RESULT: WARNING/FAILED] Found {report.invalid_rows} invalid or missing records.")
+            return 1 if report.invalid_rows > 0 or report.missing_columns else 0
+
+    except Exception as e:
+        # Fallback to Phase 1 validator
+        print(f"Notice: Falling back to legacy validator ({e})...")
+        validator = DataIntegrityValidator(disallow_synthetic=disallow_synthetic)
+        valid_records, legacy_report = load_dataset_from_csv(
             csv_path, disallow_synthetic=disallow_synthetic, validator=validator
         )
-    except Exception as e:
-        print(f"[FATAL ERROR] Ingestion failed: {e}")
+        if legacy_report.is_acceptable_for_research:
+            print("[RESULT: PASSED] Dataset conforms to legacy schema.")
+            return 0
         return 1
 
-    print("\nValidation Summary:")
-    print(f"  - Total Ingested Records : {report.total_records}")
-    print(f"  - Valid Usable Records   : {report.valid_records}")
-    print(f"  - Invalid (Quarantined)  : {report.invalid_records}")
-    print(f"  - Real Measurements      : {report.real_measurement_records}")
-    print(f"  - Synthetic Demo Records : {report.synthetic_demo_records}")
-    print(f"  - Duplicate Records      : {report.duplicate_records}")
-    print(f"  - Unique Physical Cables : {len(report.unique_cables)} ({', '.join(sorted(report.unique_cables))})")
-    print(f"  - Unique Sessions        : {len(report.unique_sessions)}")
 
-    if report.validation_errors_summary:
-        print("\nRejection Breakdown (Saved to audit log):")
-        for err_code, count in report.validation_errors_summary.items():
-            print(f"    * {err_code:<28} : {count} occurrences")
-        print(f"  Audit log: {report.audit_log_path}")
-
+def cmd_import_csv(csv_path_str: str, disallow_synthetic: bool = False) -> int:
+    """Import a validated canonical CSV file into managed research storage."""
+    csv_path = Path(csv_path_str).resolve()
     print("=" * 68)
-    if report.is_acceptable_for_research:
-        print("[RESULT: PASSED] Dataset conforms to physical and scientific schema.")
-        return 0
+    print(" FlexPulse-ML :: Raw Dataset Ingestion Engine")
+    print(f" Ingesting from: {csv_path}")
+    print("=" * 68)
+
+    if not csv_path.exists():
+        print(f"[ERROR] CSV path does not exist: {csv_path}")
+        return 1
+
+    valid_recs, report = load_canonical_csv(csv_path, disallow_synthetic=disallow_synthetic)
+    if not report.is_valid or not valid_recs:
+        print("[ERROR] Dataset contains validation errors. Aborting ingestion into managed storage.")
+        return 1
+
+    storage = RawDataStorage()
+    is_synth = report.synthetic_demo_rows > 0
+    saved_path = storage.save_canonical_records(valid_recs, is_synthetic=is_synth)
+    print(f"[✓] Successfully stored {len(valid_recs)} records in: {saved_path}")
+    return 0
+
+
+def cmd_register_cable(
+    cable_id: str,
+    manufacturer: str,
+    cable_type: str,
+    rated_current_a: float,
+    rated_length_m: float,
+    notes: str,
+) -> int:
+    """Enroll a physical cable in the laboratory catalog."""
+    exp_mgr = ExperimentManager()
+    cable = exp_mgr.register_cable(
+        cable_id=cable_id,
+        manufacturer=manufacturer,
+        cable_type=cable_type,
+        rated_current_a=rated_current_a,
+        rated_length_m=rated_length_m,
+        notes=notes,
+    )
+    print(f"[✓] Physical cable registered: {cable.cable_id} ({cable.manufacturer})")
+    return 0
+
+
+def cmd_list_cables() -> int:
+    """Print all enrolled physical cables."""
+    exp_mgr = ExperimentManager()
+    cables = exp_mgr.list_cables()
+    print("=" * 68)
+    print(" FlexPulse-ML :: Physical Cable Laboratory Inventory")
+    print("=" * 68)
+    if not cables:
+        print("No cables registered yet. Use 'flexpulse register-cable' to register hardware.")
     else:
-        print(f"[RESULT: WARNING/FAILED] Found {report.invalid_records} invalid records.")
-        return 1 if report.invalid_records > 0 else 0
+        for c in cables:
+            print(f"Cable ID      : {c.cable_id}")
+            print(f"  Manufacturer : {c.manufacturer}")
+            print(f"  Type         : {c.cable_type}")
+            print(f"  Rating       : {c.rated_current_a}A, {c.rated_length_m}m")
+            print(f"  Enrolled At  : {c.registered_at_utc}")
+            if c.notes:
+                print(f"  Notes        : {c.notes}")
+            print("-" * 68)
+    return 0
 
 
 def cmd_generate_demo(output_str: str, samples: int) -> int:
-    """Generate a sample synthetic demo dataset for software testing."""
+    """Generate a sample synthetic demo dataset in 22-column canonical format."""
     out_path = Path(output_str).resolve()
     print(f"[*] Generating {samples} synthetic demo samples per trial across 4 test cables...")
-    export_synthetic_dataset_to_csv(out_path, samples_per_trial=samples)
-    print(f"[✓] Synthetic demo dataset generated at: {out_path}")
+    export_canonical_synthetic_csv(out_path, samples_per_trial=samples)
+    print(f"[✓] Canonical synthetic demo dataset generated at: {out_path}")
     print("    NOTE: All rows are strictly tagged as 'SYNTHETIC_DEMO' to preserve scientific integrity.")
     return 0
 
@@ -239,11 +331,28 @@ def main(args: Optional[List[str]] = None) -> None:
         help="Reject any records labeled SYNTHETIC_DEMO (use for real benchmark data)",
     )
 
+    # import-csv
+    import_parser = subparsers.add_parser("import-csv", help="Import a canonical CSV into managed storage")
+    import_parser.add_argument("path", help="Path to the CSV file to import")
+    import_parser.add_argument("--disallow-synthetic", action="store_true", help="Reject synthetic records")
+
+    # register-cable
+    reg_parser = subparsers.add_parser("register-cable", help="Register a physical cable in lab inventory")
+    reg_parser.add_argument("--id", required=True, help="Unique cable ID (e.g. CABLE-ANK-001)")
+    reg_parser.add_argument("--manufacturer", default="GENERIC", help="Manufacturer brand")
+    reg_parser.add_argument("--type", default="USB_C_TO_C", help="Cable type")
+    reg_parser.add_argument("--current", type=float, default=3.0, help="Rated current (A)")
+    reg_parser.add_argument("--length", type=float, default=1.0, help="Rated length (m)")
+    reg_parser.add_argument("--notes", default="", help="Experimental notes")
+
+    # list-cables
+    subparsers.add_parser("list-cables", help="List all registered physical cables")
+
     # generate-demo
     demo_parser = subparsers.add_parser("generate-demo", help="Generate a synthetic demo dataset")
     demo_parser.add_argument(
         "--output",
-        default=str(DEMO_DATA_DIR / "synthetic_demo_cables.csv"),
+        default=str(DEMO_DATA_DIR / "canonical_synthetic_demo.csv"),
         help="Target path for generated CSV",
     )
     demo_parser.add_argument(
@@ -263,6 +372,21 @@ def main(args: Optional[List[str]] = None) -> None:
         sys.exit(cmd_test())
     elif parsed.command == "validate-data":
         sys.exit(cmd_validate_data(parsed.path, disallow_synthetic=parsed.disallow_synthetic))
+    elif parsed.command == "import-csv":
+        sys.exit(cmd_import_csv(parsed.path, disallow_synthetic=parsed.disallow_synthetic))
+    elif parsed.command == "register-cable":
+        sys.exit(
+            cmd_register_cable(
+                cable_id=parsed.id,
+                manufacturer=parsed.manufacturer,
+                cable_type=parsed.type,
+                rated_current_a=parsed.current,
+                rated_length_m=parsed.length,
+                notes=parsed.notes,
+            )
+        )
+    elif parsed.command == "list-cables":
+        sys.exit(cmd_list_cables())
     elif parsed.command == "generate-demo":
         sys.exit(cmd_generate_demo(parsed.output, parsed.samples))
     else:

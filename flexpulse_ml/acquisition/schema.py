@@ -13,16 +13,47 @@ Stores distinct concepts for:
 - Sensor and acquisition quality
 - Fault origin
 - Dataset category
+
+Provides both the modular nested CableMeasurementRecord and the 22-column
+flat CanonicalMeasurementRecord required for standardized CSV imports.
 """
 
 from __future__ import annotations
 
 import dataclasses
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 import hashlib
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
+
+# Canonical 22-column schema required for experimental storage & publication export
+CANONICAL_COLUMNS: Tuple[str, ...] = (
+    "timestamp_utc",
+    "cable_id",
+    "session_id",
+    "trial_id",
+    "sample_index",
+    "vin_v",
+    "vout_v",
+    "current_a",
+    "load_setpoint_a",
+    "temperature_c",
+    "source_type",
+    "ground_truth_label",
+    "ground_truth_source",
+    "fault_origin",
+    "fault_condition",
+    "fixture_id",
+    "instrument_id",
+    "calibration_id",
+    "action_id",
+    "motion_region",
+    "is_settled",
+    "measurement_quality",
+)
 
 
 class DatasetCategory(str, Enum):
@@ -60,6 +91,15 @@ class LabelSource(str, Enum):
     LAB_BENCH_TESTER = "LAB_BENCH_TESTER"
     CONTROLLED_FIXTURE_INJECTION = "CONTROLLED_FIXTURE_INJECTION"
     UNVERIFIED = "UNVERIFIED"
+
+
+class MeasurementQuality(str, Enum):
+    """Sensor acquisition quality descriptor."""
+    OK = "OK"
+    CLIPPED = "CLIPPED"
+    JITTER_HIGH = "JITTER_HIGH"
+    SUSPECT = "SUSPECT"
+    DISCONNECTED = "DISCONNECTED"
 
 
 @dataclass(frozen=True)
@@ -155,6 +195,155 @@ class AcquisitionQuality:
 
 
 @dataclass
+class CanonicalMeasurementRecord:
+    """Standardized 22-column canonical research observation.
+
+    Guarantees that real experimental observations and synthetic test rows
+    share an identical, unambiguous column specification.
+    """
+    timestamp_utc: str                 # ISO 8601 UTC timestamp
+    cable_id: str                      # Physical cable identity
+    session_id: str                    # Experimental session ID
+    trial_id: str                      # Experimental trial ID
+    sample_index: int                  # Monotonic sample index within trial
+    vin_v: float                       # Input / Source upstream voltage (V)
+    vout_v: float                      # Output / Sink downstream voltage (V)
+    current_a: float                   # Measured cable current (A)
+    load_setpoint_a: float             # Commanded load current setpoint (A)
+    temperature_c: float               # Fixture / ambient temperature (°C)
+    source_type: str                   # REAL_MEASUREMENT or SYNTHETIC_DEMO
+    ground_truth_label: str            # INTACT, RESISTIVE_BEND, etc.
+    ground_truth_source: str           # HUMAN_VERIFIED, LAB_BENCH_TESTER, etc.
+    fault_origin: str                  # NATURAL_WEAR, FIXTURE_INJECTED, etc.
+    fault_condition: str               # Engineering description (e.g., NONE, SERIES_100M)
+    fixture_id: str                    # Hardware test fixture ID
+    instrument_id: str                 # Sensing instrument / ADC channel ID
+    calibration_id: str                # Calibration tare ID
+    action_id: str                     # Test action (e.g., STATIC_HOLD, FLEX_SWEEP)
+    motion_region: str                 # Mechanical bend location (e.g., PLUG_A_STRAIN_RELIEF)
+    is_settled: bool                   # True if ADC transient settled
+    measurement_quality: str           # OK, CLIPPED, JITTER_HIGH, etc.
+
+    @property
+    def vdrop_v(self) -> float:
+        """Raw voltage drop: Vin - Vout."""
+        return self.vin_v - self.vout_v
+
+    @property
+    def resistance_ohms(self) -> float:
+        """Apparent resistance (Vdrop / I). Returns 0.0 if current is near zero."""
+        if abs(self.current_a) < 1e-4:
+            return 0.0
+        return self.vdrop_v / self.current_a
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert record to a dictionary ordered according to CANONICAL_COLUMNS."""
+        return {col: getattr(self, col) for col in CANONICAL_COLUMNS}
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> CanonicalMeasurementRecord:
+        """Construct record from dictionary with robust type coercion."""
+        # Convert settled to boolean safely
+        settled_raw = d.get("is_settled", True)
+        if isinstance(settled_raw, str):
+            settled_bool = settled_raw.strip().lower() in ("true", "1", "yes")
+        else:
+            settled_bool = bool(settled_raw)
+
+        return cls(
+            timestamp_utc=str(d.get("timestamp_utc", datetime.now(timezone.utc).isoformat())),
+            cable_id=str(d.get("cable_id", "")).strip(),
+            session_id=str(d.get("session_id", "")).strip(),
+            trial_id=str(d.get("trial_id", "")).strip(),
+            sample_index=int(d.get("sample_index", 0)),
+            vin_v=float(d.get("vin_v", 0.0)),
+            vout_v=float(d.get("vout_v", 0.0)),
+            current_a=float(d.get("current_a", 0.0)),
+            load_setpoint_a=float(d.get("load_setpoint_a", 0.0)),
+            temperature_c=float(d.get("temperature_c", 25.0)),
+            source_type=str(d.get("source_type", DatasetCategory.REAL_MEASUREMENT.value)),
+            ground_truth_label=str(d.get("ground_truth_label", FaultClass.UNKNOWN.value)),
+            ground_truth_source=str(d.get("ground_truth_source", LabelSource.UNVERIFIED.value)),
+            fault_origin=str(d.get("fault_origin", FaultOrigin.UNKNOWN.value)),
+            fault_condition=str(d.get("fault_condition", "NONE")),
+            fixture_id=str(d.get("fixture_id", "FIXTURE_UNKNOWN")),
+            instrument_id=str(d.get("instrument_id", "INA226_DEFAULT")),
+            calibration_id=str(d.get("calibration_id", "CAL_DEFAULT")),
+            action_id=str(d.get("action_id", "STATIC_HOLD")),
+            motion_region=str(d.get("motion_region", "STATIC")),
+            is_settled=settled_bool,
+            measurement_quality=str(d.get("measurement_quality", MeasurementQuality.OK.value)),
+        )
+
+    def to_cable_measurement_record(self) -> CableMeasurementRecord:
+        """Convert canonical record into a CableMeasurementRecord for backwards compatibility."""
+        cable = PhysicalCableIdentity(
+            cable_id=self.cable_id,
+            manufacturer="GENERIC",
+            cable_type="USB_C_TO_C",
+            rated_current_a=3.0,
+            rated_length_m=1.0,
+        )
+        session = TrialSessionIdentity(
+            session_id=self.session_id,
+            trial_id=self.trial_id,
+            step_index=self.sample_index,
+        )
+        conditions = TestConditions(
+            nominal_voltage_v=self.vin_v,
+            target_current_a=self.load_setpoint_a,
+            ambient_temp_c=self.temperature_c,
+            flex_angle_deg=0.0,
+            mechanical_state=self.action_id,
+        )
+        observation = ElectricalObservation(
+            v_source_v=self.vin_v,
+            v_sink_v=self.vout_v,
+            current_a=self.current_a,
+            timestamp_rel_ms=float(self.sample_index * 10.0),
+        )
+        try:
+            fault = FaultClass(self.ground_truth_label)
+        except ValueError:
+            fault = FaultClass.UNKNOWN
+
+        try:
+            source = LabelSource(self.ground_truth_source)
+        except ValueError:
+            source = LabelSource.UNVERIFIED
+
+        try:
+            origin = FaultOrigin(self.fault_origin)
+        except ValueError:
+            origin = FaultOrigin.UNKNOWN
+
+        try:
+            category = DatasetCategory(self.source_type)
+        except ValueError:
+            category = DatasetCategory.REAL_MEASUREMENT
+
+        provenance = DataProvenance(
+            source_device=self.fixture_id,
+            operator_id="OPERATOR",
+            recorded_at_utc=self.timestamp_utc,
+        )
+
+        return CableMeasurementRecord(
+            cable=cable,
+            session=session,
+            conditions=conditions,
+            observation=observation,
+            ground_truth=fault,
+            label_source=source,
+            fault_origin=origin,
+            provenance=provenance,
+            calibration=InstrumentCalibration(),
+            quality=AcquisitionQuality(adc_settled=self.is_settled),
+            dataset_category=category,
+        )
+
+
+@dataclass
 class CableMeasurementRecord:
     """Master typed experimental record for FlexPulse-ML.
 
@@ -227,6 +416,33 @@ class CableMeasurementRecord:
             "adc_settled": self.quality.adc_settled,
         }
 
+    def to_canonical_record(self) -> CanonicalMeasurementRecord:
+        """Convert to the standard 22-column canonical record."""
+        return CanonicalMeasurementRecord(
+            timestamp_utc=self.provenance.recorded_at_utc,
+            cable_id=self.cable.cable_id,
+            session_id=self.session.session_id,
+            trial_id=self.session.trial_id,
+            sample_index=self.session.step_index,
+            vin_v=self.observation.v_source_v,
+            vout_v=self.observation.v_sink_v,
+            current_a=self.observation.current_a,
+            load_setpoint_a=self.conditions.target_current_a,
+            temperature_c=self.conditions.ambient_temp_c,
+            source_type=self.dataset_category.value,
+            ground_truth_label=self.ground_truth.value,
+            ground_truth_source=self.label_source.value,
+            fault_origin=self.fault_origin.value,
+            fault_condition="NONE",
+            fixture_id=self.provenance.source_device,
+            instrument_id="INA226_FIXTURE",
+            calibration_id="CAL_DEFAULT",
+            action_id=self.conditions.mechanical_state,
+            motion_region="STATIC",
+            is_settled=self.quality.adc_settled,
+            measurement_quality=MeasurementQuality.OK.value if not self.quality.is_clipped else MeasurementQuality.CLIPPED.value,
+        )
+
     def to_json(self) -> str:
         """Serialize full record to structured JSON."""
         return json.dumps(self.to_flat_dict(), indent=2)
@@ -234,24 +450,32 @@ class CableMeasurementRecord:
     @classmethod
     def from_flat_dict(cls, d: Dict[str, Any]) -> CableMeasurementRecord:
         """Reconstruct a typed CableMeasurementRecord from a flat dictionary."""
-        # Normalize enums safely
+        # Support either schema style (vin_v / v_source_v)
+        v_src = float(d.get("vin_v", d.get("v_source_v", 0.0)))
+        v_snk = float(d.get("vout_v", d.get("v_sink_v", 0.0)))
+        step_idx = int(d.get("sample_index", d.get("step_index", 0)))
+        source_type_val = d.get("source_type", d.get("dataset_category", DatasetCategory.REAL_MEASUREMENT.value))
+        fault_val = d.get("ground_truth_label", d.get("fault_class", FaultClass.UNKNOWN.value))
+        label_src_val = d.get("ground_truth_source", d.get("label_source", LabelSource.UNVERIFIED.value))
+        fault_origin_val = d.get("fault_origin", FaultOrigin.UNKNOWN.value)
+
         try:
-            category = DatasetCategory(d.get("dataset_category", DatasetCategory.REAL_MEASUREMENT.value))
+            category = DatasetCategory(source_type_val)
         except ValueError:
             category = DatasetCategory.REAL_MEASUREMENT
 
         try:
-            fault = FaultClass(d.get("fault_class", FaultClass.UNKNOWN.value))
+            fault = FaultClass(fault_val)
         except ValueError:
             fault = FaultClass.UNKNOWN
 
         try:
-            label_src = LabelSource(d.get("label_source", LabelSource.UNVERIFIED.value))
+            label_src = LabelSource(label_src_val)
         except ValueError:
             label_src = LabelSource.UNVERIFIED
 
         try:
-            origin = FaultOrigin(d.get("fault_origin", FaultOrigin.UNKNOWN.value))
+            origin = FaultOrigin(fault_origin_val)
         except ValueError:
             origin = FaultOrigin.UNKNOWN
 
@@ -267,31 +491,31 @@ class CableMeasurementRecord:
         session = TrialSessionIdentity(
             session_id=str(d.get("session_id", "")),
             trial_id=str(d.get("trial_id", "")),
-            step_index=int(d.get("step_index", 0)),
+            step_index=step_idx,
         )
 
         conditions = TestConditions(
             nominal_voltage_v=float(d.get("nominal_voltage_v", 5.0)),
-            target_current_a=float(d.get("target_current_a", 1.0)),
-            ambient_temp_c=float(d.get("ambient_temp_c", 25.0)),
+            target_current_a=float(d.get("load_setpoint_a", d.get("target_current_a", 1.0))),
+            ambient_temp_c=float(d.get("temperature_c", d.get("ambient_temp_c", 25.0))),
             flex_angle_deg=float(d.get("flex_angle_deg", 0.0)),
-            mechanical_state=str(d.get("mechanical_state", "STATIC")),
+            mechanical_state=str(d.get("action_id", d.get("mechanical_state", "STATIC"))),
         )
 
         observation = ElectricalObservation(
-            v_source_v=float(d.get("v_source_v", 0.0)),
-            v_sink_v=float(d.get("v_sink_v", 0.0)),
+            v_source_v=v_src,
+            v_sink_v=v_snk,
             current_a=float(d.get("current_a", 0.0)),
-            timestamp_rel_ms=float(d.get("timestamp_rel_ms", 0.0)),
+            timestamp_rel_ms=float(d.get("timestamp_rel_ms", step_idx * 10.0)),
             sampling_jitter_us=float(d.get("sampling_jitter_us", 0.0)),
         )
 
         provenance = DataProvenance(
-            source_device=str(d.get("source_device", "UNKNOWN")),
+            source_device=str(d.get("fixture_id", d.get("source_device", "UNKNOWN"))),
             firmware_version=str(d.get("firmware_version", "1.0.0")),
             operator_id=str(d.get("operator_id", "OPERATOR")),
             git_commit_hash=str(d.get("git_commit_hash", "UNCOMMITTED")),
-            recorded_at_utc=str(d.get("recorded_at_utc", "1970-01-01T00:00:00Z")),
+            recorded_at_utc=str(d.get("timestamp_utc", d.get("recorded_at_utc", "1970-01-01T00:00:00Z"))),
         )
 
         calibration = InstrumentCalibration(
@@ -304,7 +528,7 @@ class CableMeasurementRecord:
             sample_rate_hz=float(d.get("sample_rate_hz", 100.0)),
             dropped_samples_count=int(d.get("dropped_samples_count", 0)),
             is_clipped=bool(d.get("is_clipped", False)),
-            adc_settled=bool(d.get("adc_settled", True)),
+            adc_settled=bool(d.get("is_settled", d.get("adc_settled", True))),
         )
 
         return cls(

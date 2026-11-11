@@ -1,0 +1,12 @@
+{
+  "CABLE-ANK-001": {
+    "cable_id": "CABLE-ANK-001",
+    "manufacturer": "Anker",
+    "cable_type": "USB_C_TO_C",
+    "rated_current_a": 3.0,
+    "rated_length_m": 1.0,
+    "has_emask_chip": false,
+    "registered_at_utc": "2026-11-11T15:10:51.300324+00:00",
+    "notes": "Presidency Univ Lab Sample 1"
+  }
+}
