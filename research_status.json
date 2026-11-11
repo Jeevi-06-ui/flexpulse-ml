@@ -1,0 +1,67 @@
+{
+  "project_name": "FlexPulse-ML",
+  "research_title": "FlexPulse-ML: An Active Self-Calibrating Machine Learning System for Early Detection and Localization of Intermittent USB-C Cable Faults",
+  "academic_context": {
+    "subject": "Machine Learning Techniques",
+    "institution": "Presidency University, Bengaluru",
+    "submission_deadline": "2026-12-01",
+    "target_venue": "IEEE Research Manuscript"
+  },
+  "scientific_integrity_guarantees": {
+    "fabrication_policy": "STRICT_ZERO_TOLERANCE",
+    "synthetic_data_isolation": "MANDATORY_LABEL_SYNTHETIC_DEMO",
+    "leakage_prevention": "LEAVE_ONE_CABLE_OUT_VALIDATION",
+    "unverified_hardware_policy": "EXPLICIT_NOT_RUN_REPORTING"
+  },
+  "phases": {
+    "phase_1": {
+      "name": "Software Foundation, Data Contracts, and Storage Architecture",
+      "status": "COMPLETED",
+      "implemented_date": "2026-11-11",
+      "verification": "PASSED_TESTS"
+    },
+    "phase_2": {
+      "name": "Signal Preprocessing & Physics-Informed Feature Engineering",
+      "status": "PENDING_PHASE_2_PROMPT",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    },
+    "phase_3": {
+      "name": "Classical ML Benchmark Suite & Cable-Holdout Cross-Validation",
+      "status": "NOT_STARTED",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    },
+    "phase_4": {
+      "name": "Measurement Correction, Probability Calibration & Abstention Policy",
+      "status": "NOT_STARTED",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    },
+    "phase_5": {
+      "name": "Uncertainty-Aware Active Test Selection",
+      "status": "NOT_STARTED",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    },
+    "phase_6": {
+      "name": "Interactive Streamlit Scientific Research Dashboard",
+      "status": "NOT_STARTED",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    },
+    "phase_7": {
+      "name": "IEEE Manuscript Export Engine & End-to-End Verification",
+      "status": "NOT_STARTED",
+      "implemented_date": null,
+      "verification": "NOT_RUN"
+    }
+  },
+  "hardware_status": {
+    "real_hardware_connected": false,
+    "real_hardware_data_collected": false,
+    "real_data_record_count": 0,
+    "real_experiments_status": "NOT RUN (Awaiting physical hardware test fixture)",
+    "synthetic_demo_records_count": 0
+  }
+}

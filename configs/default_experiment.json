@@ -1,0 +1,33 @@
+{
+  "experiment_id": "EXP-2026-FLEXPULSE-001",
+  "experiment_name": "Controlled USB-C Contact Degradation Benchmark",
+  "academic_institution": "Presidency University, Bengaluru",
+  "random_seed": 42,
+  "acquisition": {
+    "source_type": "CSV_INGESTION",
+    "mock_fallback_allowed": true,
+    "hardware_specs": {
+      "bus_voltage_nominal_v": 5.0,
+      "max_current_a": 3.0,
+      "shunt_resistor_ohms": 0.010,
+      "sensor_chip": "INA226",
+      "adc_conversion_time_us": 1100,
+      "averaging_samples": 4
+    },
+    "sampling_rate_hz": 100.0
+  },
+  "cable_splitting_strategy": {
+    "method": "LeaveOneCableOut",
+    "description": "Cables present in the test set are strictly excluded from the training and hyperparameter search sets."
+  },
+  "data_integrity": {
+    "enforce_provenance": true,
+    "quarantine_invalid_records": true,
+    "disallow_synthetic_in_real_benchmarks": true
+  },
+  "calibration_and_uncertainty": {
+    "reference_cable_tare_ohms": 0.045,
+    "abstention_threshold": 0.75,
+    "calibration_method": "isotonic"
+  }
+}
