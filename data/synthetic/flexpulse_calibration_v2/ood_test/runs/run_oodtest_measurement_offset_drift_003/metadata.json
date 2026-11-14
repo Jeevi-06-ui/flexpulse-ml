@@ -1,0 +1,25 @@
+{
+  "run_id": "run_oodtest_measurement_offset_drift_003",
+  "scenario": "MEASUREMENT_OFFSET_DRIFT",
+  "random_seed": 1469874865,
+  "simulation_configuration": {
+    "scenario": "MEASUREMENT_OFFSET_DRIFT",
+    "seed": 1469874865,
+    "sample_count": 6000,
+    "overrides": {
+      "voltage_offset_drift_v_per_sec": 0.002150961043146648,
+      "current_offset_drift_a_per_sec": 0.002385142803313916
+    },
+    "voltage_drift_rate_v_per_sec": 0.002150961043146648,
+    "current_drift_rate_a_per_sec": 0.002385142803313916
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "final_held_out_robustness_test",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

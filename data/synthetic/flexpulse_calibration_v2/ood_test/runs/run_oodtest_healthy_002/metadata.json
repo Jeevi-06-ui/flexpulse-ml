@@ -1,0 +1,20 @@
+{
+  "run_id": "run_oodtest_healthy_002",
+  "scenario": "HEALTHY",
+  "random_seed": 377662207,
+  "simulation_configuration": {
+    "scenario": "HEALTHY",
+    "seed": 377662207,
+    "sample_count": 6000,
+    "overrides": {}
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "final_held_out_robustness_test",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

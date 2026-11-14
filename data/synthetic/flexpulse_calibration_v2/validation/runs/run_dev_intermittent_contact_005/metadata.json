@@ -1,0 +1,47 @@
+{
+  "run_id": "run_dev_intermittent_contact_005",
+  "scenario": "INTERMITTENT_CONTACT",
+  "random_seed": 28763752,
+  "simulation_configuration": {
+    "scenario": "INTERMITTENT_CONTACT",
+    "seed": 28763752,
+    "sample_count": 6000,
+    "overrides": {
+      "event_count": 3,
+      "event_duration_s": 0.1515547133738596,
+      "fault_resistance_ohms": 72.87926141280376,
+      "event_start_times_s": [
+        14.276890670373604,
+        31.958586095768514,
+        48.67804199356313
+      ]
+    },
+    "events": [
+      {
+        "event_id": 1,
+        "start_s": 14.276890670373604,
+        "end_s": 14.428445383747464
+      },
+      {
+        "event_id": 2,
+        "start_s": 31.958586095768514,
+        "end_s": 32.11014080914237
+      },
+      {
+        "event_id": 3,
+        "start_s": 48.67804199356313,
+        "end_s": 48.82959670693699
+      }
+    ],
+    "fault_resistance_ohms": 72.87926141280376
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "development_shift",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "validation",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

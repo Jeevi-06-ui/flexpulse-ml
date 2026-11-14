@@ -1,0 +1,27 @@
+{
+  "run_id": "run_idtest_increased_resistance_001",
+  "scenario": "INCREASED_RESISTANCE",
+  "random_seed": 37952682,
+  "simulation_configuration": {
+    "scenario": "INCREASED_RESISTANCE",
+    "seed": 37952682,
+    "sample_count": 6000,
+    "overrides": {
+      "fault_start_time_s": 24.56790190865651,
+      "fault_duration_s": 12.739725572876113,
+      "fault_resistance_ohms": 0.22373378353286139
+    },
+    "event_start_time_s": 24.56790190865651,
+    "event_end_time_s": 37.30762748153262,
+    "fault_resistance_ohms": 0.22373378353286139
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal_held_out",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "id_test",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

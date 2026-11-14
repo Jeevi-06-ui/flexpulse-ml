@@ -1,0 +1,8 @@
+| configuration                 |   accuracy |   balanced_accuracy |   precision |   recall |     f1 |
+|:------------------------------|-----------:|--------------------:|------------:|---------:|-------:|
+| 1_Static_ML                   |     0.8138 |              0.5107 |      1      |   0.0214 | 0.0419 |
+| 2_Initial_Calibration_Only    |     0.9592 |              0.9706 |      0.8294 |   0.989  | 0.9022 |
+| 3_Adaptive_No_Confidence_Gate |     0.9592 |              0.9706 |      0.8294 |   0.989  | 0.9022 |
+| 4_Adaptive_No_Stability_Gate  |     0.9592 |              0.9706 |      0.8294 |   0.989  | 0.9022 |
+| 5_Adaptive_No_Freeze_Logic    |     0.9592 |              0.9706 |      0.8294 |   0.989  | 0.9022 |
+| 6_Complete_Gated_Adaptive     |     0.9592 |              0.9706 |      0.8294 |   0.989  | 0.9022 |

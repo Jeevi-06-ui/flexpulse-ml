@@ -1,0 +1,134 @@
+{
+  "source_dataset_id": "flexpulse_calibration_v2",
+  "feature_schema_version": "1.0.0",
+  "sampling_frequency_hz": 100.0,
+  "window_duration_s": 0.5,
+  "window_size_samples": 50,
+  "overlap_fraction": 0.5,
+  "stride_samples": 25,
+  "total_windows": 30114,
+  "total_healthy_windows": 24378,
+  "total_fault_windows": 5736,
+  "feature_names": [
+    "voltage_mean_v",
+    "voltage_median_v",
+    "voltage_std_v",
+    "voltage_min_v",
+    "voltage_max_v",
+    "voltage_range_v",
+    "voltage_p10_v",
+    "voltage_p90_v",
+    "voltage_mad_v",
+    "voltage_trend_slope_v_per_s",
+    "voltage_mean_abs_diff_v",
+    "voltage_std_diff_v",
+    "voltage_max_abs_diff_v",
+    "current_mean_a",
+    "current_median_a",
+    "current_std_a",
+    "current_min_a",
+    "current_max_a",
+    "current_range_a",
+    "current_p10_a",
+    "current_p90_a",
+    "current_mad_a",
+    "current_trend_slope_a_per_s",
+    "current_mean_abs_diff_a",
+    "current_std_diff_a",
+    "current_max_abs_diff_a"
+  ],
+  "feature_units": {
+    "voltage_mean_v": "V",
+    "voltage_median_v": "V",
+    "voltage_std_v": "V",
+    "voltage_min_v": "V",
+    "voltage_max_v": "V",
+    "voltage_range_v": "V",
+    "voltage_p10_v": "V",
+    "voltage_p90_v": "V",
+    "voltage_mad_v": "V",
+    "voltage_trend_slope_v_per_s": "V/s",
+    "voltage_mean_abs_diff_v": "V",
+    "voltage_std_diff_v": "V",
+    "voltage_max_abs_diff_v": "V",
+    "current_mean_a": "A",
+    "current_median_a": "A",
+    "current_std_a": "A",
+    "current_min_a": "A",
+    "current_max_a": "A",
+    "current_range_a": "A",
+    "current_p10_a": "A",
+    "current_p90_a": "A",
+    "current_mad_a": "A",
+    "current_trend_slope_a_per_s": "A/s",
+    "current_mean_abs_diff_a": "A",
+    "current_std_diff_a": "A",
+    "current_max_abs_diff_a": "A"
+  },
+  "partition_window_counts": {
+    "train": 8604,
+    "validation": 8604,
+    "id_test": 4302,
+    "ood_test": 8604
+  },
+  "partition_class_distributions": {
+    "train": {
+      "healthy_ratio": 0.8109019060901906,
+      "fault_ratio": 0.1890980939098094
+    },
+    "validation": {
+      "healthy_ratio": 0.8066015806601581,
+      "fault_ratio": 0.19339841933984192
+    },
+    "id_test": {
+      "healthy_ratio": 0.8121803812180381,
+      "fault_ratio": 0.18781961878196188
+    },
+    "ood_test": {
+      "healthy_ratio": 0.8097396559739656,
+      "fault_ratio": 0.1902603440260344
+    }
+  },
+  "partition_scenario_distributions": {
+    "train": {
+      "GRADUAL_RESISTANCE_DRIFT": 1434,
+      "HEALTHY": 1434,
+      "INCREASED_RESISTANCE": 1434,
+      "INTERMITTENT_CONTACT": 1434,
+      "MEASUREMENT_OFFSET_DRIFT": 1434,
+      "OPERATING_CONDITION_SHIFT": 1434
+    },
+    "validation": {
+      "GRADUAL_RESISTANCE_DRIFT": 1434,
+      "HEALTHY": 1434,
+      "INCREASED_RESISTANCE": 1434,
+      "INTERMITTENT_CONTACT": 1434,
+      "MEASUREMENT_OFFSET_DRIFT": 1434,
+      "OPERATING_CONDITION_SHIFT": 1434
+    },
+    "id_test": {
+      "GRADUAL_RESISTANCE_DRIFT": 717,
+      "HEALTHY": 717,
+      "INCREASED_RESISTANCE": 717,
+      "INTERMITTENT_CONTACT": 717,
+      "MEASUREMENT_OFFSET_DRIFT": 717,
+      "OPERATING_CONDITION_SHIFT": 717
+    },
+    "ood_test": {
+      "GRADUAL_RESISTANCE_DRIFT": 1434,
+      "HEALTHY": 1434,
+      "INCREASED_RESISTANCE": 1434,
+      "INTERMITTENT_CONTACT": 1434,
+      "MEASUREMENT_OFFSET_DRIFT": 1434,
+      "OPERATING_CONDITION_SHIFT": 1434
+    }
+  },
+  "synthetic_data": true,
+  "generation_timestamp": "2026-11-14T17:12:54.043217+00:00",
+  "file_checksums_sha256": {
+    "id_test_features.csv": "bb825b046950c2b1649d9044cbbcceb2d359c953d9a1b940961c64957f0a13a3",
+    "ood_test_features.csv": "392217e553a564721b2947a8273ac4b1d945aa17e4f1291428753b88b466e7c3",
+    "train_features.csv": "38dc35ae0283f2ef39754f00db42b5d6cb677a671c6c5ceaa58a27e6847d618b",
+    "validation_features.csv": "90ae9bf97ca9e286608fa0e797c357862d28deeeb1e66bb0cdda28a1c418e246"
+  }
+}

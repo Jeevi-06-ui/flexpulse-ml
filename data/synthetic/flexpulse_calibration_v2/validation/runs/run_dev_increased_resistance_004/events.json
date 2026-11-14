@@ -1,0 +1,13 @@
+[
+  {
+    "event_id": 1,
+    "scenario": "INCREASED_RESISTANCE",
+    "start_time_s": 15.48396481709334,
+    "end_time_s": 31.643313489513886,
+    "t_start_s": 15.48396481709334,
+    "t_end_s": 31.643313489513886,
+    "fault_type": "INCREASED_RESISTANCE",
+    "configured_severity_ohm": 0.11371766782908721,
+    "sampled_event": true
+  }
+]

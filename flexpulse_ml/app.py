@@ -24,6 +24,12 @@ from flexpulse_ml.features.dataset import (
     PROCESSED_FEATURES_ROOT,
     generate_feature_dataset,
 )
+from flexpulse_ml.calibration.adaptive import (
+    AdaptiveCalibrationConfig,
+    ConfidenceGatedAdaptiveCalibrator,
+)
+from flexpulse_ml.calibration.baseline import InitialBaselineEstimator
+from flexpulse_ml.calibration.experiment import run_phase5_benchmark
 from flexpulse_ml.features.extractor import FEATURE_NAMES, FEATURE_UNITS
 from flexpulse_ml.features.validator import validate_feature_dataset
 from flexpulse_ml.ml.experiment import run_phase4_benchmark
@@ -468,9 +474,142 @@ def page_model_training() -> None:
 
 
 def page_self_calibration() -> None:
-    st.title("🔄 Self-Calibration Engine (Phase 5 Placeholder)")
+    st.title("🔄 Confidence-Gated Adaptive Self-Calibration Engine")
     render_synthetic_notice()
-    st.info("Confidence-gated adaptive baseline updates and freeze dynamics will be demonstrated here in Phase 5.")
+    st.markdown(
+        "Demonstrates initial known-healthy baseline estimation, confidence-gated online adaptation, "
+        "and freeze-on-suspicion safeguards to prevent baseline contamination during true fault events."
+    )
+
+    tab_run, tab_benchmark, tab_ablation = st.tabs([
+        "1. Interactive Live Run Inspector",
+        "2. Method Benchmarking (A0 - A3)",
+        "3. Safeguard Ablation Study",
+    ])
+
+    tables_dir = PROJECT_ROOT / "results" / "tables" / "phase5_calibration"
+    figures_dir = PROJECT_ROOT / "results" / "figures" / "phase5_calibration"
+
+    with tab_run:
+        st.subheader("Online Calibration Trajectory Replay")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            alpha = st.slider("Adaptation Rate (alpha)", min_value=0.01, max_value=0.20, value=0.04, step=0.01)
+        with c2:
+            tau = st.slider("Confidence Gate Threshold", min_value=0.80, max_value=0.99, value=0.95, step=0.01)
+        with c3:
+            enable_freeze = st.checkbox("Enable Freeze-on-Suspicion Logic", value=True)
+
+        feature_storage = FeatureDatasetStorage("flexpulse_calibration_v2")
+        try:
+            ood_df = feature_storage.load_partition("ood_test")
+            available_runs = sorted(ood_df["run_id"].unique())
+            selected_run = st.selectbox("Select Simulation Run to Replay", available_runs, index=0)
+
+            run_df = ood_df[ood_df["run_id"] == selected_run].reset_index(drop=True)
+            rf_norm_path = PROJECT_ROOT / "models" / "phase5" / "a2_a3_normalized_random_forest.joblib"
+
+            if rf_norm_path.exists():
+                import joblib
+                rf_model = joblib.load(rf_norm_path)
+                cfg = AdaptiveCalibrationConfig(alpha=alpha, tau_conf=tau, enable_freeze_logic=enable_freeze)
+                calibrator = ConfidenceGatedAdaptiveCalibrator(cfg)
+                preds, probs, diag = calibrator.process_run(run_df, rf_model)
+                summary = diag.compute_summary_metrics()
+
+                m1, m2, m3, m4 = st.columns(4)
+                with m1:
+                    st.metric("Total Windows", summary["total_windows"])
+                with m2:
+                    st.metric("Accepted Updates", f"{summary['accepted_updates']} ({summary['acceptance_rate']*100:.1f}%)")
+                with m3:
+                    st.metric("Frozen Time", f"{summary['time_spent_frozen_s']:.1f} s")
+                with m4:
+                    st.metric("Fault Contamination Count", summary["inappropriate_updates_during_fault"])
+
+                rec_df = pd.DataFrame([r.to_dict() for r in diag.records])
+
+                fig, ax = plt.subplots(figsize=(10, 4.5))
+                ax.plot(rec_df["timestamp_end_s"], rec_df["raw_v"], color="#7f7f7f", lw=1.2, label="Observed Voltage Mean")
+                ax.plot(rec_df["timestamp_end_s"], rec_df["active_baseline_v"], color="#1f77b4", lw=2.2, label="Active Baseline (EMA)")
+
+                accepted_mask = rec_df["update_accepted"]
+                ax.scatter(rec_df.loc[accepted_mask, "timestamp_end_s"], rec_df.loc[accepted_mask, "raw_v"], color="#2ca02c", s=18, label="Accepted Update", zorder=4)
+                ax.scatter(rec_df.loc[~accepted_mask, "timestamp_end_s"], rec_df.loc[~accepted_mask, "raw_v"], color="#d62728", marker="x", s=22, label="Rejected Update", zorder=4)
+
+                fault_mask = rec_df["ground_truth_fault"] == 1
+                if np.any(fault_mask):
+                    ax.fill_between(rec_df["timestamp_end_s"], min(rec_df["raw_v"]) - 0.05, max(rec_df["raw_v"]) + 0.05, where=fault_mask, color="#d62728", alpha=0.15, label="True Fault Interval")
+
+                ax.set_title(f"Online Baseline Tracking Replay: {selected_run} [SIMULATION-BASED EXPERIMENT]")
+                ax.set_xlabel("Time [s]")
+                ax.set_ylabel("Voltage [V]")
+                ax.grid(True, alpha=0.3)
+                ax.legend(loc="lower right")
+                st.pyplot(fig)
+                plt.close(fig)
+
+                st.markdown("**Per-Window Diagnostic History Table:**")
+                st.dataframe(rec_df[["window_index", "timestamp_end_s", "raw_v", "active_baseline_v", "confidence", "state", "update_accepted", "rejection_reason", "prediction", "ground_truth_fault"]], use_container_width=True)
+            else:
+                st.info("Train Phase 5 calibration models to view live run replay.")
+        except Exception as e:
+            st.info(f"Calibration v2 dataset pending: {e}")
+
+    with tab_benchmark:
+        st.subheader("Four-Way Paradigm Comparison (A0 - A3)")
+        st.markdown(
+            "Comparing **A0 (Fixed Threshold)**, **A1 (Static ML)**, **A2 (Initial Normalization)**, and **A3 (Confidence-Gated Adaptive)** "
+            "across nominal in-distribution and shifted out-of-distribution robustness test sets."
+        )
+        p6 = figures_dir / "fig6_method_comparison_id_ood.png"
+        if p6.exists():
+            st.image(str(p6), caption="Figure 6: ID Test vs. OOD Robustness Test F1-Score (SIMULATION-BASED EXPERIMENT)")
+
+        ood_table = tables_dir / "method_comparison_ood_test.csv"
+        if ood_table.exists():
+            st.markdown("**Out-of-Distribution Robustness Test Results (Untouched Held-Out Partition):**")
+            st.dataframe(pd.read_csv(ood_table), use_container_width=True)
+
+        id_table = tables_dir / "method_comparison_id_test.csv"
+        if id_table.exists():
+            st.markdown("**In-Distribution (ID) Test Results:**")
+            st.dataframe(pd.read_csv(id_table), use_container_width=True)
+
+        c1, c2 = st.columns(2)
+        with c1:
+            p7 = figures_dir / "fig7_false_alarm_vs_recall_tradeoff.png"
+            if p7.exists():
+                st.image(str(p7), caption="Figure 7: Event Recall vs. False Alarm Rate (SIMULATION-BASED EXPERIMENT)")
+        with c2:
+            p8 = figures_dir / "fig8_causal_detection_delays.png"
+            if p8.exists():
+                st.image(str(p8), caption="Figure 8: Causal Event Detection Delays (SIMULATION-BASED EXPERIMENT)")
+
+    with tab_ablation:
+        st.subheader("Safeguard Ablation and Failure Mode Analysis")
+        p10 = figures_dir / "fig10_ablation_study.png"
+        if p10.exists():
+            st.image(str(p10), caption="Figure 10: Ablation Study of Individual Safeguards (SIMULATION-BASED EXPERIMENT)")
+
+        ab_table = tables_dir / "ablation_study.csv"
+        if ab_table.exists():
+            st.markdown("**Ablation Performance Table:**")
+            st.dataframe(pd.read_csv(ab_table), use_container_width=True)
+
+        st.subheader("Calibration Failure Mode: Gradual Fault Contamination")
+        st.markdown(
+            "When adaptive updates lack confidence gating or freeze safeguards, the baseline incorrectly tracks "
+            "slowly developing degradation, absorbing the fault and causing catastrophic false negatives."
+        )
+        p9 = figures_dir / "fig9_contamination_failure_modes.png"
+        if p9.exists():
+            st.image(str(p9), caption="Figure 9: Contamination Failure Mode (Naive vs. Protected Adaptation)")
+
+        contam_table = tables_dir / "contamination_stress_test.csv"
+        if contam_table.exists():
+            st.markdown("**Contamination Stress Test Table:**")
+            st.dataframe(pd.read_csv(contam_table), use_container_width=True)
 
 
 def page_evaluation() -> None:

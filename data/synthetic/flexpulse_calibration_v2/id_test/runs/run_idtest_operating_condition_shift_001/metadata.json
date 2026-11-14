@@ -1,0 +1,27 @@
+{
+  "run_id": "run_idtest_operating_condition_shift_001",
+  "scenario": "OPERATING_CONDITION_SHIFT",
+  "random_seed": 588489263,
+  "simulation_configuration": {
+    "scenario": "OPERATING_CONDITION_SHIFT",
+    "seed": 588489263,
+    "sample_count": 6000,
+    "overrides": {
+      "shift_time_s": 7.470559239576653,
+      "shifted_load_ohms": 1.5716847302719006,
+      "noise_multiplier": 2.155596829701909
+    },
+    "shift_time_s": 7.470559239576653,
+    "shifted_load_ohms": 1.5716847302719006,
+    "noise_multiplier": 2.155596829701909
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal_held_out",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "id_test",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 2.155596829701909
+}

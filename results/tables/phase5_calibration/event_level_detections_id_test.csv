@@ -1,0 +1,5 @@
+method,split,total_injected_events,observable_injected_events,detected_observable_events,missed_observable_events,event_recall,total_predicted_events,false_alarm_events,false_alarms_per_minute,mean_causal_detection_delay_s,median_causal_detection_delay_s
+A0_Fixed_Threshold,id_test,17,17,17,0,1.0,39,22,1.3266,3.5093,0.1643
+A1_Static_ML,id_test,17,17,17,0,1.0,26,9,0.5427,0.6711,0.1643
+A2_Initial_Calibration_Only,id_test,17,17,17,0,1.0,20,3,0.1809,0.2593,0.1643
+A3_Confidence_Gated_Adaptive,id_test,17,17,17,0,1.0,20,3,0.1809,0.2593,0.1643

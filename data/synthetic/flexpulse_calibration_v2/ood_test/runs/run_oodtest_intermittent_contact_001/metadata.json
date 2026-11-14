@@ -1,0 +1,59 @@
+{
+  "run_id": "run_oodtest_intermittent_contact_001",
+  "scenario": "INTERMITTENT_CONTACT",
+  "random_seed": 1231619916,
+  "simulation_configuration": {
+    "scenario": "INTERMITTENT_CONTACT",
+    "seed": 1231619916,
+    "sample_count": 6000,
+    "overrides": {
+      "event_count": 5,
+      "event_duration_s": 0.21855939267312632,
+      "fault_resistance_ohms": 34.515454823100725,
+      "event_start_times_s": [
+        8.74906272251967,
+        17.697187555701923,
+        27.33505358929321,
+        42.724590936051314,
+        53.71676169749318
+      ]
+    },
+    "events": [
+      {
+        "event_id": 1,
+        "start_s": 8.74906272251967,
+        "end_s": 8.967622115192796
+      },
+      {
+        "event_id": 2,
+        "start_s": 17.697187555701923,
+        "end_s": 17.915746948375048
+      },
+      {
+        "event_id": 3,
+        "start_s": 27.33505358929321,
+        "end_s": 27.553612981966335
+      },
+      {
+        "event_id": 4,
+        "start_s": 42.724590936051314,
+        "end_s": 42.94315032872444
+      },
+      {
+        "event_id": 5,
+        "start_s": 53.71676169749318,
+        "end_s": 53.93532109016631
+      }
+    ],
+    "fault_resistance_ohms": 34.515454823100725
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "final_held_out_robustness_test",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

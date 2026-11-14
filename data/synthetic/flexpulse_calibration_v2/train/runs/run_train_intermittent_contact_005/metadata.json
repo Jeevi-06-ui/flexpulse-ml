@@ -1,0 +1,53 @@
+{
+  "run_id": "run_train_intermittent_contact_005",
+  "scenario": "INTERMITTENT_CONTACT",
+  "random_seed": 900034743,
+  "simulation_configuration": {
+    "scenario": "INTERMITTENT_CONTACT",
+    "seed": 900034743,
+    "sample_count": 6000,
+    "overrides": {
+      "event_count": 4,
+      "event_duration_s": 0.10089573866093993,
+      "fault_resistance_ohms": 52.660808432264325,
+      "event_start_times_s": [
+        8.065746034246946,
+        19.436097116093695,
+        32.13738192943685,
+        46.60458998336982
+      ]
+    },
+    "events": [
+      {
+        "event_id": 1,
+        "start_s": 8.065746034246946,
+        "end_s": 8.166641772907886
+      },
+      {
+        "event_id": 2,
+        "start_s": 19.436097116093695,
+        "end_s": 19.536992854754637
+      },
+      {
+        "event_id": 3,
+        "start_s": 32.13738192943685,
+        "end_s": 32.23827766809779
+      },
+      {
+        "event_id": 4,
+        "start_s": 46.60458998336982,
+        "end_s": 46.70548572203076
+      }
+    ],
+    "fault_resistance_ohms": 52.660808432264325
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "train",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

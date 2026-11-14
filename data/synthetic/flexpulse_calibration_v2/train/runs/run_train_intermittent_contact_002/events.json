@@ -1,0 +1,68 @@
+[
+  {
+    "event_id": 1,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 8.085685675615386,
+    "end_time_s": 8.379628938286517,
+    "t_start_s": 8.085685675615386,
+    "t_end_s": 8.379628938286517,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  },
+  {
+    "event_id": 2,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 19.91864641881534,
+    "end_time_s": 20.21258968148647,
+    "t_start_s": 19.91864641881534,
+    "t_end_s": 20.21258968148647,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  },
+  {
+    "event_id": 3,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 24.432817284792577,
+    "end_time_s": 24.72676054746371,
+    "t_start_s": 24.432817284792577,
+    "t_end_s": 24.72676054746371,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  },
+  {
+    "event_id": 4,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 37.28332738528327,
+    "end_time_s": 37.57727064795441,
+    "t_start_s": 37.28332738528327,
+    "t_end_s": 37.57727064795441,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  },
+  {
+    "event_id": 5,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 40.69571773033682,
+    "end_time_s": 40.98966099300795,
+    "t_start_s": 40.69571773033682,
+    "t_end_s": 40.98966099300795,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  },
+  {
+    "event_id": 6,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 49.233117914456244,
+    "end_time_s": 49.52706117712738,
+    "t_start_s": 49.233117914456244,
+    "t_end_s": 49.52706117712738,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 37.0215464520642,
+    "sampled_event": true
+  }
+]

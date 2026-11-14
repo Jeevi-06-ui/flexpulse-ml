@@ -1,0 +1,5 @@
+method,split,accuracy,balanced_accuracy,precision,recall,specificity,false_negative_rate,f1,roc_auc,average_precision,tn,fp,fn,tp
+A0_Fixed_Threshold,id_test,0.8854,0.8205,0.6868,0.7166,0.9244,0.2834,0.7014,0.8457,0.76,3230,264,229,579
+A1_Static_ML,id_test,0.9856,0.974,0.9674,0.9554,0.9926,0.0446,0.9614,0.9952,0.9882,3468,26,36,772
+A2_Initial_Calibration_Only,id_test,0.9963,0.9939,0.9901,0.9901,0.9977,0.0099,0.9901,0.9987,0.9973,3486,8,8,800
+A3_Confidence_Gated_Adaptive,id_test,0.9963,0.9939,0.9901,0.9901,0.9977,0.0099,0.9901,0.9981,0.9969,3486,8,8,800

@@ -1,0 +1,27 @@
+{
+  "run_id": "run_oodtest_increased_resistance_004",
+  "scenario": "INCREASED_RESISTANCE",
+  "random_seed": 1837504744,
+  "simulation_configuration": {
+    "scenario": "INCREASED_RESISTANCE",
+    "seed": 1837504744,
+    "sample_count": 6000,
+    "overrides": {
+      "fault_start_time_s": 23.0578234602834,
+      "fault_duration_s": 14.142740270496882,
+      "fault_resistance_ohms": 0.16068821278098327
+    },
+    "event_start_time_s": 23.0578234602834,
+    "event_end_time_s": 37.20056373078028,
+    "fault_resistance_ohms": 0.16068821278098327
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "final_held_out_robustness_test",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

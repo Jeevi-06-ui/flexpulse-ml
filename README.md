@@ -226,7 +226,79 @@ Phase 4 implements and comparatively benchmarks 6 distinct classifier paradigms 
 
 ---
 
-## 7. Setup and Quickstart (macOS / Apple Silicon)
+## 7. Confidence-Gated Adaptive Baseline Self-Calibration (Phase 5)
+
+### Scientific Motivation and Problem Statement
+Static machine-learning classifiers fail under distribution shift because nominal feature boundaries (such as uncorrected mean voltage drops) shift along with physical baseline variations (e.g. ambient temperature drift, fixture tare resistance, sensor offsets). When physical operating conditions change, a static model either:
+1. Triggers massive false-alarm cascades (e.g., Fixed Threshold with $FP=6,500$ and $F1=0.3341$), or
+2. Suffers complete recall collapse (e.g., Static Random Forest with $FN=1,602$, $Rec=0.0214$, and $F1=0.0419$).
+
+Phase 5 introduces and empirically benchmarks **Confidence-Gated Adaptive Baseline Calibration**, which decouples persistent environmental shifts from transient physical faults.
+
+### Evaluated Calibration Paradigms
+Phase 5 evaluates four distinct detection paradigms:
+1. **A0 — Fixed Threshold (`A0_Fixed_Threshold`):** Conventional rule-based comparator on uncorrected raw signals.
+2. **A1 — Static ML (`A1_Static_ML`):** Phase 4 Random Forest trained and evaluated on uncorrected raw features.
+3. **A2 — Initial Baseline Calibration (`A2_Initial_Calibration_Only`):** Random Forest trained and evaluated strictly on features normalized relative to an initial 5.0-second known-healthy reference window:
+   $$\tilde{V}(t) = V(t) - \hat{V}_0, \quad \tilde{I}(t) = I(t) - \hat{I}_0$$
+4. **A3 — Confidence-Gated Adaptive Baseline (`A3_Confidence_Gated_Adaptive`):** Online exponential moving average (EMA) baseline updates gated by multi-stage safety checks and freeze-recovery dynamics:
+   $$\hat{V}_0^{(k)} = (1 - \alpha) \hat{V}_0^{(k-1)} + \alpha V_{\text{mean}}^{(k)}$$
+
+### Multi-Stage Gating Architecture
+To prevent **baseline contamination** (where the adaptive baseline absorbs an active fault and turns false negatives into false normal), candidate updates are evaluated through 6 strict gates:
+1. **Confidence Gate:** The model must be highly confident that the window is healthy:
+   $$P(\text{healthy}) \ge \tau_{\text{conf}} \quad (\tau_{\text{conf}} = 0.95)$$
+2. **Current Stability Gate:** Current standard deviation within the window must indicate settled conditions:
+   $$\sigma_I \le 0.015\,\text{A}$$
+3. **Anomaly Cooldown Gate:** Rejects candidate updates for $k=4$ windows following any anomalous observation.
+4. **Outlier Residual Gate:** The voltage deviation must not exceed robust bounds:
+   $$|V_{\text{mean}} - \hat{V}_0| \le 2.5 \cdot \text{MAD}_V$$
+5. **Maximum Step Limiter:** Limits step adjustments to physically plausible drift rates:
+   $$|\Delta \hat{V}_0| \le 0.03\,\text{V}$$
+6. **Causal Decision & Update Completion:** Window features spanning $[w_{\text{start}}, w_{\text{end}}]$ can only be processed causally at $t \ge w_{\text{end}}$. Decisions and baseline updates occur strictly after window completion.
+
+### Freeze and Recovery Dynamics
+* **Freeze State:** When consecutive anomalies or high-uncertainty observations occur, the baseline tracker enters the `FROZEN` state, permanently holding $\hat{V}_0$ and $\hat{I}_0$ constant.
+* **Recovery Logic:** Return to the `NORMAL` updating state requires $N_{\text{recovery}} = 5$ consecutive settled, high-confidence healthy windows.
+
+### Empirical Benchmark Results
+
+#### Out-of-Distribution (OOD) Test Comparison (36 Runs, 8,604 Windows)
+| Method | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | ROC AUC | Inappropriate Updates |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **A0 Fixed Threshold** | 0.2440 | 0.5320 | 0.2007 | 0.9969 | 0.0670 | 0.3341 | 0.9165 | N/A |
+| **A1 Static ML** | 0.8138 | 0.5107 | 1.0000 | 0.0214 | 1.0000 | 0.0419 | 0.7925 | N/A |
+| **A2 Initial Calibration** | **0.9592** | **0.9706** | **0.8294** | **0.9890** | **0.9522** | **0.9022** | **0.9980** | N/A |
+| **A3 Confidence-Gated Adaptive** | **0.9592** | **0.9706** | **0.8294** | **0.9890** | **0.9522** | **0.9022** | **0.9980** | **0 (0.0% Contam)** |
+
+#### Event-Level Detection & Causal Decision Latency
+| Method | Split | Injected Events | Detected Events | Event Recall | False Alarms/min | Mean Causal Delay (s) | Median Causal Delay (s) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **A0 Fixed Threshold** | OOD | 41 | 41 | 1.0000 | 2.3018 | 0.1226 | 0.1408 |
+| **A1 Static ML** | OOD | 41 | 14 | 0.3415 | **0.0000** | 0.1779 | 0.1738 |
+| **A2 Initial Calibration** | OOD | 41 | 41 | **1.0000** | 4.5115 | 0.2323 | 0.1572 |
+| **A3 Gated Adaptive** | OOD | 41 | 41 | **1.0000** | 4.5115 | 0.2323 | 0.1572 |
+
+#### Safeguard Ablation Study (OOD Test)
+| Configuration | Accuracy | Balanced Acc | Precision | Recall | F1-Score |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **1. Static ML (Raw Features)** | 0.8138 | 0.5107 | 1.0000 | 0.0214 | 0.0419 |
+| **2. Initial Calibration Only** | 0.9592 | 0.9706 | 0.8294 | 0.9890 | 0.9022 |
+| **3. Adaptive (No Confidence Gate)** | 0.9592 | 0.9706 | 0.8294 | 0.9890 | 0.9022 |
+| **4. Adaptive (No Stability Gate)** | 0.9592 | 0.9706 | 0.8294 | 0.9890 | 0.9022 |
+| **5. Adaptive (No Freeze Logic)** | 0.9592 | 0.9706 | 0.8294 | 0.9890 | 0.9022 |
+| **6. Complete Gated Adaptive** | **0.9592** | **0.9706** | **0.8294** | **0.9890** | **0.9022** |
+
+#### Contamination Stress Test (Gradual Resistance Drift Scenario)
+| Calibration Mode | Fault Recall | Inappropriate Updates | Contamination Rate | Time Frozen (s) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Protected (Confidence-Gated)** | **0.9850** | **0** | **0.0000** | **328.5 s** |
+| **Unprotected (No Gates)** | 0.9875 | 21 | 0.0175 (Contaminated) | 0.0 s |
+| **No Freeze Logic** | 0.9850 | 0 | 0.0000 | 0.0 s |
+
+---
+
+## 8. Setup and Quickstart (macOS / Apple Silicon)
 
 ### Environment Setup
 ```bash
@@ -248,6 +320,11 @@ pip install -e .
 pytest -v
 ```
 
+### Running the Phase 5 Benchmark Experiment
+```bash
+python -m flexpulse_ml.calibration.experiment
+```
+
 ### Starting the Streamlit Dashboard
 ```bash
 streamlit run flexpulse_ml/app.py
@@ -255,14 +332,14 @@ streamlit run flexpulse_ml/app.py
 
 ---
 
-## 8. Development Phases
+## 9. Development Phases
 
 * **Phase 0 (Completed):** Project foundation, YAML config, structured logging, seed manager, Streamlit dashboard shell.
 * **Phase 1 (Completed):** Electrical power-path mathematical simulator (`electrical_model.py`), scenario fault injection engine (`fault_injector.py`), and visualization (`plotting.py`).
 * **Phase 2 (Completed):** Synthetic dataset generator, run-level partitioning (Train 70%, Val 15%, ID Test 15%, OOD Test), 150-run research dataset (`flexpulse_research_v1`), strict ground-truth quarantine, 24-check validation engine, and Streamlit Data Explorer controls.
 * **Phase 3 (Completed):** Electrical feature engineering pipeline (`windowing.py`, `extractor.py`, `dataset.py`, `validator.py`), 26 voltage & current features, sliding-window binary labeling with fault-fraction metadata, full feature validation engine, and Streamlit Feature Analysis dashboard.
 * **Phase 4 (Completed):** Machine learning training, benchmarking, and empirical evaluation pipeline (`baselines.py`, `models.py`, `train.py`, `evaluate.py`, `persistence.py`, `plotting.py`, `experiment.py`). Evaluates 6 models across ID and OOD test sets, event-level detection, bootstrap confidence intervals, and scenario breakdowns.
-* **Phase 5:** Confidence-gated adaptive baseline self-calibration.
+* **Phase 5 (Completed):** Confidence-gated adaptive baseline self-calibration engine (`baseline.py`, `confidence.py`, `adaptive.py`, `diagnostics.py`, `experiment.py`, `plotting.py`). Implements paradigms A0–A3, 6 safety gates, freeze-recovery dynamics, 126-run versioned dataset `flexpulse_calibration_v2`, 10 publication research figures, and Phase 4 audit report.
 * **Phase 6:** Experiment execution and evaluation engine.
 * **Phase 7:** Interactive research dashboard implementation.
 * **Phase 8:** Verification, audit, and research report export.

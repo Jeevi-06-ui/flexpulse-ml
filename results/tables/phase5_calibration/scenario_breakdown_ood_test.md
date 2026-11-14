@@ -1,0 +1,26 @@
+| scenario                  | method                       |   accuracy |   balanced_accuracy |   precision |   recall |     f1 |   false_positive_rate |   n_samples |   n_fault |
+|:--------------------------|:-----------------------------|-----------:|--------------------:|------------:|---------:|-------:|----------------------:|------------:|----------:|
+| GRADUAL_RESISTANCE_DRIFT  | A0_Fixed_Threshold           |     0.8389 |              0.5087 |      0.8413 |   0.9958 | 0.9121 |                0.9784 |        1434 |      1203 |
+| GRADUAL_RESISTANCE_DRIFT  | A1_Static_ML                 |     0.1611 |              0.5    |      0      |   0      | 0      |                0      |        1434 |      1203 |
+| GRADUAL_RESISTANCE_DRIFT  | A2_Initial_Calibration_Only  |     0.954  |              0.8886 |      0.9611 |   0.985  | 0.9729 |                0.2078 |        1434 |      1203 |
+| GRADUAL_RESISTANCE_DRIFT  | A3_Confidence_Gated_Adaptive |     0.954  |              0.8886 |      0.9611 |   0.985  | 0.9729 |                0.2078 |        1434 |      1203 |
+| HEALTHY                   | A0_Fixed_Threshold           |     0.069  |              0.069  |      0      |   0      | 0      |                0.931  |        1434 |         0 |
+| HEALTHY                   | A1_Static_ML                 |     1      |              1      |      0      |   0      | 0      |                0      |        1434 |         0 |
+| HEALTHY                   | A2_Initial_Calibration_Only  |     0.9812 |              0.9812 |      0      |   0      | 0      |                0.0188 |        1434 |         0 |
+| HEALTHY                   | A3_Confidence_Gated_Adaptive |     0.9812 |              0.9812 |      0      |   0      | 0      |                0.0188 |        1434 |         0 |
+| INCREASED_RESISTANCE      | A0_Fixed_Threshold           |     0.2852 |              0.5233 |      0.2594 |   1      | 0.4119 |                0.9535 |        1434 |       359 |
+| INCREASED_RESISTANCE      | A1_Static_ML                 |     0.7497 |              0.5    |      0      |   0      | 0      |                0      |        1434 |       359 |
+| INCREASED_RESISTANCE      | A2_Initial_Calibration_Only  |     0.9672 |              0.9781 |      0.8842 |   1      | 0.9386 |                0.0437 |        1434 |       359 |
+| INCREASED_RESISTANCE      | A3_Confidence_Gated_Adaptive |     0.9672 |              0.9781 |      0.8842 |   1      | 0.9386 |                0.0437 |        1434 |       359 |
+| INTERMITTENT_CONTACT      | A0_Fixed_Threshold           |     0.0753 |              0.5121 |      0.0535 |   1      | 0.1016 |                0.9757 |        1434 |        75 |
+| INTERMITTENT_CONTACT      | A1_Static_ML                 |     0.9721 |              0.7333 |      1      |   0.4667 | 0.6364 |                0      |        1434 |        75 |
+| INTERMITTENT_CONTACT      | A2_Initial_Calibration_Only  |     0.9693 |              0.9838 |      0.6303 |   1      | 0.7732 |                0.0324 |        1434 |        75 |
+| INTERMITTENT_CONTACT      | A3_Confidence_Gated_Adaptive |     0.9693 |              0.9838 |      0.6303 |   1      | 0.7732 |                0.0324 |        1434 |        75 |
+| MEASUREMENT_OFFSET_DRIFT  | A0_Fixed_Threshold           |     0.1813 |              0.1813 |      0      |   0      | 0      |                0.8187 |        1434 |         0 |
+| MEASUREMENT_OFFSET_DRIFT  | A1_Static_ML                 |     1      |              1      |      0      |   0      | 0      |                0      |        1434 |         0 |
+| MEASUREMENT_OFFSET_DRIFT  | A2_Initial_Calibration_Only  |     0.9742 |              0.9742 |      0      |   0      | 0      |                0.0258 |        1434 |         0 |
+| MEASUREMENT_OFFSET_DRIFT  | A3_Confidence_Gated_Adaptive |     0.9742 |              0.9742 |      0      |   0      | 0      |                0.0258 |        1434 |         0 |
+| OPERATING_CONDITION_SHIFT | A0_Fixed_Threshold           |     0.0139 |              0.0139 |      0      |   0      | 0      |                0.9861 |        1434 |         0 |
+| OPERATING_CONDITION_SHIFT | A1_Static_ML                 |     1      |              1      |      0      |   0      | 0      |                0      |        1434 |         0 |
+| OPERATING_CONDITION_SHIFT | A2_Initial_Calibration_Only  |     0.9093 |              0.9093 |      0      |   0      | 0      |                0.0907 |        1434 |         0 |
+| OPERATING_CONDITION_SHIFT | A3_Confidence_Gated_Adaptive |     0.9093 |              0.9093 |      0      |   0      | 0      |                0.0907 |        1434 |         0 |

@@ -1,0 +1,13 @@
+[
+  {
+    "event_id": 1,
+    "scenario": "GRADUAL_RESISTANCE_DRIFT",
+    "start_time_s": 8.42936238912158,
+    "end_time_s": 50.5148875829284,
+    "t_start_s": 8.42936238912158,
+    "t_end_s": 50.5148875829284,
+    "fault_type": "GRADUAL_RESISTANCE_DRIFT",
+    "configured_severity_ohm": 0.18757296866107775,
+    "sampled_event": true
+  }
+]

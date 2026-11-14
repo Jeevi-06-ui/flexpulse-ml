@@ -38,25 +38,25 @@ class CharacterizedReferenceCable:
     Never assume a reference cable has 0 Ohm resistance. Its true resistance
     must be measured on calibrated laboratory bench instrumentation (e.g., Keysight 34461A).
     """
-    reference_cable_id: str                      # e.g. "GOLDEN-REF-CABLE-01"
+    reference_cable_id: str
     manufacturer: str = "LAB_STANDARDS"
     cable_length_m: float = 1.0
-    four_wire_measured_resistance_ohms: float = 0.072  # 72 mOhm measured Kelvin resistance
+    four_wire_measured_resistance_ohms: float = 0.072
     measurement_temperature_c: float = 25.0
     measurement_instrument: str = "Keysight 34461A 6.5-Digit DMM (4-Wire)"
     calibrated_date_utc: str = "2026-01-15T00:00:00Z"
-    uncertainty_ohms: float = 0.002              # +/- 2 mOhm 95% confidence
+    uncertainty_ohms: float = 0.002
 
 
 @dataclass
 class FixtureTareProfile:
     """Characterized electrical tare and offset of the test fixture hardware."""
-    fixture_id: str                              # e.g. "FIXTURE_ESP32_INA226_01"
-    tare_resistance_ohms: float = 0.040          # 40 mOhm path resistance of fixture traces + shunt
-    voltage_offset_v: float = 0.0005             # 0.5 mV ADC zero-offset
-    current_offset_a: float = 0.0010             # 1.0 mA zero-current ADC leakage
+    fixture_id: str
+    tare_resistance_ohms: float = 0.040
+    voltage_offset_v: float = 0.0005
+    current_offset_a: float = 0.0010
     temperature_nominal_c: float = 25.0
-    temperature_coefficient_ppm_c: float = 50.0  # Shunt thermal tempco (PPM/C)
+    temperature_coefficient_ppm_c: float = 50.0
     calibration_date_utc: str = "2026-01-15T00:00:00Z"
     calibrated_by: str = "LAB_METROLOGY_ENGINEER"
     notes: str = "Characterized using 4-wire shorting plug across USB-C receptacles."
@@ -104,7 +104,7 @@ class CalibrationRegistry:
         """Create the laboratory baseline calibration record."""
         fixture = FixtureTareProfile(
             fixture_id="FIXTURE_ESP32_INA226_01",
-            tare_resistance_ohms=0.040, # 40 mOhm characterized trace + shunt tare
+            tare_resistance_ohms=0.040,
             voltage_offset_v=0.0005,
             current_offset_a=0.0010,
         )
@@ -112,7 +112,7 @@ class CalibrationRegistry:
             reference_cable_id="GOLDEN-REF-CABLE-01",
             manufacturer="LAB_STANDARDS",
             cable_length_m=1.0,
-            four_wire_measured_resistance_ohms=0.072, # Non-zero reference resistance!
+            four_wire_measured_resistance_ohms=0.072,
         )
         return CalibrationRecord(
             calibration_id="CAL_DEFAULT_2026",

@@ -1,0 +1,5 @@
+| mode                       |   fault_recall |   inappropriate_updates |   contamination_rate |   time_spent_frozen_s |
+|:---------------------------|---------------:|------------------------:|---------------------:|----------------------:|
+| Protected_Confidence_Gated |         0.985  |                       0 |               0      |                 328.5 |
+| Unprotected_No_Gates       |         0.9875 |                      21 |               0.0175 |                   0   |
+| No_Freeze_Logic            |         0.985  |                       0 |               0      |                   0   |

@@ -1,0 +1,68 @@
+[
+  {
+    "event_id": 1,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 7.987293776108536,
+    "end_time_s": 8.232892770311553,
+    "t_start_s": 7.987293776108536,
+    "t_end_s": 8.232892770311553,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  },
+  {
+    "event_id": 2,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 18.071021516411545,
+    "end_time_s": 18.316620510614563,
+    "t_start_s": 18.071021516411545,
+    "t_end_s": 18.316620510614563,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  },
+  {
+    "event_id": 3,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 28.686723014080442,
+    "end_time_s": 28.93232200828346,
+    "t_start_s": 28.686723014080442,
+    "t_end_s": 28.93232200828346,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  },
+  {
+    "event_id": 4,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 36.606492779773866,
+    "end_time_s": 36.85209177397688,
+    "t_start_s": 36.606492779773866,
+    "t_end_s": 36.85209177397688,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  },
+  {
+    "event_id": 5,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 44.862010495327404,
+    "end_time_s": 45.10760948953042,
+    "t_start_s": 44.862010495327404,
+    "t_end_s": 45.10760948953042,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  },
+  {
+    "event_id": 6,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 51.830837776846316,
+    "end_time_s": 52.07643677104933,
+    "t_start_s": 51.830837776846316,
+    "t_end_s": 52.07643677104933,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 35.804718220682794,
+    "sampled_event": true
+  }
+]

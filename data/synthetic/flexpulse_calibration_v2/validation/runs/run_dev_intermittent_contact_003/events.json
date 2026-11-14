@@ -1,0 +1,35 @@
+[
+  {
+    "event_id": 1,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 13.705560390244408,
+    "end_time_s": 13.933889647812022,
+    "t_start_s": 13.705560390244408,
+    "t_end_s": 13.933889647812022,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 53.66911218925729,
+    "sampled_event": true
+  },
+  {
+    "event_id": 2,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 29.703343867236214,
+    "end_time_s": 29.931673124803826,
+    "t_start_s": 29.703343867236214,
+    "t_end_s": 29.931673124803826,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 53.66911218925729,
+    "sampled_event": true
+  },
+  {
+    "event_id": 3,
+    "scenario": "INTERMITTENT_CONTACT",
+    "start_time_s": 42.197006950507884,
+    "end_time_s": 42.4253362080755,
+    "t_start_s": 42.197006950507884,
+    "t_end_s": 42.4253362080755,
+    "fault_type": "INTERMITTENT_CONTACT",
+    "configured_severity_ohm": 53.66911218925729,
+    "sampled_event": true
+  }
+]

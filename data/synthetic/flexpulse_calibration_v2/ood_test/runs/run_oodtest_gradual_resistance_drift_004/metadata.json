@@ -1,0 +1,27 @@
+{
+  "run_id": "run_oodtest_gradual_resistance_drift_004",
+  "scenario": "GRADUAL_RESISTANCE_DRIFT",
+  "random_seed": 1641499543,
+  "simulation_configuration": {
+    "scenario": "GRADUAL_RESISTANCE_DRIFT",
+    "seed": 1641499543,
+    "sample_count": 6000,
+    "overrides": {
+      "drift_start_s": 14.349195076686973,
+      "drift_end_s": 49.765756029677476,
+      "drift_rate_ohms_per_sec": 0.008466516595146805
+    },
+    "drift_start_s": 14.349195076686973,
+    "drift_end_s": 49.765756029677476,
+    "drift_rate_ohms_per_sec": 0.008466516595146805
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "final_held_out_robustness_test",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_calibration_v2",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}
