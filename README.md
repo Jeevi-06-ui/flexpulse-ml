@@ -1,127 +1,104 @@
-# FlexPulse-ML: An Active Self-Calibrating Machine Learning System for Early Detection and Localization of Intermittent USB-C Cable Faults
+# FlexPulse-ML
+
+**FlexPulse-ML: A Simulation-Based Self-Calibrating Machine Learning Framework for Intermittent Fault Detection in USB-C-Inspired Power Paths**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Academic Institution](https://img.shields.io/badge/Institution-Presidency%20University%2C%20Bengaluru-orange)](https://presidencyuniversity.in/)
-[![Scientific Integrity](https://img.shields.io/badge/Integrity-Zero%20Data%20Fabrication-success)](#scientific-integrity-framework)
-
-**FlexPulse-ML** is a scientific machine learning research project developed at **Presidency University, Bengaluru** under the *Machine Learning Techniques* curriculum. The project targets reproducible, physics-guided detection of intermittent contact degradation in USB Type-C power lines, leading to an **IEEE research manuscript submission by 1 December 2026**.
+[![Type: Simulation Only](https://img.shields.io/badge/Methodology-Mathematical%20Simulation-success)](#scientific-integrity)
 
 ---
 
-## 1. Research Motivation & Physics Context
+## 1. Scientific Integrity and Simulation Notice
 
-USB-C cables are subjected to repetitive mechanical strain (bending, torsion, plug cycling). Rather than failing abruptly, cables experience **intermittent micro-contact degradations**:
-* Copper strand micro-fractures exhibiting angle-dependent resistive spikes.
-* Contact oxidation and plating wear altering interfacial resistance ($R_{\text{contact}}$).
-* Thermal drift and contact bounce under dynamic current loads.
-
-Standard black-box ML pipelines suffer from severe data leakage when samples from the same physical cable are split randomly into train and test sets. **FlexPulse-ML** introduces:
-1. **Leave-One-Cable-Out (LOCO) Cross-Validation**: Models are evaluated exclusively on physical cables excluded entirely from training.
-2. **Reference-Based Calibration**: Fixture tare resistance and baseline offsets are calibrated to isolate genuine cable properties.
-3. **Calibrated Probability & Abstention**: The model outputs an explicit *"Abstain / Inconclusive"* verdict when classification entropy exceeds an uncertainty threshold ($\tau$), preventing false alarms in hardware testing.
-4. **Active Test Selection**: An information-theoretic diagnostic policy that guides the operator to optimal follow-up electrical tests.
+* **Software-Only Research:** This is a software-only project. It does not require ESP32, Arduino, Raspberry Pi, test fixtures, physical cables, sensors, or oscilloscopes.
+* **No Physical Control:** The system does not access or control physical USB-C ports or power delivery hardware.
+* **Pure Mathematical Modeling:** All telemetry is generated using a resistive equivalent circuit. Every dataset is labeled `SYNTHETIC` or `SIMULATED`.
+* **Zero Fabrication Policy:** Model metrics, detection delays, and comparison tables are derived strictly from actual executed experiments.
 
 ---
 
-## 2. Scientific Integrity Framework
+## 2. Research Objective and Mathematical Model
 
-To uphold the highest ethical and academic standards:
-* **Zero Fabrication Policy**: Model accuracies, F1-scores, and physical measurements are never invented.
-* **Strict Synthetic Isolation**: Software verification uses mock data explicitly marked `DatasetCategory.SYNTHETIC_DEMO`. Synthetic data is programmatically forbidden from real experimental benchmark runs.
-* **Real Hardware Status**: When physical test fixtures are offline or data is not yet gathered, real-data experiments are reported honestly as `NOT RUN (Awaiting physical hardware test fixture)`.
-* **Zero Label Leakage**: Injected fault commands, fixture IDs, and ground truth are excluded from feature matrices.
+The objective is to investigate whether a **confidence-gated adaptive baseline calibration** improves intermittent fault detection when simulated operating conditions (load impedance, baseline drift, sensor noise) change.
+
+### Equivalent Circuit Model
+$$R_{\text{path}}(t) = R_0 + R_{\text{contact}}(t) + R_{\text{fault}}(t)$$
+$$I(t) = \frac{V_s(t)}{R_{\text{load}}(t) + R_{\text{path}}(t)}$$
+$$V_{\text{load}}(t) = I(t) \cdot R_{\text{load}}(t)$$
+
+### Simulated Observations
+$$V_{\text{measured}}(t) = V_{\text{load}}(t) + b_V(t) + \text{noise}_V(t)$$
+$$I_{\text{measured}}(t) = I(t) + b_I(t) + \text{noise}_I(t)$$
 
 ---
 
-## 3. Directory Layout
+## 3. Directory Structure
 
 ```
 flexpulse_ml/
-├── acquisition/         # Data schemas, validation rules, CSV loaders, hardware abstraction
-├── processing/          # Signal cleaning, jitter analysis, physics-informed feature extraction
-├── ml/                  # DT, RF, SVM, GBDT, Logistic Regression & LOCO cross-validation
-├── calibration/         # Reference fixture zeroing, Platt/Isotonic probability calibration
-├── active_testing/      # Uncertainty-aware diagnostic test selection policy
-├── reporting/           # IEEE LaTeX tables, publication figures, reproducibility logs
-└── utils/              # Project paths, structured logging, audit trails
+├── __init__.py
+├── app.py             # Streamlit research dashboard
+├── config.py          # YAML configuration loader and validator
+├── logging.py         # Structured logging
+├── seed.py            # Reproducible random-seed manager
+└── cli.py             # Command-line interface
+
+configs/
+└── default_config.yaml # Master experiment configuration
 
 data/
-├── raw/                 # Immutable experimental captures (real and lab captures)
-├── processed/           # Feature matrices and preprocessed datasets
-├── demo/                # Strictly labeled SYNTHETIC_DEMO datasets for offline testing
-└── metadata/            # Audit logs (quarantined invalid records)
+├── raw/               # Simulated run time-series
+├── processed/         # Extracted feature matrices
+└── metadata/          # Manifests, event metadata, audit logs
 
-models/                  # Serialized model pipelines (.joblib) with provenance hashes
+models/                # Serialized trained model pipelines
 results/
-├── figures/             # Camera-ready publication plots (PDF, PNG)
-├── tables/              # IEEE manuscript LaTeX tables
-└── experiments/         # Parameter configs and execution logs
+├── figures/           # Generated evaluation plots
+├── tables/            # LaTeX and Markdown metrics tables
+└── experiments/       # Machine-readable experiment outputs
 
-configs/                 # Reproducible JSON/YAML experiment configurations
-tests/                   # Pytest automated unit and integration tests
-docs/                    # Academic research documentation and math formulations
-scripts/                 # Automation and test runners
+tests/                 # Automated Pytest suite
 ```
 
 ---
 
-## 4. Quickstart Guide (macOS / Apple Silicon)
+## 4. Setup and Quickstart (macOS / Apple Silicon)
 
-### Prerequisites
-* macOS (optimized for Apple Silicon `arm64`)
-* Python 3.11 or later
-* Git
-
-### Setup Virtual Environment
+### Environment Setup
 ```bash
 # Clone the repository
-git clone <repository_url> flexpulse-ml
-cd flexpulse-ml
+cd "ML Research paper"
 
 # Create and activate Python 3.12 virtual environment
 python3.12 -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies and local flexpulse CLI in editable mode
+# Install dependencies and local package in editable mode
 pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e .
 ```
 
-### CLI Commands
+### Running Tests
 ```bash
-# 1. Verify your local environment and dependencies
-flexpulse env-check
+pytest -v
+```
 
-# 2. Check the project research progression and hardware readiness
-flexpulse status
-
-# 3. Generate a sample synthetic demo dataset for offline testing
-flexpulse generate-demo --output data/demo/synthetic_sample.csv --samples 150
-
-# 4. Audit and validate a dataset against physical and schema constraints
-flexpulse validate-data data/demo/synthetic_sample.csv
-
-# 5. Run automated pytest test suite
-flexpulse test
+### Starting the Streamlit Dashboard
+```bash
+streamlit run flexpulse_ml/app.py
 ```
 
 ---
 
 ## 5. Development Phases
 
-* **Phase 1 (Completed)**: Project foundation, typed schema, validator, synthetic generator, and CLI.
-* **Phase 2 (Next)**: Signal preprocessing, INA226 jitter analysis, and physics-guided electrical feature engineering.
-* **Phase 3**: Classical ML benchmark suite (DT, RF, SVM, GBDT, LR) with Leave-One-Cable-Out CV.
-* **Phase 4**: Reference fixture calibration, probability calibration, and uncertainty abstention.
-* **Phase 5**: Uncertainty-aware active test selection policy.
-* **Phase 6**: Streamlit research dashboard.
-* **Phase 7**: IEEE manuscript export engine and end-to-end verification.
-
----
-
-## 6. Academic Citation & License
-
-Developed at **Presidency University, Bengaluru**. Released under the MIT License for open scientific reproduction.
-
+* **Phase 0 (Completed):** Project foundation, configuration management, seed manager, directory topology, Streamlit navigation placeholders.
+* **Phase 1:** Electrical power-path mathematical simulator.
+* **Phase 2:** Synthetic dataset generator with run-level isolation.
+* **Phase 3:** Feature engineering pipeline.
+* **Phase 4:** Machine learning training and prediction pipeline.
+* **Phase 5:** Confidence-gated adaptive baseline self-calibration.
+* **Phase 6:** Experiment execution and evaluation engine.
+* **Phase 7:** Interactive research dashboard implementation.
+* **Phase 8:** Verification, audit, and research report export.

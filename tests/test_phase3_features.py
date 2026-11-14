@@ -425,3 +425,4 @@ def test_extract_feature_dataset_preserves_zero_label_leakage():
     assert "cable_id" in metadata_df.columns
     assert "source_type" in metadata_df.columns
     assert all(st == "SYNTHETIC_DEMO" for st in metadata_df["source_type"])
+

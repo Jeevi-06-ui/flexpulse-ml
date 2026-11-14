@@ -1,0 +1,87 @@
+project:
+  name: "FlexPulse-ML"
+  title: "FlexPulse-ML: A Simulation-Based Self-Calibrating Machine Learning Framework for Intermittent Fault Detection in USB-C-Inspired Power Paths"
+  version: "0.2.0"
+  type: "SIMULATION_ONLY"
+  synthetic_notice: "All measurements and results are mathematically simulated. No physical hardware is required."
+
+random_seed: 42
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_metadata: "data/metadata"
+  models: "models"
+  reports_figures: "results/figures"
+  reports_tables: "results/tables"
+  reports_experiments: "results/experiments"
+
+logging:
+  level: "INFO"
+  format: "[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+simulation:
+  sampling_rate_hz: 100.0
+  duration_seconds: 60.0
+  calibration_duration_seconds: 5.0
+  source_voltage_nominal_v: 5.0
+  baseline_path_resistance_nominal_ohms: 0.080
+  load_resistance_nominal_ohms: 3.333
+  measurement_noise_voltage_std_v: 0.005
+  measurement_noise_current_std_a: 0.008
+  voltage_offset_v: 0.001
+  current_offset_a: 0.001
+  voltage_offset_drift_v_per_sec: 0.0001
+  current_offset_drift_a_per_sec: 0.00005
+
+scenarios:
+  healthy:
+    name: "Healthy Operation"
+    description: "Nominal electrical operation with standard dynamic load transitions."
+  increased_resistance:
+    name: "Increased Path Resistance"
+    description: "Step increase in bulk path resistance simulating degraded conductor."
+    fault_resistance_ohms: 0.250
+  intermittent_fault:
+    name: "Intermittent Contact Fault"
+    description: "Sporadic micro-break contact events with high resistance excursions."
+    fault_resistance_ohms: 50.0
+    event_probability_per_sec: 0.3
+    event_duration_mean_s: 0.08
+  gradual_drift:
+    name: "Gradual Resistance Drift"
+    description: "Continuous progressive increase in path resistance simulating wear."
+    drift_rate_ohms_per_sec: 0.005
+  offset_drift:
+    name: "Sensor Offset Drift"
+    description: "Instrument calibration drift without physical electrical fault."
+    sensor_voltage_drift_v_per_sec: 0.001
+  operating_shift:
+    name: "Operating Condition Shift"
+    description: "Simultaneous shift in load impedance and environmental noise."
+    load_shift_resistance_ohms: 1.667
+    noise_multiplier: 2.5
+
+features:
+  window_length_seconds: 0.5
+  overlap_fraction: 0.5
+  min_samples_per_window: 25
+
+models:
+  baseline: "fixed_threshold"
+  classifiers:
+    - "logistic_regression"
+    - "decision_tree"
+    - "random_forest"
+    - "support_vector_machine"
+  test_size: 0.20
+  val_size: 0.20
+  cross_validation_runs: 5
+
+self_calibration:
+  initial_calibration_duration_s: 5.0
+  confidence_threshold: 0.85
+  adaptation_rate: 0.05
+  max_update_delta: 0.02
+  stability_variance_threshold: 0.001

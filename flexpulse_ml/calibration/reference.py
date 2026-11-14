@@ -139,3 +139,4 @@ class CalibrationRegistry:
             json.dump(record.to_dict(), f, indent=2)
         logger.info(f"Saved calibration profile to {path}")
         return path
+

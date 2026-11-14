@@ -1,12 +1,17 @@
 """
-FlexPulse-ML: An Active Self-Calibrating Machine Learning System for Early Detection
-and Localization of Intermittent USB-C Cable Faults.
-
-Developed for Presidency University, Bengaluru (Subject: Machine Learning Techniques).
-Target Submission: IEEE Research Manuscript (1 December 2026).
+FlexPulse-ML: A Simulation-Based Self-Calibrating Machine Learning Framework
+for Intermittent Fault Detection in USB-C-Inspired Power Paths.
 """
 
-__version__ = "0.1.0"
-__author__ = "FlexPulse-ML Research Team"
-__institution__ = "Presidency University, Bengaluru"
+from flexpulse_ml.config import AppConfig, get_app_config
+from flexpulse_ml.logging import configure_logger, get_logger
+from flexpulse_ml.seed import SeedManager
 
+__version__ = "0.2.0"
+__all__ = [
+    "AppConfig",
+    "SeedManager",
+    "configure_logger",
+    "get_app_config",
+    "get_logger",
+]

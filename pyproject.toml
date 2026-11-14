@@ -4,20 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flexpulse-ml"
-version = "0.1.0"
-description = "FlexPulse-ML: An Active Self-Calibrating Machine Learning System for Early Detection and Localization of Intermittent USB-C Cable Faults"
+version = "0.2.0"
+description = "FlexPulse-ML: A Simulation-Based Self-Calibrating Machine Learning Framework for Intermittent Fault Detection in USB-C-Inspired Power Paths"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
-    { name = "FlexPulse-ML Research Team", email = "research@presidencyuniversity.in" }
+    { name = "FlexPulse-ML Research Team" }
 ]
-keywords = ["machine-learning", "usb-c", "fault-detection", "scientific-ml", "uncertainty-calibration"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Information Analysis",
-    "Topic :: Scientific/Engineering :: Physics",
+keywords = [
+    "simulation",
+    "machine-learning",
+    "power-path",
+    "fault-detection",
+    "adaptive-calibration"
 ]
 dependencies = [
     "numpy>=1.26.0",
@@ -27,7 +26,7 @@ dependencies = [
     "matplotlib>=3.8.0",
     "plotly>=5.18.0",
     "streamlit>=1.30.0",
-    "pyserial>=3.5",
+    "pyyaml>=6.0.0",
     "joblib>=1.3.0",
 ]
 
@@ -48,4 +47,3 @@ addopts = "-ra -q --strict-markers"
 testpaths = [
     "tests",
 ]
-
