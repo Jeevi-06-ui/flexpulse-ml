@@ -13,6 +13,7 @@ import pandas as pd
 
 from flexpulse_ml.data.manifest import DatasetManifest, compute_file_sha256
 from flexpulse_ml.data.storage import DatasetStorage
+from flexpulse_ml.simulation.fault_injector import PowerPathSimulator
 
 
 @dataclass
@@ -55,7 +56,7 @@ class DatasetValidationReport:
 
 
 class DatasetValidator:
-    """Verifies that a synthetic dataset satisfies all 20 scientific integrity criteria."""
+    """Verifies that a synthetic dataset satisfies all scientific integrity criteria."""
 
     REQUIRED_RUN_FILES = (
         "observations.csv",
@@ -162,6 +163,13 @@ class DatasetValidator:
             errors.append(f"Missing required splits in splits.json: {set(DatasetStorage.ALL_SPLITS) - set(splits.keys())}")
             checks.append(ValidationCheck("all_splits_present", "FAIL", "Missing required split keys."))
 
+        empty_partitions = [sp for sp in DatasetStorage.ALL_SPLITS if len(splits.get(sp, [])) == 0]
+        if empty_partitions:
+            errors.append(f"Empty partitions detected: {empty_partitions}. Every required partition must have at least one run.")
+            checks.append(ValidationCheck("all_partitions_non_empty", "FAIL", f"Empty partitions: {empty_partitions}."))
+        else:
+            checks.append(ValidationCheck("all_partitions_non_empty", "PASS", "All required partitions contain at least one run."))
+
         all_run_ids: List[str] = []
         split_sets: Dict[str, Set[str]] = {}
         for sp in DatasetStorage.ALL_SPLITS:
@@ -216,12 +224,20 @@ class DatasetValidator:
         timestamp_aligned_ok = True
         event_consistency_ok = True
         provenance_ok = True
+        ood_isolation_ok = True
 
         total_samples_counted = 0
         total_fault_counted = 0
         total_healthy_counted = 0
         total_events_counted = 0
         unsampled_events_counted = 0
+
+        scenarios_in_split: Dict[str, Dict[str, int]] = {
+            DatasetStorage.SPLIT_TRAIN: {},
+            DatasetStorage.SPLIT_VAL: {},
+            DatasetStorage.SPLIT_ID_TEST: {},
+            DatasetStorage.SPLIT_OOD_TEST: {},
+        }
 
         for sp, run_list in splits.items():
             for r_id in run_list:
@@ -259,6 +275,20 @@ class DatasetValidator:
                 if not meta_data.get("synthetic_data", False):
                     errors.append(f"Run {r_id} missing synthetic_data=True provenance flag.")
                     provenance_ok = False
+
+                scenario_name = str(meta_data.get("scenario", "")).upper()
+                if sp in scenarios_in_split:
+                    scenarios_in_split[sp][scenario_name] = scenarios_in_split[sp].get(scenario_name, 0) + 1
+
+                is_ood = bool(meta_data.get("is_out_of_distribution", False)) or r_id.startswith("run_ood_")
+                if sp == DatasetStorage.SPLIT_OOD_TEST:
+                    if not is_ood:
+                        errors.append(f"Run {r_id} in ood_test partition is not marked out of distribution.")
+                        ood_isolation_ok = False
+                else:
+                    if is_ood:
+                        errors.append(f"OOD run {r_id} found inside nominal partition '{sp}'.")
+                        ood_isolation_ok = False
 
                 if not self.REQUIRED_OBSERVATION_COLUMNS.issubset(set(obs_df.columns)):
                     errors.append(f"observations.csv schema mismatch in {r_id}.")
@@ -314,7 +344,6 @@ class DatasetValidator:
                     errors.append(f"Invalid fault labels in {r_id}: {unique_labels}")
                     binary_labels_ok = False
 
-                scenario_name = str(meta_data.get("scenario", "")).upper()
                 if scenario_name in ("MEASUREMENT_OFFSET_DRIFT", "OPERATING_CONDITION_SHIFT"):
                     if np.any(labels != 0):
                         errors.append(f"Scenario {scenario_name} in {r_id} must have fault_label == 0 throughout.")
@@ -338,6 +367,35 @@ class DatasetValidator:
                         if not np.all(labels[ev_points] == 1):
                             errors.append(f"Fault event window mismatch in {r_id} for event {ev.get('event_id')}")
                             event_consistency_ok = False
+
+        nominal_scenarios_ok = True
+        missing_nominal: Dict[str, Set[str]] = {}
+        for sp in [DatasetStorage.SPLIT_TRAIN, DatasetStorage.SPLIT_VAL, DatasetStorage.SPLIT_ID_TEST]:
+            found_scs = set(scenarios_in_split.get(sp, {}).keys())
+            missing = set(PowerPathSimulator.ALL_SCENARIOS) - found_scs
+            if missing:
+                missing_nominal[sp] = missing
+                nominal_scenarios_ok = False
+
+        if nominal_scenarios_ok:
+            checks.append(ValidationCheck("nominal_scenarios_in_all_splits", "PASS", "All nominal scenarios represented in train, val, and id_test."))
+        else:
+            errors.append(f"Nominal scenarios missing from partitions: {missing_nominal}")
+            checks.append(ValidationCheck("nominal_scenarios_in_all_splits", "FAIL", f"Missing scenarios: {missing_nominal}."))
+
+        allocation_consistent = True
+        for sp in [DatasetStorage.SPLIT_TRAIN, DatasetStorage.SPLIT_VAL, DatasetStorage.SPLIT_ID_TEST]:
+            counts = list(scenarios_in_split.get(sp, {}).values())
+            if len(counts) > 0 and (len(set(counts)) > 1 or counts[0] <= 0):
+                allocation_consistent = False
+
+        if allocation_consistent:
+            checks.append(ValidationCheck("scenario_run_allocation_valid", "PASS", "Scenario run counts are balanced across nominal splits."))
+        else:
+            warnings.append("Scenario run counts are not perfectly uniform across nominal splits.")
+            checks.append(ValidationCheck("scenario_run_allocation_valid", "WARNING", "Non-uniform scenario counts."))
+
+        checks.append(ValidationCheck("ood_partition_isolation", "PASS" if ood_isolation_ok else "FAIL", "OOD runs strictly quarantined."))
 
         if duplicate_seeds == 0:
             checks.append(ValidationCheck("unique_run_seeds", "PASS", f"All {len(seen_seeds)} run seeds unique."))

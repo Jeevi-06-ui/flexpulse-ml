@@ -1,0 +1,43 @@
+{
+  "run_id": "run_nom_intermittent_contact_015",
+  "scenario": "INTERMITTENT_CONTACT",
+  "random_seed": 295957640,
+  "simulation_configuration": {
+    "scenario": "INTERMITTENT_CONTACT",
+    "seed": 295957640,
+    "sample_count": 6000,
+    "overrides": {},
+    "events": [
+      {
+        "event_id": 1,
+        "start_s": 7.0,
+        "end_s": 7.15
+      },
+      {
+        "event_id": 2,
+        "start_s": 19.75,
+        "end_s": 19.9
+      },
+      {
+        "event_id": 3,
+        "start_s": 32.5,
+        "end_s": 32.65
+      },
+      {
+        "event_id": 4,
+        "start_s": 45.25,
+        "end_s": 45.4
+      }
+    ],
+    "fault_resistance_ohms": 50.0
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_research_v1",
+  "synthetic_data": true,
+  "split": "validation",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

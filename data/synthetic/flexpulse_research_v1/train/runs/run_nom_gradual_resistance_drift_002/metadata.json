@@ -1,0 +1,23 @@
+{
+  "run_id": "run_nom_gradual_resistance_drift_002",
+  "scenario": "GRADUAL_RESISTANCE_DRIFT",
+  "random_seed": 1510822925,
+  "simulation_configuration": {
+    "scenario": "GRADUAL_RESISTANCE_DRIFT",
+    "seed": 1510822925,
+    "sample_count": 6000,
+    "overrides": {},
+    "drift_start_s": 7.0,
+    "drift_end_s": 55.0,
+    "drift_rate_ohms_per_sec": 0.005
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_research_v1",
+  "synthetic_data": true,
+  "split": "train",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

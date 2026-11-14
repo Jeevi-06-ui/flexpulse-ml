@@ -1,0 +1,23 @@
+{
+  "run_id": "run_ood_increased_resistance_004",
+  "scenario": "INCREASED_RESISTANCE",
+  "random_seed": 1716908558,
+  "simulation_configuration": {
+    "scenario": "INCREASED_RESISTANCE",
+    "seed": 1716908558,
+    "sample_count": 6000,
+    "overrides": {},
+    "event_start_time_s": 10.0,
+    "event_end_time_s": 30.0,
+    "fault_resistance_ohms": 0.25
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "out_of_distribution_shift",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_research_v1",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

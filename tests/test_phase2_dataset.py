@@ -224,8 +224,8 @@ def test_ground_truth_segregation(temp_dataset_dir: Path):
 def test_split_proportions_and_zero_leakage(temp_dataset_dir: Path):
     generate_synthetic_dataset(
         dataset_id="split_leakage_ds",
-        runs_per_scenario=10,
-        ood_runs_per_scenario=2,
+        runs_per_scenario=20,
+        ood_runs_per_scenario=5,
         root_seed=777,
         base_dir=temp_dataset_dir,
     )
@@ -236,9 +236,11 @@ def test_split_proportions_and_zero_leakage(temp_dataset_dir: Path):
     id_test_runs = set(storage.list_runs_in_split(DatasetStorage.SPLIT_ID_TEST))
     ood_runs = set(storage.list_runs_in_split(DatasetStorage.SPLIT_OOD_TEST))
 
-    nominal_total = len(train_runs) + len(val_runs) + len(id_test_runs)
-    assert nominal_total == 60
-    assert len(ood_runs) == 12
+    assert len(train_runs) == 84
+    assert len(val_runs) == 18
+    assert len(id_test_runs) == 18
+    assert len(ood_runs) == 30
+    assert len(train_runs) + len(val_runs) + len(id_test_runs) == 120
 
     assert len(train_runs.intersection(val_runs)) == 0
     assert len(train_runs.intersection(id_test_runs)) == 0
@@ -246,10 +248,6 @@ def test_split_proportions_and_zero_leakage(temp_dataset_dir: Path):
     assert len(train_runs.intersection(ood_runs)) == 0
     assert len(val_runs.intersection(ood_runs)) == 0
     assert len(id_test_runs.intersection(ood_runs)) == 0
-
-    assert 40 <= len(train_runs) <= 44
-    assert 5 <= len(val_runs) <= 10
-    assert 5 <= len(id_test_runs) <= 14
 
 
 def test_ood_parameter_shift_isolation(temp_dataset_dir: Path):
@@ -301,7 +299,7 @@ def test_event_sampling_validation(temp_dataset_dir: Path):
 def test_dataset_validator_success(temp_dataset_dir: Path):
     generate_synthetic_dataset(
         dataset_id="valid_ds",
-        runs_per_scenario=1,
+        runs_per_scenario=3,
         ood_runs_per_scenario=1,
         root_seed=4242,
         base_dir=temp_dataset_dir,
@@ -316,11 +314,28 @@ def test_dataset_validator_success(temp_dataset_dir: Path):
     assert len(report.checks) >= 15
 
 
+def test_dataset_validator_fails_if_id_test_empty(temp_dataset_dir: Path):
+    generate_synthetic_dataset(
+        dataset_id="no_id_test_ds",
+        runs_per_scenario=2,
+        ood_runs_per_scenario=1,
+        root_seed=123,
+        base_dir=temp_dataset_dir,
+    )
+
+    dataset_path = temp_dataset_dir / "no_id_test_ds"
+    report = validate_synthetic_dataset(dataset_path)
+
+    assert report.is_valid is False
+    assert report.status == "FAIL"
+    assert any("Empty partitions" in err or "id_test" in err for err in report.errors)
+
+
 def test_dataset_validator_detects_missing_file(temp_dataset_dir: Path):
     generate_synthetic_dataset(
         dataset_id="missing_file_ds",
-        runs_per_scenario=1,
-        ood_runs_per_scenario=0,
+        runs_per_scenario=3,
+        ood_runs_per_scenario=1,
         root_seed=123,
         base_dir=temp_dataset_dir,
     )
@@ -341,8 +356,8 @@ def test_dataset_validator_detects_missing_file(temp_dataset_dir: Path):
 def test_dataset_validator_detects_data_leakage(temp_dataset_dir: Path):
     generate_synthetic_dataset(
         dataset_id="leakage_ds",
-        runs_per_scenario=1,
-        ood_runs_per_scenario=0,
+        runs_per_scenario=3,
+        ood_runs_per_scenario=1,
         root_seed=456,
         base_dir=temp_dataset_dir,
     )
@@ -366,8 +381,8 @@ def test_dataset_validator_detects_data_leakage(temp_dataset_dir: Path):
 def test_dataset_validator_detects_checksum_tampering(temp_dataset_dir: Path):
     generate_synthetic_dataset(
         dataset_id="tampered_ds",
-        runs_per_scenario=1,
-        ood_runs_per_scenario=0,
+        runs_per_scenario=3,
+        ood_runs_per_scenario=1,
         root_seed=789,
         base_dir=temp_dataset_dir,
     )

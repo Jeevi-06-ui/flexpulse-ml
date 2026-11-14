@@ -1,0 +1,20 @@
+{
+  "run_id": "run_nom_healthy_004",
+  "scenario": "HEALTHY",
+  "random_seed": 1079380448,
+  "simulation_configuration": {
+    "scenario": "HEALTHY",
+    "seed": 1079380448,
+    "sample_count": 6000,
+    "overrides": {}
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "nominal",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_research_v1",
+  "synthetic_data": true,
+  "split": "train",
+  "is_out_of_distribution": false,
+  "noise_multiplier": 1.0
+}

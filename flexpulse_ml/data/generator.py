@@ -26,9 +26,12 @@ class DatasetGeneratorConfig:
     dataset_id: str = "flexpulse_dataset_001"
     root_seed: int = 42
     mode: str = "SCENARIO_BALANCED"
-    runs_per_scenario: int = 5
+    runs_per_scenario: int = 20
     custom_scenario_counts: Dict[str, int] = field(default_factory=dict)
-    ood_runs_per_scenario: int = 2
+    ood_runs_per_scenario: int = 5
+    train_runs_per_scenario: Optional[int] = None
+    val_runs_per_scenario: Optional[int] = None
+    id_test_runs_per_scenario: Optional[int] = None
     train_ratio: float = 0.70
     val_ratio: float = 0.15
     test_ratio: float = 0.15
@@ -68,33 +71,41 @@ class SyntheticDatasetGenerator:
         val_runs: List[str] = []
         test_runs: List[str] = []
 
-        train_r = self.config.train_ratio
-        val_r = self.config.val_ratio
+        cfg = self.config
+        explicit_mode = (
+            cfg.train_runs_per_scenario is not None
+            and cfg.val_runs_per_scenario is not None
+            and cfg.id_test_runs_per_scenario is not None
+        )
 
         for scenario, run_ids in scenario_run_map.items():
             total = len(run_ids)
             if total == 0:
                 continue
-            if total == 1:
-                train_runs.extend(run_ids)
-                continue
-            if total == 2:
-                train_runs.append(run_ids[0])
-                val_runs.append(run_ids[1])
-                continue
 
-            n_train = max(1, int(math.floor(total * train_r)))
-            n_val = max(1, int(math.floor(total * val_r))) if (total - n_train) >= 2 else 0
-            n_test = total - n_train - n_val
-
-            if n_test <= 0 and (total - n_train) >= 1:
-                n_test = 1
-                if n_val > 0:
-                    n_val -= 1
+            if explicit_mode:
+                n_train = int(cfg.train_runs_per_scenario)
+                n_val = int(cfg.val_runs_per_scenario)
+                n_test = int(cfg.id_test_runs_per_scenario)
+                if n_train + n_val + n_test > total:
+                    raise ValueError(
+                        f"Explicit partition counts ({n_train} + {n_val} + {n_test} = {n_train + n_val + n_test}) "
+                        f"exceed total available runs ({total}) for scenario {scenario}."
+                    )
+            elif total == 1:
+                n_train, n_val, n_test = 1, 0, 0
+            elif total == 2:
+                n_train, n_val, n_test = 1, 1, 0
+            elif total == 3:
+                n_train, n_val, n_test = 1, 1, 1
+            else:
+                n_val = max(1, int(round(total * cfg.val_ratio)))
+                n_test = max(1, int(round(total * cfg.test_ratio)))
+                n_train = total - n_val - n_test
 
             train_runs.extend(run_ids[:n_train])
             val_runs.extend(run_ids[n_train : n_train + n_val])
-            test_runs.extend(run_ids[n_train + n_val :])
+            test_runs.extend(run_ids[n_train + n_val : n_train + n_val + n_test])
 
         return {
             DatasetStorage.SPLIT_TRAIN: sorted(train_runs),
@@ -255,73 +266,77 @@ class SyntheticDatasetGenerator:
         return manifest
 
     def _build_manifest(self, splits_dict: Dict[str, List[str]]) -> DatasetManifest:
-        total_runs = sum(len(r_list) for r_list in splits_dict.values())
+        total_runs = 0
         total_samples = 0
         total_fault = 0
         total_healthy = 0
-
-        runs_per_scenario: Dict[str, int] = {}
-        samples_per_scenario: Dict[str, int] = {}
-        sampling_rates: Dict[str, int] = {}
-        durations: Dict[str, int] = {}
         total_events = 0
         unsampled_events = 0
 
-        for split, run_ids in splits_dict.items():
-            for r_id in run_ids:
-                data = self.storage.load_run(split, r_id)
-                gt = data["ground_truth"]
-                meta = data["metadata"]
-                evs = data["events"]
+        runs_per_scenario: Dict[str, int] = {sc: 0 for sc in PowerPathSimulator.ALL_SCENARIOS}
+        samples_per_scenario: Dict[str, int] = {sc: 0 for sc in PowerPathSimulator.ALL_SCENARIOS}
+        sampling_rates: Dict[str, int] = {}
+        durations: Dict[str, int] = {}
+        condition_profiles: Dict[str, int] = {}
+        parameter_ranges: Dict[str, Any] = {
+            "source_voltage_v": {"min": float("inf"), "max": float("-inf")},
+            "load_resistance_ohm": {"min": float("inf"), "max": float("-inf")},
+        }
 
-                n_samples = len(gt)
-                n_fault = int(np.sum(gt["fault_label"] == 1))
-                n_healthy = n_samples - n_fault
+        for split, r_ids in splits_dict.items():
+            for r_id in r_ids:
+                total_runs += 1
+                run_data = self.storage.load_run(split, r_id)
+                obs_df = run_data["observations"]
+                gt_df = run_data["ground_truth"]
+                cond_df = run_data["conditions"]
+                meta = run_data["metadata"]
+                events = run_data["events"]
 
-                total_samples += n_samples
-                total_fault += n_fault
-                total_healthy += n_healthy
-
-                sc = str(meta["scenario"])
+                sc = meta.get("scenario", "UNKNOWN")
                 runs_per_scenario[sc] = runs_per_scenario.get(sc, 0) + 1
-                samples_per_scenario[sc] = samples_per_scenario.get(sc, 0) + n_samples
 
-                rate_key = f"{meta['sampling_frequency_hz']}Hz"
-                sampling_rates[rate_key] = sampling_rates.get(rate_key, 0) + 1
+                n_s = len(obs_df)
+                total_samples += n_s
+                samples_per_scenario[sc] = samples_per_scenario.get(sc, 0) + n_s
 
-                dur_key = f"{meta['simulation_duration_s']}s"
+                f_count = int(np.sum(gt_df["fault_label"] == 1))
+                h_count = int(np.sum(gt_df["fault_label"] == 0))
+                total_fault += f_count
+                total_healthy += h_count
+
+                sr_key = str(meta.get("sampling_frequency_hz", 100))
+                sampling_rates[sr_key] = sampling_rates.get(sr_key, 0) + 1
+
+                dur_key = str(meta.get("simulation_duration_s", 60))
                 durations[dur_key] = durations.get(dur_key, 0) + 1
 
-                for ev in evs:
+                cp_key = str(meta.get("condition_profile", "nominal"))
+                condition_profiles[cp_key] = condition_profiles.get(cp_key, 0) + 1
+
+                v_s = cond_df["configured_source_voltage_v"]
+                r_l = cond_df["configured_load_resistance_ohm"]
+                parameter_ranges["source_voltage_v"]["min"] = min(
+                    parameter_ranges["source_voltage_v"]["min"], float(v_s.min())
+                )
+                parameter_ranges["source_voltage_v"]["max"] = max(
+                    parameter_ranges["source_voltage_v"]["max"], float(v_s.max())
+                )
+                parameter_ranges["load_resistance_ohm"]["min"] = min(
+                    parameter_ranges["load_resistance_ohm"]["min"], float(r_l.min())
+                )
+                parameter_ranges["load_resistance_ohm"]["max"] = max(
+                    parameter_ranges["load_resistance_ohm"]["max"], float(r_l.max())
+                )
+
+                for ev in events:
                     total_events += 1
                     if not ev.get("sampled_event", True):
                         unsampled_events += 1
 
         binary_dist = {
-            "fault_ratio": float(total_fault / total_samples) if total_samples > 0 else 0.0,
             "healthy_ratio": float(total_healthy / total_samples) if total_samples > 0 else 0.0,
-        }
-
-        parameter_ranges = {
-            "nominal_train_val_id": {
-                "source_voltage_v": 5.0,
-                "baseline_path_resistance_ohms": 0.080,
-                "load_resistance_ohms": 3.333,
-                "measurement_noise_voltage_std_v": 0.005,
-                "measurement_noise_current_std_a": 0.008,
-            },
-            "out_of_distribution_test": {
-                "source_voltage_v": 5.2,
-                "baseline_path_resistance_ohms": 0.180,
-                "load_resistance_ohms": 1.80,
-                "measurement_noise_voltage_std_v": 0.015,
-                "measurement_noise_current_std_a": 0.025,
-            },
-        }
-
-        condition_profiles = {
-            "nominal": "Standard laboratory operation with baseline resistance and ordinary noise.",
-            "out_of_distribution_shift": "Elevated baseline resistance, higher noise floor, and heavier current load.",
+            "fault_ratio": float(total_fault / total_samples) if total_samples > 0 else 0.0,
         }
 
         return DatasetManifest(
@@ -349,8 +364,11 @@ class SyntheticDatasetGenerator:
 
 def generate_synthetic_dataset(
     dataset_id: str = "flexpulse_dataset_001",
-    runs_per_scenario: int = 5,
-    ood_runs_per_scenario: int = 2,
+    runs_per_scenario: int = 20,
+    ood_runs_per_scenario: int = 5,
+    train_runs_per_scenario: Optional[int] = None,
+    val_runs_per_scenario: Optional[int] = None,
+    id_test_runs_per_scenario: Optional[int] = None,
     root_seed: int = 42,
     mode: str = "SCENARIO_BALANCED",
     custom_scenario_counts: Optional[Dict[str, int]] = None,
@@ -364,6 +382,9 @@ def generate_synthetic_dataset(
         runs_per_scenario=runs_per_scenario,
         custom_scenario_counts=custom_scenario_counts or {},
         ood_runs_per_scenario=ood_runs_per_scenario,
+        train_runs_per_scenario=train_runs_per_scenario,
+        val_runs_per_scenario=val_runs_per_scenario,
+        id_test_runs_per_scenario=id_test_runs_per_scenario,
         allow_overwrite=allow_overwrite,
     )
     generator = SyntheticDatasetGenerator(config=cfg, storage_base_dir=base_dir)

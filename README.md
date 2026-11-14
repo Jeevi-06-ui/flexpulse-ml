@@ -154,7 +154,36 @@ report.print_summary()
 
 ---
 
-## 5. Setup and Quickstart (macOS / Apple Silicon)
+## 5. Electrical Feature Engineering Pipeline (Phase 3)
+
+### Observable Telemetry Input Policy
+Model inputs are derived strictly from observable signals (`voltage_measured_v` and `current_measured_a`). All ground-truth variables (`true_path_resistance_ohm`, `fault_type`, `event_id`, configured load resistance) are quarantined and never enter feature tables.
+
+### Sliding-Window Segmentation
+* **Sampling Rate ($f_s$):** 100 Hz
+* **Window Duration:** 0.5 seconds (50 samples)
+* **Overlap:** 50% (stride of 25 samples)
+* **Window Labeling Rule:** A window is labeled faulty ($y = 1$) if at least one sample in the window contains a ground-truth fault sample (`np.any(gt == 1)`). The continuous fraction of faulty samples (`fault_fraction`) is stored as evaluation metadata, never as an input feature.
+
+### 26 Extracted Electrical and Statistical Features
+For each window, 13 features are calculated for voltage ($V$) and 13 for current ($A$):
+1. **Central Tendency:** Mean (`voltage_mean_v`, `current_mean_a`), Median (`voltage_median_v`, `current_median_a`).
+2. **Dispersion & Spread:** Standard Deviation, Minimum, Maximum, Range, 10th Percentile, 90th Percentile, Median Absolute Deviation (MAD).
+3. **Dynamics & Trends:** Linear Trend Slope ($V/\text{s}$, $A/\text{s}$), Mean Absolute First Difference, Standard Deviation of First Difference, Maximum Absolute First Difference.
+
+### Derived Feature Storage Topology
+```
+data/processed/features/<dataset_id>/
+├── feature_manifest.json          # Schema, window counts, class balance, SHA-256 hashes
+├── train_features.csv             # Training feature matrix (70% nominal runs)
+├── validation_features.csv        # Validation feature matrix (15% nominal runs)
+├── id_test_features.csv           # In-distribution test feature matrix (15% nominal runs)
+└── ood_test_features.csv          # Out-of-distribution test feature matrix
+```
+
+---
+
+## 6. Setup and Quickstart (macOS / Apple Silicon)
 
 ### Environment Setup
 ```bash
@@ -183,12 +212,12 @@ streamlit run flexpulse_ml/app.py
 
 ---
 
-## 6. Development Phases
+## 7. Development Phases
 
 * **Phase 0 (Completed):** Project foundation, YAML config, structured logging, seed manager, Streamlit dashboard shell.
 * **Phase 1 (Completed):** Electrical power-path mathematical simulator (`electrical_model.py`), scenario fault injection engine (`fault_injector.py`), and visualization (`plotting.py`).
-* **Phase 2 (Completed):** Synthetic dataset generator, run-level partitioning (Train 70%, Val 15%, ID Test 15%, OOD Test), strict ground-truth quarantine, 20-check validation engine, and Streamlit Data Explorer controls.
-* **Phase 3:** Feature engineering pipeline.
+* **Phase 2 (Completed):** Synthetic dataset generator, run-level partitioning (Train 70%, Val 15%, ID Test 15%, OOD Test), 150-run research dataset (`flexpulse_research_v1`), strict ground-truth quarantine, 24-check validation engine, and Streamlit Data Explorer controls.
+* **Phase 3 (Completed):** Electrical feature engineering pipeline (`windowing.py`, `extractor.py`, `dataset.py`, `validator.py`), 26 voltage & current features, sliding-window binary labeling with fault-fraction metadata, full feature validation engine, and Streamlit Feature Analysis dashboard.
 * **Phase 4:** Machine learning training and prediction pipeline.
 * **Phase 5:** Confidence-gated adaptive baseline self-calibration.
 * **Phase 6:** Experiment execution and evaluation engine.
