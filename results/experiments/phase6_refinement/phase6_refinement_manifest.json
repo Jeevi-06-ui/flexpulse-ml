@@ -1,0 +1,40 @@
+{
+  "experiment_id": "phase6_refinement_flexpulse_calibration_v2",
+  "timestamp_utc": "2026-11-14T18:22:55.571596+00:00",
+  "dataset_id": "flexpulse_calibration_v2",
+  "random_seed": 42,
+  "system_architecture": "Darwin_arm64",
+  "python_version": "3.12.16",
+  "tables": {
+    "feature_normalization_audit_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/feature_normalization_audit.csv",
+    "feature_normalization_audit_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/feature_normalization_audit.md",
+    "a2_vs_a3_window_diagnostic_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/a2_vs_a3_window_diagnostic.csv",
+    "a2_vs_a3_window_diagnostic_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/a2_vs_a3_window_diagnostic.md",
+    "false_alarm_investigation_summary_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/false_alarm_investigation_summary.csv",
+    "false_alarm_investigation_summary_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/false_alarm_investigation_summary.md",
+    "false_alarm_scenario_breakdown_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/false_alarm_scenario_breakdown.csv",
+    "false_alarm_scenario_breakdown_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/false_alarm_scenario_breakdown.md",
+    "temporal_persistence_tradeoff_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/temporal_persistence_tradeoff.csv",
+    "temporal_persistence_tradeoff_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/temporal_persistence_tradeoff.md",
+    "confidence_reliability_bins_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/confidence_reliability_bins.csv",
+    "confidence_reliability_bins_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/confidence_reliability_bins.md",
+    "confidence_threshold_sensitivity_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/confidence_threshold_sensitivity.csv",
+    "confidence_threshold_sensitivity_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/confidence_threshold_sensitivity.md",
+    "controlled_regimes_e1_e10_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/controlled_regimes_e1_e10.csv",
+    "controlled_regimes_e1_e10_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/controlled_regimes_e1_e10.md",
+    "paired_bootstrap_ci_a3_minus_a2_csv": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/paired_bootstrap_ci_a3_minus_a2.csv",
+    "paired_bootstrap_ci_a3_minus_a2_md": "/Users/jeevithp/Documents/ML Research paper/results/tables/phase6_refinement/paired_bootstrap_ci_a3_minus_a2.md"
+  },
+  "figures": {
+    "feature_normalization_audit": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig1_feature_normalization_audit.png",
+    "a2_vs_a3_baseline_trajectories": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig2_a2_vs_a3_baseline_trajectories.png",
+    "a2_vs_a3_prediction_differences": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig3_a2_vs_a3_prediction_differences.png",
+    "update_acceptance_rejection_audit": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig4_update_acceptance_rejection_audit.png",
+    "scenario_performance_audit": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig5_scenario_performance_audit.png",
+    "false_alarm_analysis": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig6_false_alarm_analysis.png",
+    "detection_delay_tradeoffs": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig7_detection_delay_tradeoffs.png",
+    "confidence_reliability_diagram": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig8_confidence_reliability_diagram.png",
+    "adaptive_benefit_or_failure_regimes": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig9_adaptive_benefit_or_failure_regimes.png",
+    "paired_comparison_confidence_intervals": "/Users/jeevithp/Documents/ML Research paper/results/figures/phase6_refinement/fig10_paired_comparison_confidence_intervals.png"
+  }
+}
