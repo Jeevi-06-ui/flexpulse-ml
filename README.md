@@ -183,7 +183,50 @@ data/processed/features/<dataset_id>/
 
 ---
 
-## 6. Setup and Quickstart (macOS / Apple Silicon)
+## 6. Machine Learning Training, Benchmarking and Evaluation (Phase 4)
+
+### Evaluated Model Suite
+Phase 4 implements and comparatively benchmarks 6 distinct classifier paradigms using strictly the 26 observable electrical features:
+1. **Fixed Threshold Baseline (`FixedThresholdBaseline`):** Interpretable rule-based comparator fitting $\mu \pm k\sigma$ envelopes on voltage drop and max transient jumps from healthy training intervals.
+2. **Logistic Regression (`LogisticRegression`):** Linear probabilistic baseline fitted inside a `StandardScaler` pipeline with L2 regularization and balanced class weighting.
+3. **Decision Tree (`DecisionTreeClassifier`):** Non-linear rule induction optimizing Gini impurity with constrained tree depth ($d=8$) to prevent overfitting.
+4. **Random Forest (`RandomForestClassifier`):** Ensemble bagging of 100 decorrelated decision trees, aggregating variance across random feature subsets.
+5. **Support Vector Machine (`SVC` with RBF kernel):** Maximum-margin kernel classifier operating in non-linear Hilbert feature space with scaling and Platt-scaling probability calibration.
+6. **Gradient Boosting (`HistGradientBoostingClassifier`):** Gradient-boosted histogram decision trees sequentially correcting negative gradient residuals.
+
+### Strict Preprocessing Hygiene and Anti-Leakage Controls
+* **Feature Allowlist Enforced:** Training strictly accesses the 26 observable features (`FEATURE_NAMES`). Ground truth, event IDs, scenario labels, and physical parameters are prohibited.
+* **Pipeline Encapsulation:** Scalers (`StandardScaler`) are encapsulated directly inside `Pipeline` objects and fitted strictly on `train_features.csv`. Test sets (`id_test`, `ood_test`) are strictly evaluated on frozen pipelines.
+* **Validation-Based Freezing:** Hyperparameters are selected strictly on `validation_features.csv` based on F1-score / balanced accuracy tradeoff before model parameters are permanently frozen.
+
+### Empirical Benchmark Results
+
+#### In-Distribution (ID) Test Performance (Nominal Regimes)
+| Model | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | ROC AUC | Avg Precision | Train Time (s) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Fixed Threshold** | 0.9393 | 0.8628 | 0.9735 | 0.7309 | 0.9947 | 0.8349 | 0.8646 | 0.7868 | 0.0001 |
+| **Logistic Regression** | 0.9977 | 0.9945 | 1.0000 | 0.9889 | 1.0000 | 0.9944 | 0.9996 | 0.9988 | 0.0096 |
+| **Decision Tree** | 0.9984 | 0.9969 | 0.9978 | 0.9945 | 0.9994 | 0.9961 | 0.9987 | 0.9976 | 0.0929 |
+| **Random Forest (Best)** | **0.9986** | **0.9967** | **1.0000** | **0.9934** | **1.0000** | **0.9967** | **0.9997** | **0.9993** | 0.2243 |
+| **SVM (RBF Kernel)** | 0.9972 | 0.9934 | 1.0000 | 0.9867 | 1.0000 | 0.9933 | 0.9992 | 0.9984 | 0.7151 |
+| **Gradient Boosting** | 0.9984 | 0.9965 | 0.9989 | 0.9934 | 0.9997 | 0.9961 | 0.9995 | 0.9988 | 1.3858 |
+
+#### Out-of-Distribution (OOD) Test Performance (Shifted Regimes)
+| Model | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | ROC AUC | Failure Mode |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Fixed Threshold** | 0.4778 | 0.6695 | 0.2867 | 1.0000 | 0.3391 | 0.4457 | 0.9193 | False alarm explosion (FP=3,744) |
+| **Logistic Regression** | 0.3350 | 0.5743 | 0.2382 | 0.9867 | 0.1619 | 0.3838 | 0.8869 | Precision collapse (FP=4,748) |
+| **Decision Tree** | 0.7901 | 0.5000 | 0.0000 | 0.0000 | 1.0000 | 0.0000 | 0.5000 | Complete recall loss (FN=1,505) |
+| **Random Forest** | 0.7957 | 0.5133 | 1.0000 | 0.0266 | 1.0000 | 0.0518 | 0.8358 | Under-detection (FN=1,465) |
+| **SVM (RBF Kernel)** | 0.7901 | 0.5000 | 0.0000 | 0.0000 | 1.0000 | 0.0000 | 0.8335 | Complete recall loss (FN=1,505) |
+| **Gradient Boosting** | 0.7901 | 0.5000 | 0.0000 | 0.0000 | 1.0000 | 0.0000 | 0.5133 | Complete recall loss (FN=1,505) |
+
+> [!NOTE]
+> **Key Scientific Finding:** While static non-linear ML models achieve near-perfect F1 ($>0.996$) under nominal in-distribution conditions, their performance collapses dramatically ($F1 \le 0.052$) when subjected to uncompensated physical distribution shifts (sensor bias offset, temperature drift, baseline changes). This empirically proves the absolute necessity for **confidence-gated adaptive baseline self-calibration** in Phase 5.
+
+---
+
+## 7. Setup and Quickstart (macOS / Apple Silicon)
 
 ### Environment Setup
 ```bash
@@ -212,13 +255,13 @@ streamlit run flexpulse_ml/app.py
 
 ---
 
-## 7. Development Phases
+## 8. Development Phases
 
 * **Phase 0 (Completed):** Project foundation, YAML config, structured logging, seed manager, Streamlit dashboard shell.
 * **Phase 1 (Completed):** Electrical power-path mathematical simulator (`electrical_model.py`), scenario fault injection engine (`fault_injector.py`), and visualization (`plotting.py`).
 * **Phase 2 (Completed):** Synthetic dataset generator, run-level partitioning (Train 70%, Val 15%, ID Test 15%, OOD Test), 150-run research dataset (`flexpulse_research_v1`), strict ground-truth quarantine, 24-check validation engine, and Streamlit Data Explorer controls.
 * **Phase 3 (Completed):** Electrical feature engineering pipeline (`windowing.py`, `extractor.py`, `dataset.py`, `validator.py`), 26 voltage & current features, sliding-window binary labeling with fault-fraction metadata, full feature validation engine, and Streamlit Feature Analysis dashboard.
-* **Phase 4:** Machine learning training and prediction pipeline.
+* **Phase 4 (Completed):** Machine learning training, benchmarking, and empirical evaluation pipeline (`baselines.py`, `models.py`, `train.py`, `evaluate.py`, `persistence.py`, `plotting.py`, `experiment.py`). Evaluates 6 models across ID and OOD test sets, event-level detection, bootstrap confidence intervals, and scenario breakdowns.
 * **Phase 5:** Confidence-gated adaptive baseline self-calibration.
 * **Phase 6:** Experiment execution and evaluation engine.
 * **Phase 7:** Interactive research dashboard implementation.

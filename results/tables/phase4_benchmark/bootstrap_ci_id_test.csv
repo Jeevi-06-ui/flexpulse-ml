@@ -1,0 +1,7 @@
+model,f1_mean,f1_ci_lower,f1_ci_upper,recall_mean,recall_ci_lower,recall_ci_upper,precision_mean,precision_ci_lower,precision_ci_upper,balanced_accuracy_mean,balanced_accuracy_ci_lower,balanced_accuracy_ci_upper
+fixed_threshold,0.8411,0.7581,0.9737,0.7482,0.6317,1.0,0.9679,0.8958,1.0,0.8714,0.8112,0.9978
+logistic_regression,0.9947,0.9917,1.0,0.9895,0.9836,1.0,1.0,1.0,1.0,0.9947,0.9918,1.0
+decision_tree,0.996,0.9938,0.9982,0.9947,0.9914,1.0,0.9973,0.9918,1.0,0.997,0.9955,0.9997
+random_forest,0.9969,0.9954,1.0,0.9938,0.9909,1.0,1.0,1.0,1.0,0.9969,0.9955,1.0
+support_vector_machine,0.9937,0.9908,1.0,0.9876,0.9818,1.0,1.0,1.0,1.0,0.9938,0.9909,1.0
+gradient_boosting,0.9962,0.995,0.9986,0.9938,0.9909,1.0,0.9987,0.9953,1.0,0.9967,0.9954,0.9999

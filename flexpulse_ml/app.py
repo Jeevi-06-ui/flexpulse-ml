@@ -4,6 +4,7 @@ Streamlit research dashboard entrypoint for FlexPulse-ML.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +26,8 @@ from flexpulse_ml.features.dataset import (
 )
 from flexpulse_ml.features.extractor import FEATURE_NAMES, FEATURE_UNITS
 from flexpulse_ml.features.validator import validate_feature_dataset
+from flexpulse_ml.ml.experiment import run_phase4_benchmark
+from flexpulse_ml.ml.models import SUPPORTED_MODELS
 from flexpulse_ml.simulation.fault_injector import (
     PowerPathSimulator,
     SimulationParams,
@@ -376,9 +379,92 @@ def page_feature_analysis() -> None:
 
 
 def page_model_training() -> None:
-    st.title("🤖 Model Training (Phase 4 Placeholder)")
+    st.title("🤖 Machine Learning Model Training")
     render_synthetic_notice()
-    st.info("Classifiers (Logistic Regression, Decision Tree, Random Forest, SVM) will be trained here in Phase 4.")
+    st.markdown(
+        "Train and tune candidate classifiers on the verified synthetic feature partitions. "
+        "Strict allowlist enforcement guarantees no unobservable or ground-truth columns are leaked."
+    )
+
+    storage_root = PROCESSED_FEATURES_ROOT
+    available_datasets = [d.name for d in storage_root.iterdir() if d.is_dir()] if storage_root.exists() else []
+    if not available_datasets:
+        st.error("No processed feature datasets found. Please extract features in the Feature Analysis page.")
+        return
+
+    col1, col2 = st.columns(2)
+    with col1:
+        dataset_id = st.selectbox("Select Feature Dataset", available_datasets, index=0)
+    with col2:
+        seed = st.number_input("Random Seed", min_value=0, max_value=999999, value=42)
+
+    with st.expander("Approved Feature Allowlist (26 Features)", expanded=False):
+        st.markdown(
+            "Every classifier receives strictly these 26 observable electrical and statistical features. "
+            "No ground-truth labels, scenario names, or unobservable physical parameters are ever provided."
+        )
+        allowlist_df = pd.DataFrame({
+            "Feature Name": FEATURE_NAMES,
+            "Unit": [FEATURE_UNITS.get(f, "") for f in FEATURE_NAMES],
+        })
+        st.dataframe(allowlist_df, use_container_width=True)
+
+    selected_models = st.multiselect(
+        "Candidate Classification Models",
+        options=SUPPORTED_MODELS,
+        default=SUPPORTED_MODELS,
+    )
+
+    if st.button("Train Selected Models & Benchmark", type="primary"):
+        if not selected_models:
+            st.warning("Please select at least one candidate model to train.")
+            return
+
+        with st.spinner("Training models, tuning hyperparameters on validation set, and freezing..."):
+            summary = run_phase4_benchmark(
+                dataset_id=dataset_id,
+                random_seed=seed,
+                models_to_train=selected_models,
+            )
+            st.success(f"Phase 4 Benchmark Complete! Best model: **{summary.best_model_name.replace('_', ' ').title()}** (Validation F1 = {summary.best_model_validation_f1:.4f})")
+
+    st.subheader("Saved Model Artifacts")
+    models_dir = PROJECT_ROOT / "models" / "phase4"
+    if models_dir.exists():
+        joblib_files = list(models_dir.glob("*.joblib"))
+        if joblib_files:
+            rows = []
+            for jf in sorted(joblib_files):
+                meta_path = models_dir / f"{jf.stem}_metadata.json"
+                meta_data = {}
+                if meta_path.exists():
+                    try:
+                        with open(meta_path, "r", encoding="utf-8") as f:
+                            meta_data = json.load(f)
+                    except Exception:
+                        pass
+                rows.append({
+                    "Artifact File": jf.name,
+                    "Size [KB]": round(jf.stat().st_size / 1024, 2),
+                    "Validation F1": round(meta_data.get("validation_f1", 0.0), 4) if meta_data else "N/A",
+                    "Validation Bal Acc": round(meta_data.get("validation_balanced_accuracy", 0.0), 4) if meta_data else "N/A",
+                    "Train Time [s]": round(meta_data.get("train_duration_s", 0.0), 4) if meta_data else "N/A",
+                })
+            st.dataframe(pd.DataFrame(rows), use_container_width=True)
+
+            best_meta_path = models_dir / "best_model_metadata.json"
+            if best_meta_path.exists():
+                with open(best_meta_path, "r", encoding="utf-8") as f:
+                    best_meta = json.load(f)
+                st.info(
+                    f"🏆 **Primary Deployed Model:** `{best_meta.get('model_name', '').replace('_', ' ').title()}` | "
+                    f"Validation F1: **{best_meta.get('validation_f1', 0.0):.4f}** | "
+                    f"Optimal Parameters: `{best_meta.get('best_hyperparameters', {})}`"
+                )
+        else:
+            st.info("No trained models saved yet. Run training above.")
+    else:
+        st.info("No trained models directory found.")
 
 
 def page_self_calibration() -> None:
@@ -388,9 +474,123 @@ def page_self_calibration() -> None:
 
 
 def page_evaluation() -> None:
-    st.title("📊 Evaluation & Benchmarking (Phase 6 Placeholder)")
+    st.title("📊 Model Benchmarking & Empirical Evaluation")
     render_synthetic_notice()
-    st.info("Run-level metrics, detection delays, and out-of-distribution benchmarks will be evaluated in Phase 6.")
+    st.markdown(
+        "Comparative evaluation across In-Distribution (ID) and Out-Of-Distribution (OOD) test sets. "
+        "Evaluates window classification, event recall, false alarms per minute, detection delays, and scenario breakdowns."
+    )
+
+    tables_dir = PROJECT_ROOT / "results" / "tables" / "phase4_benchmark"
+    figures_dir = PROJECT_ROOT / "results" / "figures" / "phase4_benchmark"
+    manifest_path = PROJECT_ROOT / "results" / "experiments" / "phase4_benchmark" / "phase4_benchmark_manifest.json"
+
+    if not manifest_path.exists() or not tables_dir.exists():
+        st.info("No benchmark results found. Train models in the Model Training page first.")
+        return
+
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Best Model", manifest.get("best_model_name", "").replace("_", " ").title())
+    with col2:
+        st.metric("Validation F1", f"{manifest.get('best_model_validation_f1', 0.0):.4f}")
+    with col3:
+        st.metric("Feature Count", manifest.get("feature_count", 26))
+    with col4:
+        st.metric("Random Seed", manifest.get("random_seed", 42))
+
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        "1. ID Test Benchmark",
+        "2. Generalization (ID vs OOD)",
+        "3. ROC & PR Curves",
+        "4. Confusion Matrices",
+        "5. Scenario Error Breakdown",
+        "6. Event Detections & Delays",
+        "7. Sensitivity & Bootstrap CIs",
+    ])
+
+    with tab1:
+        st.subheader("In-Distribution (ID) Test Performance")
+        id_csv = tables_dir / "model_comparison_id_test.csv"
+        if id_csv.exists():
+            st.dataframe(pd.read_csv(id_csv), use_container_width=True)
+        fig1 = figures_dir / "fig1_model_comparison_bars.png"
+        if fig1.exists():
+            st.image(str(fig1), caption="Figure 1: Model Comparison Bars on ID Test (SIMULATED DATA)")
+
+    with tab2:
+        st.subheader("Distribution Shift Robustness: ID vs. OOD Test Set")
+        st.markdown(
+            "Under severe out-of-distribution shifts (elevated ambient temperature, sensor bias offset, sensor drift), "
+            "static models experience severe degradation (precision collapse or complete recall loss). "
+            "This empirically demonstrates the necessity of adaptive self-calibration."
+        )
+        fig5 = figures_dir / "fig5_id_vs_ood_comparison.png"
+        if fig5.exists():
+            st.image(str(fig5), caption="Figure 5: Nominal ID vs. Shifted OOD F1-Score (SIMULATED DATA)")
+        ood_csv = tables_dir / "model_comparison_ood_test.csv"
+        if ood_csv.exists():
+            st.markdown("**OOD Test Set Metrics:**")
+            st.dataframe(pd.read_csv(ood_csv), use_container_width=True)
+
+    with tab3:
+        st.subheader("Precision-Recall and Receiver Operating Characteristic (ROC) Curves")
+        c1, c2 = st.columns(2)
+        with c1:
+            fig3 = figures_dir / "fig3_precision_recall_curves.png"
+            if fig3.exists():
+                st.image(str(fig3), caption="Figure 3: Precision-Recall Curves (SIMULATED DATA)")
+        with c2:
+            fig4 = figures_dir / "fig4_roc_curves.png"
+            if fig4.exists():
+                st.image(str(fig4), caption="Figure 4: ROC Curves (SIMULATED DATA)")
+
+    with tab4:
+        st.subheader("ID Test Confusion Matrices")
+        fig2 = figures_dir / "fig2_confusion_matrices.png"
+        if fig2.exists():
+            st.image(str(fig2), caption="Figure 2: Confusion Matrices for All 6 Models (SIMULATED DATA)")
+
+    with tab5:
+        st.subheader("Scenario-Specific Error Analysis")
+        fig6 = figures_dir / "fig6_scenario_error_analysis.png"
+        if fig6.exists():
+            st.image(str(fig6), caption="Figure 6: Best Model Scenario Recall vs. False Positive Rate (SIMULATED DATA)")
+        sc_csv = tables_dir / "scenario_breakdown_id_test.csv"
+        if sc_csv.exists():
+            st.markdown("**ID Test Scenario Metrics Table:**")
+            st.dataframe(pd.read_csv(sc_csv), use_container_width=True)
+
+    with tab6:
+        st.subheader("Event-Level Detection, False Alarms, and Detection Delay")
+        fig8 = figures_dir / "fig8_detection_delay_distribution.png"
+        if fig8.exists():
+            st.image(str(fig8), caption="Figure 8: Detection Delay Distributions for Injected Fault Events (SIMULATED DATA)")
+        ev_csv = tables_dir / "event_level_detections_id_test.csv"
+        if ev_csv.exists():
+            st.markdown("**Event-Level Detection Metrics (ID Test):**")
+            st.dataframe(pd.read_csv(ev_csv), use_container_width=True)
+
+    with tab7:
+        st.subheader("Window-Label Target Sensitivity and Bootstrap Confidence Intervals")
+        c1, c2 = st.columns(2)
+        with c1:
+            fig7 = figures_dir / "fig7_window_label_sensitivity.png"
+            if fig7.exists():
+                st.image(str(fig7), caption="Figure 7: Target Fault Fraction Sensitivity (SIMULATED DATA)")
+        with c2:
+            sens_csv = tables_dir / "label_sensitivity_id_test.csv"
+            if sens_csv.exists():
+                st.markdown("**Label Sensitivity Table:**")
+                st.dataframe(pd.read_csv(sens_csv), use_container_width=True)
+
+        boot_csv = tables_dir / "bootstrap_ci_id_test.csv"
+        if boot_csv.exists():
+            st.markdown("**Run-Level Bootstrap 95% Confidence Intervals (200 Resamples):**")
+            st.dataframe(pd.read_csv(boot_csv), use_container_width=True)
 
 
 def page_export_and_reports() -> None:

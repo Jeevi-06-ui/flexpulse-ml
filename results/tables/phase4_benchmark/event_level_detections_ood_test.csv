@@ -1,0 +1,7 @@
+model,total_injected_events,observable_injected_events,detected_observable_events,missed_observable_events,event_recall,total_predicted_events,false_alarm_events,false_alarms_per_minute,mean_detection_delay_s,median_detection_delay_s
+fixed_threshold,30,30,30,0,1.0,123,104,3.7818,0.0,0.0
+logistic_regression,30,30,30,0,1.0,58,43,1.5636,0.0,0.0
+decision_tree,30,30,0,30,0.0,0,0,0.0,,
+random_forest,30,30,20,10,0.6667,20,0,0.0,0.0,0.0
+support_vector_machine,30,30,0,30,0.0,0,0,0.0,,
+gradient_boosting,30,30,0,30,0.0,0,0,0.0,,

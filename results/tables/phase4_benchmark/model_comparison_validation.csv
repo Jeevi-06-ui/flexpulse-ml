@@ -1,0 +1,7 @@
+model,split,accuracy,balanced_accuracy,precision,recall,specificity,false_negative_rate,f1,roc_auc,average_precision,train_duration_s,predict_duration_s,tn,fp,fn,tp
+fixed_threshold,validation,0.9391,0.8631,0.9706,0.732,0.9941,0.268,0.8346,0.865,0.7874,0.0001,0.0,3379,20,242,661
+logistic_regression,validation,0.9977,0.9945,1.0,0.9889,1.0,0.0111,0.9944,0.9995,0.9988,0.0096,0.0003,3399,0,10,893
+decision_tree,validation,0.9984,0.9965,0.9989,0.9934,0.9997,0.0066,0.9961,0.9985,0.9961,0.0929,0.0002,3398,1,6,897
+random_forest,validation,0.9986,0.9967,1.0,0.9934,1.0,0.0066,0.9967,0.9995,0.9989,0.2243,0.0126,3399,0,6,897
+support_vector_machine,validation,0.9972,0.9934,1.0,0.9867,1.0,0.0133,0.9933,0.9992,0.9984,0.7151,0.0346,3399,0,12,891
+gradient_boosting,validation,0.9981,0.9968,0.9967,0.9945,0.9991,0.0055,0.9956,0.9994,0.9985,1.3858,0.0036,3396,3,5,898

@@ -1,0 +1,43 @@
+{
+  "model_name": "decision_tree",
+  "best_hyperparameters": {
+    "max_depth": 4,
+    "min_samples_leaf": 10,
+    "criterion": "gini",
+    "class_weight": "balanced"
+  },
+  "train_duration_s": 0.09292658300546464,
+  "predict_duration_s": 0.00015829200128791854,
+  "validation_f1": 0.9961132704053304,
+  "validation_balanced_accuracy": 0.9965306387749377,
+  "feature_names": [
+    "voltage_mean_v",
+    "voltage_median_v",
+    "voltage_std_v",
+    "voltage_min_v",
+    "voltage_max_v",
+    "voltage_range_v",
+    "voltage_p10_v",
+    "voltage_p90_v",
+    "voltage_mad_v",
+    "voltage_trend_slope_v_per_s",
+    "voltage_mean_abs_diff_v",
+    "voltage_std_diff_v",
+    "voltage_max_abs_diff_v",
+    "current_mean_a",
+    "current_median_a",
+    "current_std_a",
+    "current_min_a",
+    "current_max_a",
+    "current_range_a",
+    "current_p10_a",
+    "current_p90_a",
+    "current_mad_a",
+    "current_trend_slope_a_per_s",
+    "current_mean_abs_diff_a",
+    "current_std_diff_a",
+    "current_max_abs_diff_a"
+  ],
+  "random_seed": 42,
+  "trained_timestamp": "2026-11-14T15:20:01.803508+00:00"
+}

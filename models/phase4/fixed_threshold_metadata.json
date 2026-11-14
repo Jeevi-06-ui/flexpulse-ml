@@ -1,0 +1,41 @@
+{
+  "model_name": "fixed_threshold",
+  "best_hyperparameters": {
+    "voltage_drop_std_multiplier": 2.5,
+    "transient_jump_std_multiplier": 3.5
+  },
+  "train_duration_s": 0.00012558299931697547,
+  "predict_duration_s": 4.250003257766366e-06,
+  "validation_f1": 0.8345959595959596,
+  "validation_balanced_accuracy": 0.8630601730624309,
+  "feature_names": [
+    "voltage_mean_v",
+    "voltage_median_v",
+    "voltage_std_v",
+    "voltage_min_v",
+    "voltage_max_v",
+    "voltage_range_v",
+    "voltage_p10_v",
+    "voltage_p90_v",
+    "voltage_mad_v",
+    "voltage_trend_slope_v_per_s",
+    "voltage_mean_abs_diff_v",
+    "voltage_std_diff_v",
+    "voltage_max_abs_diff_v",
+    "current_mean_a",
+    "current_median_a",
+    "current_std_a",
+    "current_min_a",
+    "current_max_a",
+    "current_range_a",
+    "current_p10_a",
+    "current_p90_a",
+    "current_mad_a",
+    "current_trend_slope_a_per_s",
+    "current_mean_abs_diff_a",
+    "current_std_diff_a",
+    "current_max_abs_diff_a"
+  ],
+  "random_seed": 42,
+  "trained_timestamp": "2026-11-14T15:20:01.803508+00:00"
+}

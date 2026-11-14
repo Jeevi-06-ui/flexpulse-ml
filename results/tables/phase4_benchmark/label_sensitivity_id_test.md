@@ -1,0 +1,26 @@
+| model                  | target_threshold        |   accuracy |   balanced_accuracy |   precision |   recall |   specificity |     f1 |
+|:-----------------------|:------------------------|-----------:|--------------------:|------------:|---------:|--------------:|-------:|
+| fixed_threshold        | any_fault_sample        |     0.9393 |              0.8628 |      0.9735 |   0.7309 |        0.9947 | 0.8349 |
+| fixed_threshold        | fault_fraction_gt_10pct |     0.9393 |              0.8628 |      0.9735 |   0.7309 |        0.9947 | 0.8349 |
+| fixed_threshold        | fault_fraction_gt_20pct |     0.9393 |              0.8628 |      0.9735 |   0.7309 |        0.9947 | 0.8349 |
+| fixed_threshold        | fault_fraction_gt_50pct |     0.9331 |              0.8551 |      0.9292 |   0.7241 |        0.986  | 0.814  |
+| logistic_regression    | any_fault_sample        |     0.9977 |              0.9945 |      1      |   0.9889 |        1      | 0.9944 |
+| logistic_regression    | fault_fraction_gt_10pct |     0.9977 |              0.9945 |      1      |   0.9889 |        1      | 0.9944 |
+| logistic_regression    | fault_fraction_gt_20pct |     0.9977 |              0.9945 |      1      |   0.9889 |        1      | 0.9944 |
+| logistic_regression    | fault_fraction_gt_50pct |     0.9914 |              0.9916 |      0.9664 |   0.992  |        0.9913 | 0.979  |
+| decision_tree          | any_fault_sample        |     0.9984 |              0.9969 |      0.9978 |   0.9945 |        0.9994 | 0.9961 |
+| decision_tree          | fault_fraction_gt_10pct |     0.9984 |              0.9969 |      0.9978 |   0.9945 |        0.9994 | 0.9961 |
+| decision_tree          | fault_fraction_gt_20pct |     0.9984 |              0.9969 |      0.9978 |   0.9945 |        0.9994 | 0.9961 |
+| decision_tree          | fault_fraction_gt_50pct |     0.9921 |              0.9942 |      0.9644 |   0.9977 |        0.9907 | 0.9808 |
+| random_forest          | any_fault_sample        |     0.9986 |              0.9967 |      1      |   0.9934 |        1      | 0.9967 |
+| random_forest          | fault_fraction_gt_10pct |     0.9986 |              0.9967 |      1      |   0.9934 |        1      | 0.9967 |
+| random_forest          | fault_fraction_gt_20pct |     0.9986 |              0.9967 |      1      |   0.9934 |        1      | 0.9967 |
+| random_forest          | fault_fraction_gt_50pct |     0.9923 |              0.9939 |      0.9666 |   0.9966 |        0.9913 | 0.9813 |
+| support_vector_machine | any_fault_sample        |     0.9972 |              0.9934 |      1      |   0.9867 |        1      | 0.9933 |
+| support_vector_machine | fault_fraction_gt_10pct |     0.9972 |              0.9934 |      1      |   0.9867 |        1      | 0.9933 |
+| support_vector_machine | fault_fraction_gt_20pct |     0.9972 |              0.9934 |      1      |   0.9867 |        1      | 0.9933 |
+| support_vector_machine | fault_fraction_gt_50pct |     0.9909 |              0.9905 |      0.9663 |   0.9897 |        0.9913 | 0.9779 |
+| gradient_boosting      | any_fault_sample        |     0.9984 |              0.9965 |      0.9989 |   0.9934 |        0.9997 | 0.9961 |
+| gradient_boosting      | fault_fraction_gt_10pct |     0.9984 |              0.9965 |      0.9989 |   0.9934 |        0.9997 | 0.9961 |
+| gradient_boosting      | fault_fraction_gt_20pct |     0.9984 |              0.9965 |      0.9989 |   0.9934 |        0.9997 | 0.9961 |
+| gradient_boosting      | fault_fraction_gt_50pct |     0.9921 |              0.9938 |      0.9655 |   0.9966 |        0.991  | 0.9808 |
