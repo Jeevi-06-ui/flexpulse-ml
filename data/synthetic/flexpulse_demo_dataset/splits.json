@@ -1,0 +1,27 @@
+{
+  "train": [
+    "run_nom_gradual_resistance_drift_001",
+    "run_nom_healthy_001",
+    "run_nom_increased_resistance_001",
+    "run_nom_intermittent_contact_001",
+    "run_nom_measurement_offset_drift_001",
+    "run_nom_operating_condition_shift_001"
+  ],
+  "validation": [
+    "run_nom_gradual_resistance_drift_002",
+    "run_nom_healthy_002",
+    "run_nom_increased_resistance_002",
+    "run_nom_intermittent_contact_002",
+    "run_nom_measurement_offset_drift_002",
+    "run_nom_operating_condition_shift_002"
+  ],
+  "id_test": [],
+  "ood_test": [
+    "run_ood_gradual_resistance_drift_001",
+    "run_ood_healthy_001",
+    "run_ood_increased_resistance_001",
+    "run_ood_intermittent_contact_001",
+    "run_ood_measurement_offset_drift_001",
+    "run_ood_operating_condition_shift_001"
+  ]
+}

@@ -32,6 +32,7 @@ models/*.onnx
 # Raw data protection (prevent accidental check-in of huge or proprietary lab captures)
 data/raw/real/*.bin
 data/raw/real/*.csv
+data/metadata/quarantine/*.csv
 
 # Temporary files & Logs
 *.log
