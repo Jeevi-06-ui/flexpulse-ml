@@ -134,7 +134,7 @@ No metrics or values in the paper have been estimated, rounded arbitrarily, or f
   - `results/confirmatory_v5/tables/table7_research_questions_scorecard.md`
 - **Exact Cross-Check:**
   - RQ1 (Static ML Failure): Supported. Static RF misses 23.44% of OOD events, collapses on S7 (Recall = 0.0000), and produces 860 FAs on S2 (Spec = 0.0000).
-  - RQ2 (Reference Calibration Restoration): Supported for sensitivity. Restores Event Recall to 92.19% (+15.63% over M2) and BalAcc to 0.9028 ($p < 0.01$).
+  - RQ2 (Reference Calibration Restoration): Supported for sensitivity. Restores Event Recall to 92.19% (+15.63 percentage points over M2) and BalAcc to 0.9028 ($p < 0.01$).
   - RQ3 (Value of Online Adaptation): Refuted. Continuous online adaptation provides $\Delta\text{F1} = 0.0000$ (95% CI $[0.0000, 0.0000]$, $p = 1.0000$).
   - RQ4 (Gating Integrity): Supported. Multi-stage gating reduces contamination from 2.11% to 0.00% on S9.
   - RQ5 (Persistence Trade-Off): Supported. Persistence $N=2$ cuts false alarms by 38.83% and elevates F1 to 0.8559 ($p < 0.01$) with $+0.2085\,\text{s}$ latency.

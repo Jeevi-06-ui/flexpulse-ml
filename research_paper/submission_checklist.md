@@ -13,8 +13,8 @@
 
 Before submitting this manuscript to your faculty guide or course instructor, open `research_paper/flexpulse_ieee_paper.tex` and replace the following bracketed placeholders with your actual details:
 
-- [ ] **Line 21:** Replace `[Student Name]` with your full name.
-- [ ] **Line 26:** Replace `[student.email@presidencyuniversity.in]` with your official university email address.
+- [x] **Author Details Updated:** Set to Jeevith P. (`jeevithp18@gmail.com`). Update with institutional student ID email if required by university.
+- [ ] **Supervisor Details:** Confirm faculty guide role and insert supervisor name & email upon departmental assignment.
 - [ ] **Line 29:** Replace `[Faculty Guide / Supervisor Name]` with your faculty mentor's full academic name and title (e.g., *Dr. S. Kumar, Associate Professor*).
 - [ ] **Line 34:** Replace `[guide.email@presidencyuniversity.in]` with your faculty mentor's email address.
 - [ ] **Section \textit{Acknowledgment}:** Add any specific course, lab, or department acknowledgment requested by your faculty guide.

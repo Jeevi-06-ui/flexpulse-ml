@@ -23,11 +23,11 @@ BANNER_TEXT = "SIMULATION-BASED EXPERIMENT — NO PHYSICAL VALIDATION"
 def apply_simulation_banner(fig: plt.Figure) -> None:
     fig.text(
         0.5,
-        0.98,
+        0.995,
         BANNER_TEXT,
         ha="center",
         va="top",
-        fontsize=9,
+        fontsize=8.5,
         fontweight="bold",
         color="#842029",
         bbox=dict(boxstyle="round,pad=0.3", facecolor="#f8d7da", edgecolor="#f5c2c7", alpha=0.9),
@@ -202,7 +202,8 @@ class Phase7FigureGenerator:
         axes[1].grid(axis="y", linestyle="--", alpha=0.5)
         axes[1].legend(loc="lower left")
 
-        fig.suptitle("Per-Scenario Fault Sensitivity and Specificity Breakdown", fontsize=12, fontweight="bold", y=0.98)
+        fig.subplots_adjust(top=0.86, bottom=0.18)
+        fig.suptitle("Per-Scenario Fault Sensitivity and Specificity Breakdown", fontsize=12, fontweight="bold", y=0.92)
         return self._save_fig(fig, "fig3_scenario_breakdown")
 
     def plot_figure_4_persistence_tradeoff(self, table5: pd.DataFrame) -> Path:
@@ -306,7 +307,8 @@ class Phase7FigureGenerator:
         axes[4].set_xlabel("Window Start Time (seconds)", fontweight="bold")
         axes[4].grid(True, linestyle="--", alpha=0.5)
 
-        fig.suptitle(f"Prediction Timeline Comparison on Shifted Run ({r_target})", fontsize=12, fontweight="bold", y=0.98)
+        fig.subplots_adjust(top=0.88, bottom=0.10)
+        fig.suptitle(f"Prediction Timeline Comparison on Shifted Run ({r_target})", fontsize=12, fontweight="bold", y=0.92)
         return self._save_fig(fig, "fig6_prediction_timeline_overlay")
 
 

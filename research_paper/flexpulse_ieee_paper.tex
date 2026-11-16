@@ -20,11 +20,11 @@
 \title{FlexPulse-ML: A Simulation-Based Evaluation of Reference-Calibrated Machine Learning for Intermittent Fault Detection in USB-C-Inspired Power Paths}
 
 \author{
-\IEEEauthorblockN{[Student Name]}
+\IEEEauthorblockN{Jeevith P.}
 \IEEEauthorblockA{\textit{Department of Computer Science and Engineering} \\
 \textit{Presidency University}\\
 Bengaluru, India \\
-Email: [student.email@presidencyuniversity.in] \\
+Email: jeevithp18@gmail.com \\
 \textnormal{\textit{Academic Supervision:}} [Faculty Guide / Supervisor Name]}
 }
 
@@ -70,7 +70,7 @@ The key contributions of this paper are:
 The physics of electrical contact resistance has been studied extensively since the foundational work of Holm~\cite{holm1967electric} and Slade~\cite{slade2014electrical}. In separable metal connectors, current flows across microscopic asperities ($a$-spots). When subject to low-amplitude mechanical vibrations or thermal cycling, microscopic relative motion occurs between contact blades, a phenomenon known as fretting~\cite{swingler2000degradation}. In tin-plated and non-noble metal contacts, fretting causes rapid oxidation of freshly exposed metal, generating insulating debris that accumulates at the interface. Maul et al.~\cite{maul2001intermittency} demonstrated that this debris causes intermittent contact resistance spikes lasting from milliseconds to seconds. Qi et al.~\cite{qi2008nofault} highlighted that such intermittent faults frequently lead to ``No-Fault-Found'' (NFF) reports in field service because the fault vanishes when tested in a static maintenance environment.
 
 \subsection{Machine Learning and Anomaly Detection in Electrical Systems}
-Data-driven and machine learning methods have been applied increasingly to power system monitoring, sensor validation, and equipment diagnostics~\cite{gao2015survey1, gao2015survey2, qin2012survey}. Standard classifiers such as Decision Trees, Support Vector Machines, and Random Forests~\cite{breiman2001random} are commonly used to classify transient anomalies based on time-domain features. However, conventional supervised models assume that test telemetry follows the same probability distribution as the training data. In practical systems, variations in supply voltage, operating temperature, and load impedance violate this assumption, leading to out-of-distribution failure~\cite{chandola2009anomaly, he2009learning}. Furthermore, Chicco and Jurman~\cite{chicco2020matthews} showed that balanced performance indicators—particularly the Matthews Correlation Coefficient (MCC) and balanced accuracy—provide more informative and truthful evaluations on class-imbalanced datasets than standard accuracy or isolated precision and recall scores, which can be inflated by majority-class dominance.
+Data-driven and machine learning methods have been applied increasingly to power system monitoring, sensor validation, and equipment diagnostics~\cite{gao2015survey1, gao2015survey2, qin2012survey}. Standard classifiers such as Decision Trees, Support Vector Machines, and Random Forests~\cite{breiman2001random} are commonly used to classify transient anomalies based on time-domain features. However, conventional supervised models assume that test telemetry follows the same probability distribution as the training data. In practical systems, variations in supply voltage, operating temperature, and load impedance violate this assumption, leading to out-of-distribution failure~\cite{chandola2009anomaly, he2009learning}. Furthermore, Chicco and Jurman~\cite{chicco2020matthews} demonstrated that the Matthews Correlation Coefficient (MCC) provides a more reliable and truthful assessment than standard accuracy or F1-score on class-imbalanced binary datasets by evaluating performance across all four confusion matrix quadrants.
 
 \subsection{Concept Drift and Baseline Normalization}
 Distribution shift and concept drift have received substantial attention in machine learning research~\cite{lu2019learning, gama2014survey}. Methods for managing drift include periodic retraining, drift detection tests, and adaptive baseline tracking. In physical sensor systems, baseline normalization is often used to center signals around a known operating point. However, adaptive tracking introduces a fundamental stability risk: during slow, creeping faults, an adaptive estimator may mistake gradual fault resistance for a normal baseline shift, absorbing the fault into the baseline and rendering it undetectable~\cite{gao2015survey2}. In this study, we evaluate whether defensive confidence and stability gating can mitigate this risk, and whether online adaptation provides any tangible benefit over a fixed initial reference baseline.
@@ -190,12 +190,12 @@ To implement baseline normalization without corrupting dynamic signatures, level
 \section{Machine Learning Detection Architectures}
 During Phase~4 exploratory benchmarking, multiple standard classifiers (Logistic Regression, Decision Trees, Random Forests, Support Vector Machines, and Gradient Boosting) were evaluated on nominal telemetry. Random Forest demonstrated the highest empirical stability and was chosen as the primary classification engine.
 
-In Random Forest inference, the model output represents an empirical tree-vote fraction:
+In Random Forest inference, the model output represents an ensemble average of individual tree leaf probabilities:
 \begin{equation}
-s(y=c) = \frac{1}{M} \sum_{m=1}^M \mathbb{I}(h_m(\mathbf{x}) = c)
+s(y=c \mid \mathbf{x}) = \frac{1}{M} \sum_{m=1}^M p_m(y=c \mid \mathbf{x})
 \label{eq:rf_score}
 \end{equation}
-where $M=100$ is the number of decision trees and $h_m(\mathbf{x})$ is the binary prediction of the $m$-th tree. Because formal probability calibration (such as Platt scaling or isotonic regression) was not independently fitted, $s(y=c)$ is interpreted as an uncalibrated model confidence score or vote fraction rather than a true posterior probability. For binary alert generation, standard majority voting ($\tau = 0.5$) is applied.
+where $M=100$ is the number of decision trees and $p_m(y=c \mid \mathbf{x})$ denotes the empirical class proportion at the terminal leaf node of the $m$-th tree (matching scikit-learn's \texttt{predict\_proba} implementation). Because formal post-hoc probability calibration (e.g., Platt scaling or isotonic regression) was not independently fitted, $s(y=c \mid \mathbf{x})$ is interpreted as an uncalibrated ensemble confidence score rather than a true Bayesian posterior probability. For binary alert generation, standard majority voting ($\tau = 0.5$) is applied.
 
 For the final evaluation, we examine six standardized detection configurations:
 \begin{itemize}
@@ -227,8 +227,8 @@ In configuration M4, the baseline is permitted to adapt online via an Exponentia
 To prevent the baseline estimator from absorbing slow-developing faults, updates are admitted only when all of the following six safety conditions are satisfied:
 \begin{enumerate}
     \item \textbf{Initialization Exemption:} The sliding window index exceeds the initial $5.0\,\text{s}$ calibration interval ($k > 19$).
-    \item \textbf{Model Confidence Gate:} The tree-vote confidence score for healthy operation satisfies $s(y=0) \ge \tau_{\text{conf}} = 0.95$.
-    \item \textbf{Current Stability Gate:} The window current standard deviation $\sigma_I$ (extracted from feature \texttt{current\_std\_a}, defined in configuration by parameter \texttt{max\_current\_variance} = $0.015$) satisfies $\sigma_I \le 0.015\,\text{A}$ (equivalent to current variance $\sigma_I^2 \le 2.25 \times 10^{-4}\,\text{A}^2$), inhibiting updates during load transitions and elevated current jitter.
+    \item \textbf{Model Confidence Gate:} The ensemble confidence score for healthy operation satisfies $s(y=0 \mid \mathbf{x}) \ge \tau_{\text{conf}} = 0.85$.
+    \item \textbf{Current Stability Gate:} The window current standard deviation $\sigma_I$ (extracted from feature \texttt{current\_std\_a}, configured by parameter \texttt{max\_current\_variance} = $0.040$) satisfies $\sigma_I \le 0.040\,\text{A}$ (equivalent to current variance $\sigma_I^2 \le 1.60 \times 10^{-3}\,\text{A}^2$), inhibiting updates during load transitions and elevated current jitter.
     \item \textbf{Step Size Bound:} Incremental baseline change satisfies $|\Delta \hat{V}| \le 0.030\,\text{V}$.
     \item \textbf{Outlier Multiplier Check:} Residual error does not exceed $2.5\times$ the initial reference standard deviation.
     \item \textbf{Cooldown and Recovery Logic:} No anomaly has been flagged within the preceding 4 windows, and stable conditions have persisted for at least 5 consecutive windows.
@@ -459,8 +459,8 @@ In ungated tracking, the tracker adapted during fault activity, resulting in a 2
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.92\columnwidth]{figures/fig6_prediction_timeline_overlay.png}
-\caption{Prediction timeline overlay for a single representative simulation run comparing ground truth against M1, M2, M3, and M5. The overlay illustrates typical behavior on this individual run: M1 triggers false alarms during shifted conditions; M2 misses events under heavy load; M3 detects fault onsets with high sensitivity but produces transient noise spikes; M5 suppresses isolated spikes while tracking fault onsets. This trace illustrates individual sliding-window behavior on one run rather than uniform detection across all simulation runs.}
+\includegraphics[width=0.88\columnwidth,height=4.2cm,keepaspectratio]{figures/fig6_prediction_timeline_overlay.png}
+\caption{Prediction timeline overlay for a representative simulation run comparing ground truth against M1, M2, M3, and M5. The trace illustrates that M5 effectively suppresses isolated single-window noise spikes during nominal periods while preserving prompt detection on fault onsets.}
 \label{fig:timeline}
 \end{figure}
 
@@ -474,15 +474,16 @@ Table~\ref{tab:scorecard} summarizes the definitive findings for the five resear
 \label{tab:scorecard}
 \centering
 \begingroup
-\footnotesize
-\setlength{\tabcolsep}{3.8pt}
+\scriptsize
+\renewcommand{\arraystretch}{0.92}
+\setlength{\tabcolsep}{3.5pt}
 \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Research Question} & \textbf{Pre-Registered Hypothesis} & \textbf{Empirical Evidence (v5)} & \textbf{Scientific Verdict} \\
 \midrule
 \textbf{RQ1: Static ML} & Static ML trained on nominal telemetry fails under operational and sensor distribution shifts. & Static RF misses 23.44\% of OOD events (Event Recall = 76.56\%), collapses on S7 (Recall = 0.0000), and produces 860 FAs on S2 (Spec = 0.0000). & \textbf{Supported:} Static ML avoids fixed-threshold collapse but exhibits severe blind spots under load and resistance shifts. \\
 \midrule
-\textbf{RQ2: Reference Calib.} & A 5.0\,s initial reference calibration interval restores detection performance without continuous tracking. & Initial calibration (M3) restores Event Recall to 92.19\% (+15.63\% over M2) and BalAcc to 0.9028 ($\Delta\text{BalAcc} = +0.0896, p < 0.01$). & \textbf{Supported for Sensitivity:} Reference calibration successfully recovers obscured faults, though raw FAs require filtering. \\
+\textbf{RQ2: Reference Calib.} & A 5.0\,s initial reference calibration interval restores detection performance without continuous tracking. & Initial calibration (M3) restores Event Recall to 92.19\% (+15.63 percentage points over M2) and BalAcc to 0.9028 ($\Delta\text{BalAcc} = +0.0896, p < 0.01$). & \textbf{Supported for Sensitivity:} Reference calibration successfully recovers obscured faults, though raw FAs require filtering. \\
 \midrule
 \textbf{RQ3: Adaptive Value} & Continuous confidence-gated adaptive calibration provides significant performance improvement over initial calibration. & Adaptive ML (M4) matches Initial Calibration (M3) identically: $\Delta\text{F1} = 0.0000$ (95\% CI $[0.0000, 0.0000]$, $p = 1.0000$). & \textbf{Refuted on OOD:} Continuous online adaptation provides zero measurable gain over a 5.0\,s initial reference baseline on the OOD partition ($\Delta\text{F1} = 0.0000, p = 1.0000$). \\
 \midrule
@@ -501,7 +502,7 @@ The experimental results demonstrate that the combination of initial reference c
 Static machine learning models fail under distribution shifts because they learn absolute decision boundaries on raw voltage and current levels. When the operating state changes (such as an increased steady-state charging current), terminal voltages drop naturally according to Ohm's law. A static classifier cannot determine whether a lower terminal voltage is caused by legitimate load current or an abnormal connector resistance. By subtracting the initial operating baseline ($\tilde{V} = V - \hat{V}_0$), reference calibration removes the operating point offset, enabling the classifier to evaluate relative fluctuations rather than absolute levels.
 
 \subsection{Analysis of the Negative Adaptive Result}
-A central finding of this research is that online adaptive calibration (M4) did not outperform static reference calibration (M3). This negative result is scientifically informative. In low-voltage power paths, physical faults such as contact oxidation occur on time scales that overlap with potential adaptive tracking rates. To prevent the estimator from absorbing creeping faults, defensive gates must be stringent. When gates are appropriately strict, they correctly freeze updates during abnormal behavior, leaving the baseline identical to the initial calibration. When gates are relaxed, the tracker contaminates. Consequently, for the evaluated scenarios, continuous online adaptation added algorithmic complexity without providing measurable detection benefit.
+A central and initially unexpected finding is that continuous adaptive calibration (M4) did not outperform static reference calibration (M3) on out-of-distribution runs ($\Delta\text{F1} = 0.0000, p = 1.0000$). We initially hypothesized that continuously tracking voltage drift via Exponential Moving Average (EMA) would improve robustness in noisy regimes. However, analysis revealed a fundamental physical trade-off: genuine degradation (such as progressive oxidation in Scenario S4 or creeping resistance in Scenario S9) develops on time scales overlapping with legitimate operating drift. To prevent tracker contamination, defensive safety gates must be strict. When gates are appropriately strict, they correctly freeze updates as soon as abnormal resistance emerges, locking the active baseline to its initial reference value ($\hat{V}_0$). When gates are relaxed during ablation, the tracker adapts into the fault, shifting the baseline by 3.53\,mV (2.11\% contamination in S9) and masking the fault. Thus, continuous online adaptation introduced considerable state-tracking complexity without measurable detection benefit over a simple 5.0-second reference baseline.
 
 \subsection{Persistence Trade-Offs in Practical Systems}
 While reference calibration restores fault sensitivity, it increases susceptibility to measurement noise, producing isolated single-window false alarms. The causal persistence filter effectively suppresses these false alarms because random Gaussian noise excursions rarely persist across multiple consecutive $0.25\,\text{s}$ strides. However, our ablation shows that persistence must be constrained: setting $N \ge 4$ introduces excessive latency ($> 0.70\,\text{s}$) and filters out short micro-interruptions.
@@ -518,7 +519,7 @@ To maintain rigorous scientific standards, several explicit limitations must be 
 \end{enumerate}
 
 \section{Conclusion}
-This study presented FlexPulse-ML, a simulation-based research framework evaluating reference-calibrated machine learning for intermittent fault detection in USB-C-inspired power paths. Through systematic experiments across ten controlled physical and operating scenarios, we demonstrated that conventional static machine learning classifiers degrade severely under distribution shift, missing nearly a quarter of fault events and failing entirely under load transitions. An initial five-second reference calibration interval substantially restores fault sensitivity, recovering event recall to 92.19\%. Combining initial calibration with a causal two-window persistence filter suppresses false-alarm events by 38.83\% and achieves an OOD F1-score of 0.8559 with an additional median detection latency of 0.2085\,seconds (total median delay 0.3407\,seconds). Furthermore, our evaluation confirmed that continuous online adaptation provided zero incremental benefit over initial reference calibration. Future work should transition these simulated architectures to physical experimental test benches to evaluate real-world noise distributions and hardware constraints.
+This study presented FlexPulse-ML, a simulation-based research framework evaluating reference-calibrated machine learning for intermittent fault detection in USB-C-inspired power paths. Through systematic experiments across ten physical and operating scenarios, we showed that conventional static classifiers degrade severely under distribution shift, missing nearly a quarter of fault events and failing under load transitions. An initial five-second reference calibration interval substantially restores fault sensitivity, recovering event recall to 92.19\%. Combining initial calibration with a causal two-window persistence filter suppresses false-alarm events by 38.83\% and achieves an OOD F1-score of 0.8559 with an additional median detection latency of 0.2085\,seconds (total median delay 0.3407\,seconds). Furthermore, our evaluation confirmed that continuous online adaptation provided zero incremental benefit over initial reference calibration. Future work should transition these architectures to physical test benches to evaluate real-world noise distributions and hardware constraints.
 
 \section*{Acknowledgment}
 The author thanks the Department of Computer Science and Engineering at Presidency University, Bengaluru, for providing computing resources and academic guidance throughout this machine learning coursework project.
