@@ -2,9 +2,9 @@
 
 **Document ID:** `DOC-IEEE-EVIDENCE-2026-V1`  
 **Academic Context:** Presidency University, Bengaluru | Machine Learning Techniques  
-**Pre-Registration Protocol Hash:** `13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1`  
+**Internal Pre-Test Lock Hash:** `13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1`  
 **Dataset Identifier:** `flexpulse_final_test_v4` (Independent Seed: `20261201`)  
-**Notice:** ALL METRICS DERIVED STRICTLY FROM SIMULATION-BASED EXPERIMENTS. NO PHYSICAL VALIDATION CLAIMED.
+**Notice:** ALL METRICS DERIVED STRICTLY FROM SIMULATION-BASED EXPERIMENTS. NO PHYSICAL HARDWARE VALIDATION CLAIMED.
 
 This document establishes the exact, verified numerical mapping between every manuscript claim and the frozen empirical evidence tables and figures generated in Phase 7.
 
@@ -12,12 +12,13 @@ This document establishes the exact, verified numerical mapping between every ma
 
 ## 1. Executive Experimental Summary
 
-- **Dataset Composition:** 50 independent OOD test runs (11,950 sliding windows) and 20 ID test runs (4,780 windows) spanning 10 controlled physical scenarios.
-- **Catastrophic Failure of Static ML (M2):** Under OOD distribution shifts, static Random Forest exhibits a collapse in F1-score from 0.9967 (ID) to **0.5424** (OOD), driven by a Specificity collapse to **0.8506** and False Alarm Rate of **0.16 FA/min** (Table 1, Figure 2).
-- **Restoration via Initial Reference Calibration (M3):** Initial 5.0 s known-healthy baseline centering restores F1-score to **0.5104** (Balanced Accuracy: **0.8458**, Specificity: **0.7575**), representing a statistically significant boost of Delta F1 = +-0.0320 (p < 0.0001, Table 2).
-- **Equivalence of Online Adaptive Tracking (M4 vs M3):** Online confidence-gated adaptive calibration matches static reference calibration identically (Delta F1 = 0.0000, 95% CI [0.0000, 0.0000], p = 1.0000). Online adaptation provides zero incremental detection value under USB-C fault dynamics (Table 2, Table 7).
-- **Optimal False-Alarm Suppression via Persistence (M5):** Applying a 2-window causal temporal persistence filter (N=2) suppresses false alarm events by **47.0%** (40.88%), elevating F1-score to **0.5873** while maintaining **100% event recall** with exactly **+0.2228 s** added causal detection delay (Table 5, Figure 4).
-- **Defensive Gating Integrity:** During slow creeping faults (S9), multi-stage confidence and stability gates prevent baseline contamination (0.0% vs 100.0% in ungated tracking), freezing the tracker and preventing fault absorption (Table 6, Figure 5).
+- **Dataset Composition:** 50 independent OOD test runs (11,950 sliding windows) and 20 ID test runs (4,780 windows) spanning 10 controlled physical scenarios in flexpulse_final_test_v4.
+- **Static ML Fault Sensitivity (M2):** On flexpulse_final_test_v4, static Random Forest achieves ID F1=0.5193 (Event Recall=0.7273) and OOD F1=0.5424 (Event Recall=0.7414). While avoiding the severe collapse of fixed thresholds (M1 OOD Specificity=0.2964, FA Rate=9.04 FA/min), static ML misses 25.86% of observable fault events (15/58 missed) under OOD shifts (Table 1, Table 4, Figure 2).
+- **Initial Reference Calibration Trade-Off (M3):** Initial 5.0 s known-healthy baseline centering restores Event Recall to **91.38%** (53/58 events detected) and Balanced Accuracy to **0.8458**. However, increased sensitivity to transient fluctuations generates more false alarm windows (FA Rate=12.25 FA/min, Specificity=0.7575), resulting in an OOD F1 of **0.5104**. The paired bootstrap difference with M2 is Delta F1 = -0.0391 (95% CI [-0.1347, 0.0509], p = 0.3700), confirming that M3 significantly restores event sensitivity without statistically improving overall window F1 (Table 1, Table 2).
+- **Equivalence of Online Adaptive Tracking (M4 vs M3):** Online confidence-gated adaptive calibration matches static reference calibration identically across all 11,950 OOD windows (Delta F1 = 0.0000, 95% CI [0.0000, 0.0000], empirical p = 1.0000). Online adaptation provides zero incremental detection value under tested USB-C fault dynamics (Table 2, Table 7).
+- **Causal Persistence Filter Trade-Off (M5):** Applying a 2-window causal temporal persistence filter (N=2) suppresses false alarm events by **40.88%** (543 to 321 events; 40.88%), elevating F1-score to **0.5873** while preserving all 53 detected events (**91.38% event recall**) with a median added causal delay of **0.2228 s** (Table 5, Figure 4). N=3 also preserves 91.38% recall (146 FA events, +0.4728 s delay), whereas N>=4 induces event recall loss (89.66% at N=4, 86.21% at N=5).
+- **Defensive Gating Integrity:** During slow creeping faults (S9), multi-stage confidence and stability gates prevent baseline contamination (contamination is 0.00% in gated A3 vs 2.12% in ungated tracking), freezing the tracker and preventing fault absorption (Table 6, Figure 5).
+- **Scenario S4 Labeling Divergence Limitation:** Physical resistance creep was injected into base_r without activating fault_labels=1, producing 0 ground-truth positives and resulting in high false-positive window counts (S4 Specificity: 0.0753 for M3, 0.0937 for M5) which are formally documented as a scientific limitation.
 
 --- 
 
@@ -25,12 +26,14 @@ This document establishes the exact, verified numerical mapping between every ma
 
 | Section in Paper | Scientific Claim | Exact Numerical Evidence | Primary Artifact Reference |
 | :--- | :--- | :--- | :--- |
-| **Abstract / Intro** | Static ML experiences catastrophic failure under USB-C operating condition shifts | OOD F1 drops to 0.5424; Specificity = 0.8506 | Table 1, Table 2, Fig 2 |
-| **Abstract / Results** | Initial reference calibration completely recovers detection performance | OOD F1 recovers to 0.5104 (Delta = +-0.0320) | Table 1, Table 2, Fig 2 |
-| **Methodology / RQ3** | Online adaptive tracking yields no measurable gain over reference calibration | Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], p=1.0000) | Table 2, Table 7 |
-| **Robustness / RQ4** | Multi-stage safety gates prevent creeping fault absorption | Contamination: 0.0% (gated) vs 100.0% (ungated) | Table 6, Fig 5 |
-| **Post-Processing / RQ5** | Causal persistence filter (N=2) suppresses false alarms by 47% at +0.25 s latency | FA Rate: 12.25 -> 7.24 FA/min, F1: 0.5873 | Table 4, Table 5, Fig 4 |
-| **Evaluation / S1-S10** | Reference calibration maintains 100% specificity across non-fault load shifts (S8) | S8 Specificity: 1.0000 (0 false positives) | Table 3, Fig 3 |
+| **Abstract / Intro** | Static ML exhibits inadequate fault sensitivity under operational shifts | OOD Event Recall = 74.14% (15/58 events missed); FNR = 23.23% | Table 1, Table 4, Fig 2 |
+| **Abstract / Results** | Initial reference calibration recovers missed fault events (+10 events) | OOD Event Recall recovers to 91.38% (53/58 events); Bal Acc = 0.8458 | Table 1, Table 4, Fig 2 |
+| **Results / RQ2** | Initial calibration increases false alarms, yielding no significant F1 change vs M2 | Delta F1 = -0.0391 (95% CI [-0.1347, 0.0509], p = 0.3700) | Table 2, Table 7 |
+| **Methodology / RQ3** | Online adaptive tracking yields no measurable gain over reference calibration | Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], p = 1.0000) | Table 2, Table 7 |
+| **Robustness / RQ4** | Multi-stage safety gates prevent creeping fault absorption | Contamination: 0.00% (gated) vs 2.12% (ungated); Shift: 5.06 mV vs 5.12 mV | Table 6, Fig 5 |
+| **Post-Processing / RQ5** | Causal persistence filter (N=2) cuts false alarms by 40.88% at +0.2228 s delay | FA Events: 543 -> 321; F1: 0.5104 -> 0.5873; Recall: 91.38% | Table 4, Table 5, Fig 4 |
+| **Evaluation / S8** | Reference calibration achieves high specificity across healthy load steps | S8 Specificity: 0.9054 (M3), 0.9548 (M5); FP Windows: 113 -> 54 | Table 3, Fig 3 |
+| **Limitations / S4** | Scenario S4 ground truth contains zero positive labels due to generator semantics | S4 GT Pos = 0; S4 Specificity = 0.0753 (M3), 0.0937 (M5) | Table 3, Limitations Sec 3 |
 
 --- 
 
@@ -55,11 +58,11 @@ This document establishes the exact, verified numerical mapping between every ma
 ### Table 2: Paired Bootstrap Statistical Significance (200 Iterations)
 | Comparison | Description | Delta F1 (Mean) | 95% CI F1 | Delta Bal Acc (Mean) | 95% CI Bal Acc | Empirical p-value | Significant (p<0.05) | Scientific Verdict |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| M2 vs M1 | Static ML vs Fixed Baseline | 0.2723 | [0.1853, 0.3712] | 0.1864 | [0.1189, 0.2402] | 0.0000 | Yes | Significant Degradation (Static ML Fails) |
-| M3 vs M2 | Initial Ref Calib vs Static ML | -0.0391 | [-0.1347, 0.0509] | 0.0332 | [-0.0182, 0.0852] | 0.3700 | No | Significant Restoration (Initial Calib Recovers F1) |
-| M4 vs M3 | Adaptive Calib vs Initial Calib | 0.0 | [0.0000, 0.0000] | 0.0 | [0.0000, 0.0000] | 1.0000 | No | Statistically Indistinguishable (Zero Incremental Gain) |
-| M5 vs M3 | Persistence Filter vs Raw Initial Calib | 0.0765 | [0.0485, 0.1054] | 0.0238 | [0.0157, 0.0310] | 0.0000 | Yes | Significant Improvement (Persistence Suppresses False Alarms) |
-| M6 vs M4 | Persistence Filter vs Raw Adaptive Calib | 0.0765 | [0.0485, 0.1054] | 0.0238 | [0.0157, 0.0310] | 0.0000 | Yes | Significant Improvement (Persistence Boosts Adaptive) |
+| M2 vs M1 | Static ML vs Fixed Baseline | 0.2723 | [0.1853, 0.3712] | 0.1864 | [0.1189, 0.2402] | < 0.01 | Yes | Static ML higher F1 than collapsed fixed threshold, but misses 25.86% events |
+| M3 vs M2 | Initial Ref Calib vs Static ML | -0.0391 | [-0.1347, 0.0509] | 0.0332 | [-0.0182, 0.0852] | 0.3700 | No | No significant F1 change (p=0.3700); M3 recovers event recall (91.4% vs 74.1%) at higher false alarms |
+| M4 vs M3 | Adaptive Calib vs Initial Calib | 0.0 | [0.0000, 0.0000] | 0.0 | [0.0000, 0.0000] | 1.0000 | No | Statistically indistinguishable (Delta F1 = 0.0000, p = 1.0000); zero adaptive gain |
+| M5 vs M3 | Persistence Filter vs Raw Initial Calib | 0.0765 | [0.0485, 0.1054] | 0.0238 | [0.0157, 0.0310] | < 0.01 | Yes | Statistically significant improvement (Delta F1 = +0.0765, p < 0.01); persistence cuts false alarms |
+| M6 vs M4 | Persistence Filter vs Raw Adaptive Calib | 0.0765 | [0.0485, 0.1054] | 0.0238 | [0.0157, 0.0310] | < 0.01 | Yes | Statistically significant improvement (Delta F1 = +0.0765, p < 0.01); persistence cuts false alarms |
 
 ### Table 3: Scenario-by-Scenario Breakdown (OOD Test Partition)
 | Scenario ID | Scenario Description | Method ID | GT Pos Windows | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | FP Windows |
@@ -161,17 +164,17 @@ This document establishes the exact, verified numerical mapping between every ma
 ### Table 7: Research Questions (RQ1-RQ5) Empirical Scorecard
 | Research Question | Hypothesis | Empirical Metric Evidence | Statistical Significance | Defensible Scientific Conclusion |
 | --- | --- | --- | --- | --- |
-| RQ1: Static ML Generalization | Static ML trained on nominal telemetry fails under operational and sensor distribution shifts. | Static RF F1 drops from 0.9967 to 0.5424; Specificity drops to 0.8506 under OOD shifts. | Yes (p < 0.0001, 95% CI [-0.87, -0.83]) | Supported: Static ML exhibits catastrophic failure under real-world operating condition shifts due to feature distribution mismatch. |
-| RQ2: Reference Calibration Restoration | A 5.0 s initial reference calibration interval restores detection performance without continuous tracking. | Initial calibration restores F1 to 0.5104 (Delta F1 = +-0.0320, p < 0.0001). | Yes (p < 0.0001, 95% CI [+0.83, +0.87]) | Supported: Initial reference centering provides the decisive robustness mechanism, resolving level-shift distribution misalignment. |
-| RQ3: Value of Online Adaptation | Continuous confidence-gated adaptive calibration provides significant performance improvement over initial calibration. | Adaptive ML (M4) matches Initial Calibration (M3) identically: Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], p = 1.0000). | No (Delta F1 = 0.0000, p = 1.0000) | Refuted: Online adaptation provides zero additional detection gain over initial reference calibration under tested USB-C fault dynamics. |
-| RQ4: Defensive Gating Integrity | Multi-stage confidence and stability gating prevents tracker contamination during slow creeping faults. | Confidence & stability gates eliminate contamination: contamination drops from 100% (ungated) to 0.0% (M4/A3). | Yes (Contamination 100% -> 0.0%) | Supported: Defensive safety gates completely shield the baseline from adapting into genuine gradual fault resistance increases. |
-| RQ5: Temporal Persistence Trade-Off | Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost. | Persistence N=2 reduces false alarm events by 47% and raises F1 to 0.5873 with +0.25 s delay; N>=3 drops event recall. | Yes (FA -47%, Delay +0.25 s, 100% recall) | Supported: N=2 persistence delivers optimal Pareto trade-off; higher N induces severe event recall truncation. |
+| RQ1: Static ML Generalization | Static ML trained on nominal telemetry fails under operational and sensor distribution shifts. | Within flexpulse_final_test_v4, Static RF achieves ID F1=0.5193 (Event Recall=0.7273) and OOD F1=0.5424 (Event Recall=0.7414), missing 25.86% of OOD events. Fixed threshold collapses to Specificity=0.2964. | Yes (Event Miss Rate = 25.86%, Fixed Baseline Collapses to Spec = 0.2964) | Supported: Static ML avoids fixed-threshold collapse but exhibits inadequate fault sensitivity, missing roughly 1 in 4 events under OOD shifts. |
+| RQ2: Reference Calibration Restoration | A 5.0 s initial reference calibration interval restores detection performance without continuous tracking. | Initial calibration (M3) restores Event Recall to 91.38% (53/58 events) and Balanced Acc to 0.8458, but increased false alarms yield OOD F1=0.5104 (Delta F1 = -0.0391 vs M2, 95% CI [-0.1347, 0.0509], p = 0.3700). | No significant F1 change (p = 0.3700, 95% CI [-0.1347, 0.0509]); Event Recall +17.24% | Supported for sensitivity, not F1: Initial calibration recovers missed fault events (+10 events), but increases false alarms without temporal filtering. |
+| RQ3: Value of Online Adaptation | Continuous confidence-gated adaptive calibration provides significant performance improvement over initial calibration. | Adaptive ML (M4) matches Initial Calibration (M3) identically: Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], empirical p = 1.0000). | Refuted (Delta F1 = 0.0000, empirical p = 1.0000) | Refuted: Online adaptation provides zero incremental detection gain over initial reference calibration under tested USB-C fault dynamics. |
+| RQ4: Defensive Gating Integrity | Multi-stage confidence and stability gating prevents tracker contamination during slow creeping faults. | Defensive confidence and stability gates eliminate creeping fault absorption: contamination drops from 2.12% (ungated) to 0.00% (M4/A3). | Verified (Contamination drops from 2.12% to 0.00%) | Supported: Defensive safety gates completely shield the baseline from adapting into genuine gradual fault resistance increases. |
+| RQ5: Temporal Persistence Trade-Off | Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost. | Persistence N=2 cuts false alarm events by 40.88% (543 to 321) and raises F1 to 0.5873 at +0.2228 s added latency; N=3 also retains 91.38% recall, while N>=4 causes event recall loss. | Yes (Delta F1 = +0.0765, empirical p < 0.01; FA -40.88%) | Supported: N=2 represents an intentional engineering trade-off cutting false alarms by 40.88% at +0.2228 s latency while preserving all 53 detected events. |
 
 --- 
 
-## 4. Verification Checksums and Pre-Registration Proof
+## 4. Verification Checksums and Configuration Lock
 
-- **Protocol Pre-Registration Hash:** `13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1`
+- **Internal Pre-Test Lock Hash:** `13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1`
 - **Final Raw Dataset Hash:** `data/synthetic/flexpulse_final_test_v4/manifest.json`
 - **Feature Dataset Hash:** `data/processed/features/flexpulse_final_test_v4/feature_manifest.json`
 - **All Verification Checks:** 24/24 Synthetic Dataset Checks Passed | 24/24 Feature Dataset Checks Passed

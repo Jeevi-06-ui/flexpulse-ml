@@ -1,3 +1,4 @@
-PRE_REGISTRATION_SHA256: 13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1
-CURRENT_FILE_SHA256:     13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1
-VERIFICATION_STATUS:     MATCH
+INTERNAL_PRE_TEST_LOCK_SHA256: 13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1
+CURRENT_FILE_SHA256:             13bc534c900f8891ebe74eed6cdcc826210dd4635c137e274aa6f0d058fedca1
+INTEGRITY_VERIFICATION:           MATCH
+NOTE: This hash serves as an internal tamper-evident configuration lock prior to final evaluation, not a third-party external preregistration.
