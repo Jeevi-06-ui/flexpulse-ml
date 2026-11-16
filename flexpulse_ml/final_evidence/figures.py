@@ -40,10 +40,16 @@ class Phase7FigureGenerator:
     def __init__(
         self,
         output_dir: Optional[Path] = None,
+        mirror_dir: Optional[Path] = None,
         dataset_id: str = "flexpulse_final_test_v4",
     ) -> None:
         self.output_dir = output_dir or (PROJECT_ROOT / "results" / "final_research_package" / "figures")
-        self.mirror_dir = PROJECT_ROOT / "results" / "figures" / "phase7_final_evidence"
+        if mirror_dir is not None:
+            self.mirror_dir = mirror_dir
+        elif output_dir is not None:
+            self.mirror_dir = self.output_dir
+        else:
+            self.mirror_dir = PROJECT_ROOT / "results" / "figures" / "phase7_final_evidence"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.mirror_dir.mkdir(parents=True, exist_ok=True)
         self.dataset_id = dataset_id

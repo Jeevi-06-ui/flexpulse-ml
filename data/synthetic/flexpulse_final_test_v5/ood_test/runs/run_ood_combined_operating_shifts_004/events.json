@@ -1,0 +1,20 @@
+[
+  {
+    "event_id": "EV_CB_01",
+    "fault_type": "COMBINED_FAULT",
+    "start_time_s": 12.459414718748752,
+    "end_time_s": 15.959414718748752,
+    "duration_s": 3.5,
+    "resistance_increase_ohm": 0.5,
+    "sampled_event": true
+  },
+  {
+    "event_id": "EV_CB_02",
+    "fault_type": "COMBINED_FAULT",
+    "start_time_s": 42.68376858250545,
+    "end_time_s": 46.68376858250545,
+    "duration_s": 4.0,
+    "resistance_increase_ohm": 0.55,
+    "sampled_event": true
+  }
+]

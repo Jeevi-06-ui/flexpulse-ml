@@ -1,0 +1,11 @@
+[
+  {
+    "event_id": "EV_SD_01",
+    "fault_type": "SLOW_CREEPING",
+    "start_time_s": 15.525534459176349,
+    "end_time_s": 41.32620345379024,
+    "duration_s": 25.8007,
+    "resistance_increase_ohm": 0.5107,
+    "sampled_event": true
+  }
+]

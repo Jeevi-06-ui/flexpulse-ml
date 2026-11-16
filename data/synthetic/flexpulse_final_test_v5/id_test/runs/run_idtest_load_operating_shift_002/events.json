@@ -1,0 +1,20 @@
+[
+  {
+    "event_id": "EV_LS_01",
+    "fault_type": "INTERMITTENT_CONTACT",
+    "start_time_s": 18.116328234535395,
+    "end_time_s": 22.116328234535395,
+    "duration_s": 4.0,
+    "resistance_increase_ohm": 0.4,
+    "sampled_event": true
+  },
+  {
+    "event_id": "EV_LS_02",
+    "fault_type": "INTERMITTENT_CONTACT",
+    "start_time_s": 38.671246659925764,
+    "end_time_s": 42.671246659925764,
+    "duration_s": 4.0,
+    "resistance_increase_ohm": 0.45,
+    "sampled_event": true
+  }
+]

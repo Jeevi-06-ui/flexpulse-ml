@@ -1,0 +1,14 @@
+| Partition | Method ID | Method Name | Injected Events | Observable Events | Detected Events | Missed Events | Event Recall (%) | False Alarm Events | FA Rate (events/min) | Mean Causal Latency (s) | Median Causal Latency (s) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ID Test | M1 | Fixed Threshold Envelope (A0) | 25 | 25 | 25 | 0 | 100.0 | 30 | 1.88 | 3.5778 | 0.1196 |
+| ID Test | M2 | Static Random Forest (A1) | 25 | 25 | 19 | 6 | 76.0 | 0 | 0.0 | 1.3541 | 0.1196 |
+| ID Test | M3 | Initial Ref Calibration + RF (A2) | 25 | 25 | 23 | 2 | 92.0 | 27 | 1.69 | 0.2453 | 0.1196 |
+| ID Test | M4 | Confidence-Gated Adaptive RF (A3) | 25 | 25 | 23 | 2 | 92.0 | 27 | 1.69 | 0.2562 | 0.1196 |
+| ID Test | M5 | Initial Ref Calib + Persistence N=2 | 25 | 25 | 23 | 2 | 92.0 | 9 | 0.56 | 0.4844 | 0.3696 |
+| ID Test | M6 | Adaptive Calib + Persistence N=2 | 25 | 25 | 23 | 2 | 92.0 | 9 | 0.56 | 0.4953 | 0.3696 |
+| OOD Test | M1 | Fixed Threshold Envelope (A0) | 64 | 64 | 64 | 0 | 100.0 | 358 | 9.0 | 0.1655 | 0.1239 |
+| OOD Test | M2 | Static Random Forest (A1) | 64 | 64 | 49 | 15 | 76.56 | 2 | 0.05 | 2.4173 | 0.1322 |
+| OOD Test | M3 | Initial Ref Calibration + RF (A2) | 64 | 64 | 59 | 5 | 92.19 | 515 | 12.95 | 0.1892 | 0.1322 |
+| OOD Test | M4 | Confidence-Gated Adaptive RF (A3) | 64 | 64 | 59 | 5 | 92.19 | 515 | 12.95 | 0.1892 | 0.1322 |
+| OOD Test | M5 | Initial Ref Calib + Persistence N=2 | 64 | 64 | 59 | 5 | 92.19 | 315 | 7.92 | 0.397 | 0.3407 |
+| OOD Test | M6 | Adaptive Calib + Persistence N=2 | 64 | 64 | 59 | 5 | 92.19 | 315 | 7.92 | 0.397 | 0.3407 |

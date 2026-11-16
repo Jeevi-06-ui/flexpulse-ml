@@ -1,0 +1,11 @@
+[
+  {
+    "event_id": "EV_GD_01",
+    "fault_type": "GRADUAL_RESISTANCE_DRIFT",
+    "start_time_s": 5.0,
+    "end_time_s": 60.0,
+    "duration_s": 55.0,
+    "resistance_increase_ohm": 0.1178,
+    "sampled_event": true
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "id_test": {
+    "M1_Fixed_Threshold": {
+      "TP": 665,
+      "FP": 421,
+      "TN": 3348,
+      "FN": 346
+    },
+    "M2_Static_ML": {
+      "TP": 809,
+      "FP": 344,
+      "TN": 3425,
+      "FN": 202
+    },
+    "M3_Initial_Calib": {
+      "TP": 963,
+      "FP": 57,
+      "TN": 3712,
+      "FN": 48
+    },
+    "M4_Adaptive_Calib": {
+      "TP": 962,
+      "FP": 57,
+      "TN": 3712,
+      "FN": 49
+    },
+    "M5_Initial_Calib_Persistence": {
+      "TP": 941,
+      "FP": 23,
+      "TN": 3746,
+      "FN": 70
+    },
+    "M6_Adaptive_Calib_Persistence": {
+      "TP": 940,
+      "FP": 23,
+      "TN": 3746,
+      "FN": 71
+    }
+  },
+  "ood_test": {
+    "M1_Fixed_Threshold": {
+      "TP": 2179,
+      "FP": 6578,
+      "TN": 2798,
+      "FN": 395
+    },
+    "M2_Static_ML": {
+      "TP": 1840,
+      "FP": 862,
+      "TN": 8514,
+      "FN": 734
+    },
+    "M3_Initial_Calib": {
+      "TP": 2462,
+      "FP": 1415,
+      "TN": 7961,
+      "FN": 112
+    },
+    "M4_Adaptive_Calib": {
+      "TP": 2462,
+      "FP": 1415,
+      "TN": 7961,
+      "FN": 112
+    },
+    "M5_Initial_Calib_Persistence": {
+      "TP": 2409,
+      "FP": 646,
+      "TN": 8730,
+      "FN": 165
+    },
+    "M6_Adaptive_Calib_Persistence": {
+      "TP": 2409,
+      "FP": 646,
+      "TN": 8730,
+      "FN": 165
+    }
+  }
+}

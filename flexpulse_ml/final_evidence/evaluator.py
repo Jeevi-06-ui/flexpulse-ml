@@ -122,6 +122,7 @@ class Phase7Evaluator:
         dataset_id: str = "flexpulse_final_test_v4",
         models_dir: Optional[Path] = None,
         output_dir: Optional[Path] = None,
+        mirror_tables_dir: Optional[Path] = None,
         n_bootstraps: int = 1000,
         random_seed: int = 20261201,
     ) -> None:
@@ -130,7 +131,12 @@ class Phase7Evaluator:
         self.output_dir = output_dir or (PROJECT_ROOT / "results" / "final_research_package")
         self.tables_dir = self.output_dir / "tables"
         self.metrics_dir = self.output_dir / "metrics"
-        self.mirror_tables_dir = PROJECT_ROOT / "results" / "tables" / "phase7_final_evidence"
+        if mirror_tables_dir is not None:
+            self.mirror_tables_dir = mirror_tables_dir
+        elif output_dir is not None:
+            self.mirror_tables_dir = self.output_dir / "tables"
+        else:
+            self.mirror_tables_dir = PROJECT_ROOT / "results" / "tables" / "phase7_final_evidence"
         self.n_bootstraps = n_bootstraps
         self.random_seed = random_seed
 
@@ -810,27 +816,38 @@ class Phase7Evaluator:
 
         m3_vs_m2_boot = table2[table2["Comparison"] == "M3 vs M2"].iloc[0]
         m5_vs_m3_boot = table2[table2["Comparison"] == "M5 vs M3"].iloc[0]
+        n1_row = table5[table5["Persistence Windows (N)"] == 1].iloc[0]
+        n2_row = table5[table5["Persistence Windows (N)"] == 2].iloc[0]
+        t6_ungated = table6[table6["Adaptation Configuration"] == "Ungated Tracking"].iloc[0]
+        t6_a3 = table6[table6["Adaptation Configuration"] == "Fully Gated Adaptive (A3)"].iloc[0]
 
-        rq1_finding = f"Within flexpulse_final_test_v4, Static RF achieves ID F1={m2_id['F1-Score']} (Event Recall={m2_id['Event Recall']}) and OOD F1={m2_ood['F1-Score']} (Event Recall={m2_ood['Event Recall']}), missing 25.86% of OOD events. Fixed threshold collapses to Specificity={m1_ood['Specificity']}."
-        rq2_finding = f"Initial calibration (M3) restores Event Recall to 91.38% (53/58 events) and Balanced Acc to {m3_ood['Balanced Acc']}, but increased false alarms yield OOD F1={m3_ood['F1-Score']} (Delta F1 = {m3_vs_m2_boot['Delta F1 (Mean)']:+.4f} vs M2, 95% CI {m3_vs_m2_boot['95% CI F1']}, p = {m3_vs_m2_boot['Empirical p-value']})."
+        m2_rec_raw = float(str(m2_ood["Event Recall"]).replace("%", ""))
+        m3_rec_raw = float(str(m3_ood["Event Recall"]).replace("%", ""))
+        m2_rec_pct = m2_rec_raw * 100.0 if m2_rec_raw <= 1.0 else m2_rec_raw
+        m3_rec_pct = m3_rec_raw * 100.0 if m3_rec_raw <= 1.0 else m3_rec_raw
+        m2_miss_rate = round(100.0 - m2_rec_pct, 2)
+        rec_delta = round(m3_rec_pct - m2_rec_pct, 2)
+
+        rq1_finding = f"Within {self.dataset_id}, Static RF achieves ID F1={m2_id['F1-Score']} (Event Recall={round(float(str(m2_id['Event Recall']).replace('%', '')) * (100.0 if float(str(m2_id['Event Recall']).replace('%', '')) <= 1.0 else 1.0), 2)}%) and OOD F1={m2_ood['F1-Score']} (Event Recall={round(m2_rec_pct, 2)}%), missing {m2_miss_rate}% of OOD events. Fixed threshold collapses to Specificity={m1_ood['Specificity']}."
+        rq2_finding = f"Initial calibration (M3) achieves Event Recall={round(m3_rec_pct, 2)}% and Balanced Acc to {m3_ood['Balanced Acc']}, but increased false alarms yield OOD F1={m3_ood['F1-Score']} (Delta F1 = {m3_vs_m2_boot['Delta F1 (Mean)']:+.4f} vs M2, 95% CI {m3_vs_m2_boot['95% CI F1']}, p = {m3_vs_m2_boot['Empirical p-value']})."
         rq3_finding = f"Adaptive ML (M4) matches Initial Calibration (M3) identically: Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], empirical p = 1.0000)."
-        rq4_finding = f"Defensive confidence and stability gates eliminate creeping fault absorption: contamination drops from 2.12% (ungated) to 0.00% (M4/A3)."
-        rq5_finding = f"Persistence N=2 cuts false alarm events by 40.88% (543 to 321) and raises F1 to {m5_ood['F1-Score']} (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, p {m5_vs_m3_boot['Empirical p-value']}) at +0.2228 s added latency; N=3 also retains 91.38% recall, while N>=4 causes event recall loss."
+        rq4_finding = f"Defensive confidence and stability gates eliminate creeping fault absorption: contamination drops from {t6_ungated['Contamination Rate (%)']}% (ungated) to {t6_a3['Contamination Rate (%)']}% (M4/A3)."
+        rq5_finding = f"Persistence N=2 cuts false alarm events by {n2_row['Relative FA Reduction (%)']}% ({int(n1_row['False Alarm Events'])} to {int(n2_row['False Alarm Events'])}) and raises F1 to {m5_ood['F1-Score']} (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, p {m5_vs_m3_boot['Empirical p-value']}) at +{n2_row['Added Latency vs N=1 (s)']} s added latency; Event Recall is {n2_row['Event Recall (%)']}%."
 
         rows = [
             {
                 "Research Question": "RQ1: Static ML Generalization",
                 "Hypothesis": "Static ML trained on nominal telemetry fails under operational and sensor distribution shifts.",
                 "Empirical Metric Evidence": rq1_finding,
-                "Statistical Significance": "Yes (Event Miss Rate = 25.86%, Fixed Baseline Collapses to Spec = 0.2964)",
-                "Defensible Scientific Conclusion": "Supported: Static ML avoids fixed-threshold collapse but exhibits inadequate fault sensitivity, missing roughly 1 in 4 events under OOD shifts.",
+                "Statistical Significance": f"Yes (Event Miss Rate = {m2_miss_rate}%, Fixed Baseline Collapses to Spec = {m1_ood['Specificity']})",
+                "Defensible Scientific Conclusion": f"Supported: Static ML avoids fixed-threshold collapse but exhibits inadequate fault sensitivity, missing {m2_miss_rate}% of events under OOD shifts.",
             },
             {
                 "Research Question": "RQ2: Reference Calibration Restoration",
                 "Hypothesis": "A 5.0 s initial reference calibration interval restores detection performance without continuous tracking.",
                 "Empirical Metric Evidence": rq2_finding,
-                "Statistical Significance": f"No significant F1 change (p = {m3_vs_m2_boot['Empirical p-value']}, 95% CI {m3_vs_m2_boot['95% CI F1']}); Event Recall +17.24%",
-                "Defensible Scientific Conclusion": "Supported for sensitivity, not F1: Initial calibration recovers missed fault events (+10 events), but increases false alarms without temporal filtering.",
+                "Statistical Significance": f"No significant F1 change (p = {m3_vs_m2_boot['Empirical p-value']}, 95% CI {m3_vs_m2_boot['95% CI F1']}); Event Recall Delta = {rec_delta:+}%",
+                "Defensible Scientific Conclusion": "Supported for sensitivity, not F1: Initial calibration recovers missed fault events, but increases false alarms without temporal filtering.",
             },
             {
                 "Research Question": "RQ3: Value of Online Adaptation",
@@ -843,15 +860,15 @@ class Phase7Evaluator:
                 "Research Question": "RQ4: Defensive Gating Integrity",
                 "Hypothesis": "Multi-stage confidence and stability gating prevents tracker contamination during slow creeping faults.",
                 "Empirical Metric Evidence": rq4_finding,
-                "Statistical Significance": "Verified (Contamination drops from 2.12% to 0.00%)",
+                "Statistical Significance": f"Verified (Contamination drops from {t6_ungated['Contamination Rate (%)']}% to {t6_a3['Contamination Rate (%)']}%)",
                 "Defensible Scientific Conclusion": "Supported: Defensive safety gates completely shield the baseline from adapting into genuine gradual fault resistance increases.",
             },
             {
                 "Research Question": "RQ5: Temporal Persistence Trade-Off",
                 "Hypothesis": "Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost.",
                 "Empirical Metric Evidence": rq5_finding,
-                "Statistical Significance": f"Yes (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, empirical p {m5_vs_m3_boot['Empirical p-value']}; FA -40.88%)",
-                "Defensible Scientific Conclusion": "Supported: N=2 represents an intentional engineering trade-off cutting false alarms by 40.88% at +0.2228 s latency while preserving all 53 detected events.",
+                "Statistical Significance": f"Yes (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, empirical p {m5_vs_m3_boot['Empirical p-value']}; FA -{n2_row['Relative FA Reduction (%)']}%)",
+                "Defensible Scientific Conclusion": f"Supported: N=2 represents an intentional engineering trade-off cutting false alarms by {n2_row['Relative FA Reduction (%)']}% at +{n2_row['Added Latency vs N=1 (s)']} s latency while preserving {n2_row['Event Recall (%)']}% event recall.",
             },
         ]
 

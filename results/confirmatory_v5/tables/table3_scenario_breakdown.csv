@@ -1,0 +1,61 @@
+Scenario ID,Scenario Description,Method ID,GT Pos Windows,Accuracy,Balanced Acc,Precision,Recall,Specificity,F1-Score,FP Windows
+S8,Abrupt load change,M1,0,0.3423,0.3423,N/A,N/A,0.3423,N/A,786
+S8,Abrupt load change,M2,0,0.9983,0.9983,N/A,N/A,0.9983,N/A,2
+S8,Abrupt load change,M3,0,0.9054,0.9054,N/A,N/A,0.9054,N/A,113
+S8,Abrupt load change,M4,0,0.9054,0.9054,N/A,N/A,0.9054,N/A,113
+S8,Abrupt load change,M5,0,0.9531,0.9531,N/A,N/A,0.9531,N/A,56
+S8,Abrupt load change,M6,0,0.9531,0.9531,N/A,N/A,0.9531,N/A,56
+S10,Combined operating shifts,M1,170,0.3464,0.619,0.1788,1.0000,0.238,0.3033,781
+S10,Combined operating shifts,M2,170,0.9247,0.7353,1.0000,0.4706,1.0,0.6400,0
+S10,Combined operating shifts,M3,170,0.9021,0.7221,0.7477,0.4706,0.9737,0.5776,27
+S10,Combined operating shifts,M4,170,0.9021,0.7221,0.7477,0.4706,0.9737,0.5776,27
+S10,Combined operating shifts,M5,170,0.9113,0.7152,0.8721,0.4412,0.9893,0.5859,11
+S10,Combined operating shifts,M6,170,0.9113,0.7152,0.8721,0.4412,0.9893,0.5859,11
+S4,Gradual resistance drift,M1,1100,0.672,0.5333,0.9275,0.6982,0.3684,0.7967,60
+S4,Gradual resistance drift,M2,1100,0.6695,0.8205,1.0000,0.6409,1.0,0.7812,0
+S4,Gradual resistance drift,M3,1100,0.9707,0.8831,0.9810,0.9873,0.7789,0.9841,21
+S4,Gradual resistance drift,M4,1100,0.9707,0.8831,0.9810,0.9873,0.7789,0.9841,21
+S4,Gradual resistance drift,M5,1100,0.9766,0.9632,0.9954,0.9791,0.9474,0.9872,5
+S4,Gradual resistance drift,M6,1100,0.9766,0.9632,0.9954,0.9791,0.9474,0.9872,5
+S1,Healthy nominal baseline,M1,0,0.3289,0.3289,N/A,N/A,0.3289,N/A,802
+S1,Healthy nominal baseline,M2,0,1.0,1.0,N/A,N/A,1.0,N/A,0
+S1,Healthy nominal baseline,M3,0,0.7649,0.7649,N/A,N/A,0.7649,N/A,281
+S1,Healthy nominal baseline,M4,0,0.7649,0.7649,N/A,N/A,0.7649,N/A,281
+S1,Healthy nominal baseline,M5,0,0.8828,0.8828,N/A,N/A,0.8828,N/A,140
+S1,Healthy nominal baseline,M6,0,0.8828,0.8828,N/A,N/A,0.8828,N/A,140
+S2,Increased path resistance,M1,335,0.5322,0.675,0.3747,1.0000,0.35,0.5452,559
+S2,Increased path resistance,M2,335,0.2803,0.5,0.2803,1.0000,0.0,0.4379,860
+S2,Increased path resistance,M3,335,0.8937,0.9262,0.7251,1.0000,0.8523,0.8407,127
+S2,Increased path resistance,M4,335,0.8937,0.9262,0.7251,1.0000,0.8523,0.8407,127
+S2,Increased path resistance,M5,335,0.954,0.9635,0.8684,0.9851,0.9419,0.9231,50
+S2,Increased path resistance,M6,335,0.954,0.9635,0.8684,0.9851,0.9419,0.9231,50
+S3,Intermittent contact faults,M1,109,0.3933,0.6662,0.1307,1.0000,0.3324,0.2312,725
+S3,Intermittent contact faults,M2,109,1.0,1.0,1.0000,1.0000,1.0,1.0000,0
+S3,Intermittent contact faults,M3,109,0.8033,0.8918,0.3169,1.0000,0.7836,0.4812,235
+S3,Intermittent contact faults,M4,109,0.8033,0.8918,0.3169,1.0000,0.7836,0.4812,235
+S3,Intermittent contact faults,M5,109,0.8954,0.8971,0.4623,0.8991,0.895,0.6106,114
+S3,Intermittent contact faults,M6,109,0.8954,0.8971,0.4623,0.8991,0.895,0.6106,114
+S7,Load operating shift,M1,180,0.441,0.6709,0.2123,1.0000,0.3419,0.3502,668
+S7,Load operating shift,M2,180,0.8494,0.5,0.0000,0.0000,1.0,0.0000,0
+S7,Load operating shift,M3,180,0.8937,0.9374,0.5863,1.0000,0.8749,0.7392,127
+S7,Load operating shift,M4,180,0.8937,0.9374,0.5863,1.0000,0.8749,0.7392,127
+S7,Load operating shift,M5,180,0.9607,0.9563,0.8182,0.9500,0.9626,0.8792,38
+S7,Load operating shift,M6,180,0.9607,0.9563,0.8182,0.9500,0.9626,0.8792,38
+S6,Measurement noise shift,M1,159,0.1916,0.5338,0.1413,1.0000,0.0676,0.2477,966
+S6,Measurement noise shift,M2,159,1.0,1.0,1.0000,1.0000,1.0,1.0000,0
+S6,Measurement noise shift,M3,159,0.7297,0.8441,0.3299,1.0000,0.6882,0.4961,323
+S6,Measurement noise shift,M4,159,0.7297,0.8441,0.3299,1.0000,0.6882,0.4961,323
+S6,Measurement noise shift,M5,159,0.8536,0.8916,0.4747,0.9434,0.8398,0.6316,166
+S6,Measurement noise shift,M6,159,0.8536,0.8916,0.4747,0.9434,0.8398,0.6316,166
+S5,Measurement offset drift,M1,0,0.3515,0.3515,N/A,N/A,0.3515,N/A,775
+S5,Measurement offset drift,M2,0,1.0,1.0,N/A,N/A,1.0,N/A,0
+S5,Measurement offset drift,M3,0,0.9833,0.9833,N/A,N/A,0.9833,N/A,20
+S5,Measurement offset drift,M4,0,0.9833,0.9833,N/A,N/A,0.9833,N/A,20
+S5,Measurement offset drift,M5,0,0.995,0.995,N/A,N/A,0.995,N/A,6
+S5,Measurement offset drift,M6,0,0.995,0.995,N/A,N/A,0.995,N/A,6
+S9,Slow-developing fault,M1,521,0.5657,0.6013,0.5011,0.8791,0.3234,0.6383,456
+S9,Slow-developing fault,M2,521,0.9423,0.9338,1.0000,0.8676,1.0,0.9291,0
+S9,Slow-developing fault,M3,521,0.8753,0.8877,0.7844,0.9846,0.7908,0.8732,141
+S9,Slow-developing fault,M4,521,0.8753,0.8877,0.7844,0.9846,0.7908,0.8732,141
+S9,Slow-developing fault,M5,521,0.9389,0.943,0.8944,0.9750,0.911,0.9330,60
+S9,Slow-developing fault,M6,521,0.9389,0.943,0.8944,0.9750,0.911,0.9330,60

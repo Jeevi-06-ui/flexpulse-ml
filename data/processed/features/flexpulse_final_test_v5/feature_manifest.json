@@ -1,0 +1,142 @@
+{
+  "source_dataset_id": "flexpulse_final_test_v5",
+  "feature_schema_version": "1.0.0",
+  "sampling_frequency_hz": 100.0,
+  "window_duration_s": 0.5,
+  "window_size_samples": 50,
+  "overlap_fraction": 0.5,
+  "stride_samples": 25,
+  "total_windows": 19598,
+  "total_healthy_windows": 15399,
+  "total_fault_windows": 4199,
+  "feature_names": [
+    "voltage_mean_v",
+    "voltage_median_v",
+    "voltage_std_v",
+    "voltage_min_v",
+    "voltage_max_v",
+    "voltage_range_v",
+    "voltage_p10_v",
+    "voltage_p90_v",
+    "voltage_mad_v",
+    "voltage_trend_slope_v_per_s",
+    "voltage_mean_abs_diff_v",
+    "voltage_std_diff_v",
+    "voltage_max_abs_diff_v",
+    "current_mean_a",
+    "current_median_a",
+    "current_std_a",
+    "current_min_a",
+    "current_max_a",
+    "current_range_a",
+    "current_p10_a",
+    "current_p90_a",
+    "current_mad_a",
+    "current_trend_slope_a_per_s",
+    "current_mean_abs_diff_a",
+    "current_std_diff_a",
+    "current_max_abs_diff_a"
+  ],
+  "feature_units": {
+    "voltage_mean_v": "V",
+    "voltage_median_v": "V",
+    "voltage_std_v": "V",
+    "voltage_min_v": "V",
+    "voltage_max_v": "V",
+    "voltage_range_v": "V",
+    "voltage_p10_v": "V",
+    "voltage_p90_v": "V",
+    "voltage_mad_v": "V",
+    "voltage_trend_slope_v_per_s": "V/s",
+    "voltage_mean_abs_diff_v": "V",
+    "voltage_std_diff_v": "V",
+    "voltage_max_abs_diff_v": "V",
+    "current_mean_a": "A",
+    "current_median_a": "A",
+    "current_std_a": "A",
+    "current_min_a": "A",
+    "current_max_a": "A",
+    "current_range_a": "A",
+    "current_p10_a": "A",
+    "current_p90_a": "A",
+    "current_mad_a": "A",
+    "current_trend_slope_a_per_s": "A/s",
+    "current_mean_abs_diff_a": "A",
+    "current_std_diff_a": "A",
+    "current_max_abs_diff_a": "A"
+  },
+  "partition_window_counts": {
+    "train": 1434,
+    "validation": 1434,
+    "id_test": 4780,
+    "ood_test": 11950
+  },
+  "partition_class_distributions": {
+    "train": {
+      "healthy_ratio": 0.7880055788005579,
+      "fault_ratio": 0.21199442119944212
+    },
+    "validation": {
+      "healthy_ratio": 0.7838214783821479,
+      "fault_ratio": 0.21617852161785217
+    },
+    "id_test": {
+      "healthy_ratio": 0.7884937238493723,
+      "fault_ratio": 0.21150627615062761
+    },
+    "ood_test": {
+      "healthy_ratio": 0.7846025104602511,
+      "fault_ratio": 0.21539748953974897
+    }
+  },
+  "partition_scenario_distributions": {
+    "train": {
+      "HEALTHY": 239,
+      "INCREASED_RESISTANCE": 239,
+      "INTERMITTENT_CONTACT": 239,
+      "GRADUAL_RESISTANCE_DRIFT": 239,
+      "MEASUREMENT_OFFSET_DRIFT": 239,
+      "OPERATING_CONDITION_SHIFT": 239
+    },
+    "validation": {
+      "HEALTHY": 239,
+      "INCREASED_RESISTANCE": 239,
+      "INTERMITTENT_CONTACT": 239,
+      "GRADUAL_RESISTANCE_DRIFT": 239,
+      "MEASUREMENT_OFFSET_DRIFT": 239,
+      "OPERATING_CONDITION_SHIFT": 239
+    },
+    "id_test": {
+      "HEALTHY": 478,
+      "INCREASED_RESISTANCE": 478,
+      "INTERMITTENT_CONTACT": 478,
+      "GRADUAL_RESISTANCE_DRIFT": 478,
+      "MEASUREMENT_OFFSET_DRIFT": 478,
+      "MEASUREMENT_NOISE_SHIFT": 478,
+      "LOAD_OPERATING_SHIFT": 478,
+      "OPERATING_CONDITION_SHIFT": 478,
+      "SLOW_DEVELOPING_FAULT": 478,
+      "COMBINED_OPERATING_SHIFTS": 478
+    },
+    "ood_test": {
+      "HEALTHY_NOMINAL": 1195,
+      "INCREASED_PATH_RESISTANCE": 1195,
+      "INTERMITTENT_CONTACT_FAULTS": 1195,
+      "GRADUAL_RESISTANCE_DRIFT": 1195,
+      "MEASUREMENT_OFFSET_DRIFT": 1195,
+      "MEASUREMENT_NOISE_SHIFT": 1195,
+      "LOAD_OPERATING_SHIFT": 1195,
+      "ABRUPT_LOAD_CHANGE": 1195,
+      "SLOW_DEVELOPING_FAULT": 1195,
+      "COMBINED_OPERATING_SHIFTS": 1195
+    }
+  },
+  "synthetic_data": true,
+  "generation_timestamp": "2026-11-16T07:32:23.313705+00:00",
+  "file_checksums_sha256": {
+    "id_test_features.csv": "3e6fd4e74e9aff708d2f8a4c540bf864e08bbd93602bc3bcd9bd5fc4c512ccff",
+    "ood_test_features.csv": "02aabbcbf9797cd6bf78723d9680fc5f313964962b15e132eda7171ca9ff9167",
+    "train_features.csv": "ddc3acacbf4816a6143e334d5f23a5d475f2bcc73d7636fc6fbca9ffb8f8c820",
+    "validation_features.csv": "fd507e06d5df7eb2acadad678103cb71a1f1435646f573f8f12310702f0bcd2b"
+  }
+}

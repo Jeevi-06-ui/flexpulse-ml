@@ -1,0 +1,29 @@
+[
+  {
+    "event_id": "EV_IC_01",
+    "fault_type": "INTERMITTENT_CONTACT",
+    "start_time_s": 8.67535731842439,
+    "end_time_s": 9.7388434189553,
+    "duration_s": 1.0635,
+    "resistance_increase_ohm": 0.7173,
+    "sampled_event": true
+  },
+  {
+    "event_id": "EV_IC_02",
+    "fault_type": "INTERMITTENT_CONTACT",
+    "start_time_s": 16.451141690528654,
+    "end_time_s": 18.012159201533336,
+    "duration_s": 1.561,
+    "resistance_increase_ohm": 0.4003,
+    "sampled_event": true
+  },
+  {
+    "event_id": "EV_IC_03",
+    "fault_type": "INTERMITTENT_CONTACT",
+    "start_time_s": 22.534834061346302,
+    "end_time_s": 23.89504081612376,
+    "duration_s": 1.3602,
+    "resistance_increase_ohm": 0.6281,
+    "sampled_event": true
+  }
+]
