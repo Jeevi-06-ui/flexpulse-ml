@@ -41,7 +41,8 @@ When presenting this research paper to your faculty supervisor, emphasize the fo
    - This negative result demonstrates scientific maturity: do not hide it, celebrate it as evidence of algorithmic rigor.
 5. **The Temporal Persistence Solution (RQ5):**
    - Initial calibration restores sensitivity but increases noise-induced false alarms (12.95 FA/min).
-   - Adding a causal two-window persistence filter ($N=2$, M5) suppresses false-alarm events by **38.83%** (515 to 315) and elevates OOD F1 to **0.8559**, while preserving 100% of detected events (59/64) at an added median latency of only $+0.2085\,\text{s}$.
+   - Adding a causal two-window persistence filter ($N=2$, M5) suppresses false-alarm events by **38.83%** (515 to 315) and elevates OOD F1 to **0.8559**, while preserving 100% of detected events (59/64) at an added median latency of $+0.2085\,\text{s}$ (total median detection delay $0.3407\,\text{s}$).
+   - While longer filters ($N=3, 4$) yield higher window-level F1 (up to 0.9163), they introduce larger delays ($+0.46\,\text{s}$ and $+0.71\,\text{s}$) and drop event recall ($N \ge 4$ misses events). Thus $N=2$ is an effective lower-latency compromise rather than a universally optimal setting.
 
 ---
 

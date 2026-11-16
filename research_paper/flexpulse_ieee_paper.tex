@@ -24,19 +24,14 @@
 \IEEEauthorblockA{\textit{Department of Computer Science and Engineering} \\
 \textit{Presidency University}\\
 Bengaluru, India \\
-Email: [student.email@presidencyuniversity.in]}
-\and
-\IEEEauthorblockN{[Faculty Guide / Supervisor Name]}
-\IEEEauthorblockA{\textit{Department of Computer Science and Engineering} \\
-\textit{Presidency University}\\
-Bengaluru, India \\
-Email: [guide.email@presidencyuniversity.in]}
+Email: [student.email@presidencyuniversity.in] \\
+\textnormal{\textit{Academic Supervision:}} [Faculty Guide / Supervisor Name]}
 }
 
 \maketitle
 
 \begin{abstract}
-Intermittent electrical contact degradation and micro-interruptions in DC power delivery paths, such as those inspired by USB Type-C connections, present difficult challenges for automated fault detection. In operating circuits, terminal voltage and current measurements shift substantially due to normal load variations and sensor drift, causing conventional static machine learning classifiers to produce false alarms or miss genuine resistive faults under distribution shift. In this paper, we present FlexPulse-ML, a software-based equivalent-circuit simulation framework developed to evaluate machine learning detection architectures under controlled physical and operational shifts. Using synthetic 100\,Hz telemetry across ten operational scenarios (82 simulation runs, 19,598 sliding windows), we extract 26 statistical and rate features and benchmark six detection configurations: a fixed threshold baseline, a static Random Forest, an initial reference-calibrated model, a confidence-gated adaptive model, and configurations enhanced with a causal two-window temporal persistence filter. On independent out-of-distribution test runs, static Random Forest achieved an F1-score of 0.6975 but missed 23.44\% of fault events (event recall of 76.56\%) and failed entirely during heavy load transitions. Initial reference calibration utilizing a five-second known-healthy baseline increased fault-event recall to 92.19\% (59 of 64 events detected) and balanced accuracy to 0.9028, but incurred elevated raw false alarms. Adding a causal two-window persistence filter suppressed false-alarm events by 38.83\% (from 515 to 315) while maintaining 92.19\% event recall, achieving the highest overall out-of-distribution F1-score of 0.8559 at a modest median causal detection delay of 0.2085\,seconds. In contrast, online adaptive baseline updates provided zero measurable F1 improvement over initial calibration ($\Delta\text{F1} = 0.0000$, $p = 1.0000$) because defensive stability gates correctly froze adaptation during gradual fault creep. All findings are derived strictly from mathematical circuit simulations without physical hardware validation.
+Intermittent electrical contact degradation and micro-interruptions in DC power delivery paths, such as those inspired by USB Type-C connections, present difficult challenges for automated fault detection. In operating circuits, terminal voltage and current measurements shift substantially due to normal load variations and sensor drift, causing conventional static machine learning classifiers to produce false alarms or miss genuine resistive faults under distribution shift. In this paper, we present FlexPulse-ML, a software-based equivalent-circuit simulation framework developed to evaluate machine learning detection architectures under controlled physical and operational shifts. Using synthetic 100\,Hz telemetry across ten operational scenarios (82 simulation runs, 19,598 sliding windows), we extract 26 statistical and rate features and benchmark six detection configurations: a fixed threshold baseline, a static Random Forest, an initial reference-calibrated model, a confidence-gated adaptive model, and configurations enhanced with a causal two-window temporal persistence filter. On independent out-of-distribution test runs, static Random Forest achieved an F1-score of 0.6975 but missed 23.44\% of fault events (event recall of 76.56\%) and failed entirely during heavy load transitions. Initial reference calibration utilizing a five-second known-healthy baseline increased fault-event recall to 92.19\% (59 of 64 events detected) and balanced accuracy to 0.9028, but incurred elevated raw false alarms. Adding a causal two-window persistence filter suppressed false-alarm events by 38.83\% (from 515 to 315) while maintaining 92.19\% event recall, achieving an out-of-distribution F1-score of 0.8559 at a total median causal detection delay of 0.3407\,seconds (an additional 0.2085\,seconds compared with raw initial calibration). In contrast, online adaptive baseline updates provided zero measurable F1 improvement over initial calibration on out-of-distribution test runs ($\Delta\text{F1} = 0.0000$, $p = 1.0000$) because defensive stability gates froze adaptation during gradual fault creep. All findings are derived strictly from mathematical circuit simulations without physical hardware validation.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -59,7 +54,7 @@ We formulate and test five specific research questions (RQs):
     \item \textbf{RQ5 (Temporal Persistence Trade-Off):} What is the quantitative trade-off between false-alarm reduction and detection latency when applying causal multi-window persistence filtering?
 \end{itemize}
 
-To investigate these questions in a rigorous and reproducible manner, we developed FlexPulse-ML, an equivalent-circuit electrical simulation environment. Simulation provides an ideal testbed for this research because it enables exact ground-truth event labeling, perfect isolation of physical degradation types, and systematic variation of circuit parameters without confounding hardware artifacts.
+To investigate these questions in a rigorous and reproducible manner, we developed FlexPulse-ML, an equivalent-circuit electrical simulation environment. Simulation provides an ideal testbed for this research because it enables exact ground-truth event labeling, controlled separation of physical degradation types, and systematic variation of circuit parameters without confounding hardware artifacts.
 
 The key contributions of this paper are:
 \begin{enumerate}
@@ -67,7 +62,7 @@ The key contributions of this paper are:
     \item An empirical benchmark of 26 observable voltage and current features across six standardized detection architectures under in-distribution (ID) and out-of-distribution (OOD) test splits.
     \item Quantitative evidence that an initial five-second reference calibration interval substantially restores fault sensitivity and event recall (from 76.56\% to 92.19\%), while causal two-window persistence filtering ($N=2$) suppresses false alarms by 38.83\% to achieve an OOD F1-score of 0.8559.
     \item An empirical finding that online adaptive calibration provides zero measurable incremental gain over initial calibration ($\Delta\text{F1} = 0.0000$, $p = 1.0000$) under the evaluated fault dynamics.
-    \item A fully open, reproducible evaluation package with paired bootstrap statistical tests ($B=1,000$) and explicit documentation of simulation constraints.
+    \item A reproducible evaluation package with paired bootstrap statistical tests ($B=1,000$) and explicit documentation of simulation constraints.
 \end{enumerate}
 
 \section{Related Work}
@@ -75,7 +70,7 @@ The key contributions of this paper are:
 The physics of electrical contact resistance has been studied extensively since the foundational work of Holm~\cite{holm1967electric} and Slade~\cite{slade2014electrical}. In separable metal connectors, current flows across microscopic asperities ($a$-spots). When subject to low-amplitude mechanical vibrations or thermal cycling, microscopic relative motion occurs between contact blades, a phenomenon known as fretting~\cite{swingler2000degradation}. In tin-plated and non-noble metal contacts, fretting causes rapid oxidation of freshly exposed metal, generating insulating debris that accumulates at the interface. Maul et al.~\cite{maul2001intermittency} demonstrated that this debris causes intermittent contact resistance spikes lasting from milliseconds to seconds. Qi et al.~\cite{qi2008nofault} highlighted that such intermittent faults frequently lead to ``No-Fault-Found'' (NFF) reports in field service because the fault vanishes when tested in a static maintenance environment.
 
 \subsection{Machine Learning and Anomaly Detection in Electrical Systems}
-Data-driven and machine learning methods have been applied increasingly to power system monitoring, sensor validation, and equipment diagnostics~\cite{gao2015survey1, gao2015survey2, qin2012survey}. Standard classifiers such as Decision Trees, Support Vector Machines, and Random Forests~\cite{breiman2001random} are commonly used to classify transient anomalies based on time-domain features. However, conventional supervised models assume that test telemetry follows the same probability distribution as the training data. In practical systems, variations in supply voltage, operating temperature, and load impedance violate this assumption, leading to out-of-distribution failure~\cite{chandola2009anomaly, he2009learning}. Furthermore, Chicco and Jurman~\cite{chicco2020matthews} demonstrated that balanced metrics such as Balanced Accuracy and Matthews Correlation Coefficient provide substantially more reliable assessments than standard accuracy in class-imbalanced evaluation.
+Data-driven and machine learning methods have been applied increasingly to power system monitoring, sensor validation, and equipment diagnostics~\cite{gao2015survey1, gao2015survey2, qin2012survey}. Standard classifiers such as Decision Trees, Support Vector Machines, and Random Forests~\cite{breiman2001random} are commonly used to classify transient anomalies based on time-domain features. However, conventional supervised models assume that test telemetry follows the same probability distribution as the training data. In practical systems, variations in supply voltage, operating temperature, and load impedance violate this assumption, leading to out-of-distribution failure~\cite{chandola2009anomaly, he2009learning}. Furthermore, Chicco and Jurman~\cite{chicco2020matthews} showed that balanced performance indicators—particularly the Matthews Correlation Coefficient (MCC) and balanced accuracy—provide more informative and truthful evaluations on class-imbalanced datasets than standard accuracy or isolated precision and recall scores, which can be inflated by majority-class dominance.
 
 \subsection{Concept Drift and Baseline Normalization}
 Distribution shift and concept drift have received substantial attention in machine learning research~\cite{lu2019learning, gama2014survey}. Methods for managing drift include periodic retraining, drift detection tests, and adaptive baseline tracking. In physical sensor systems, baseline normalization is often used to center signals around a known operating point. However, adaptive tracking introduces a fundamental stability risk: during slow, creeping faults, an adaptive estimator may mistake gradual fault resistance for a normal baseline shift, absorbing the fault into the baseline and rendering it undetectable~\cite{gao2015survey2}. In this study, we evaluate whether defensive confidence and stability gating can mitigate this risk, and whether online adaptation provides any tangible benefit over a fixed initial reference baseline.
@@ -84,7 +79,7 @@ Distribution shift and concept drift have received substantial attention in mach
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.88\textwidth,height=6.4cm,keepaspectratio]{figures/fig1_powerpath_architecture_signals.png}
+\includegraphics[width=0.85\textwidth,height=5.5cm,keepaspectratio]{figures/fig1_powerpath_architecture_signals.png}
 \caption{The FlexPulse-ML research simulation framework. (a) Conceptual DC equivalent circuit showing power supply, total path resistance, load impedance, and terminal sensors. (b) Nine-stage software processing pipeline from simulation to event evaluation. (c) Representative synthetic voltage and current signals under nominal conditions versus shifted out-of-distribution conditions with intermittent contact events.}
 \label{fig:framework}
 \end{figure*}
@@ -170,12 +165,13 @@ S10 & Combined Shifts & Sensor drift + load step + elevated noise + faults. \\
 \end{table}
 
 \subsection{Dataset Partitions and S4 Ground-Truth Resolution}
-The confirmatory dataset (\texttt{flexpulse\_final\_test\_v5}) was generated with an independent root random seed (20261202) and comprises 82 total simulation runs (19,598 feature windows):
+\textbf{Model Training Origin:} The underlying machine learning models and threshold envelopes were trained during Phase~5 using the nominal training partition of an earlier dataset, \texttt{flexpulse\_calibration\_v2} (random seed 42, 6 nominal runs, 1,434 sliding windows). The resulting model artifacts (\texttt{a0\_fixed\_threshold.joblib}, \texttt{a1\_static\_random\_forest.joblib}, and \texttt{a2\_a3\_normalized\_random\_forest.joblib}) were frozen in \texttt{models/phase5/}. These frozen artifacts were evaluated prospectively without retraining, parameter re-tuning, or architectural adjustments.
+
+\textbf{Confirmatory Evaluation Dataset:} The confirmatory dataset (\texttt{flexpulse\_final\_test\_v5}) was generated with a separate root random seed (20261202) to evaluate these frozen models. It comprises 82 independent simulation runs (19,598 feature windows):
 \begin{itemize}
-    \item \textbf{Train Split:} 6 nominal runs (1,434 windows) for baseline model training.
-    \item \textbf{Validation Split:} 6 nominal runs (1,434 windows) for threshold selection.
-    \item \textbf{In-Distribution (ID) Test Split:} 20 runs (4,780 windows; 2 runs per scenario under nominal conditions).
-    \item \textbf{Out-of-Distribution (OOD) Test Split:} 50 runs (11,950 windows; 5 runs per scenario under shifted operating conditions: elevated noise $\sigma_V=0.015\,\text{V}, \sigma_I=0.022\,\text{A}$, base resistance $R_0=0.140\,\Omega$, sensor biases, and varied loads).
+    \item \textbf{Nominal Reference Partitions:} 6 train runs (1,434 windows) and 6 validation runs (1,434 windows) generated for partition completeness and threshold auditing.
+    \item \textbf{In-Distribution (ID) Test Split:} 20 independent runs (4,780 windows; 2 runs per scenario under nominal electrical conditions).
+    \item \textbf{Out-of-Distribution (OOD) Test Split:} 50 independent runs (11,950 windows; 5 runs per scenario under shifted operating conditions: elevated noise $\sigma_V=0.015\,\text{V}, \sigma_I=0.022\,\text{A}$, elevated base resistance $R_0=0.140\,\Omega$, sensor biases, and shifted load impedances).
 \end{itemize}
 
 \textit{Note on Historical v4 Dataset:} In an earlier test dataset (\texttt{flexpulse\_final\_test\_v4}), Scenario S4 simulated gradual resistance drift by modifying the conductor resistance without setting ground-truth fault flags (\texttt{fault\_labels} = 0). This caused calibrated models that correctly flagged the rising voltage drop to be penalized as false positives. In \texttt{flexpulse\_final\_test\_v5}, S4 is properly labeled as an active electrical fault for $t \ge 5.0\,\text{s}$ ($1,100$ ground-truth positive windows). Because v5 uses an independent seed, results between v4 and v5 are reported transparently as historical versus confirmatory findings, with v5 serving as the primary evidence.
@@ -192,12 +188,19 @@ From each $0.50\,\text{s}$ window of measured voltage and current telemetry, we 
 To implement baseline normalization without corrupting dynamic signatures, level features are centered relative to the estimated baseline ($\tilde{V} = V - \hat{V}_0$, $\tilde{I} = I - \hat{I}_0$). Spread, rate, and differenced features represent intrinsic high-frequency variability and slopes; subtracting a constant level offset from these features is mathematically redundant and physically unjustified. Therefore, spread and rate features remain uncentered.
 
 \section{Machine Learning Detection Architectures}
-During Phase 4 development, we benchmarked multiple standard machine learning classifiers (Logistic Regression, Decision Trees, Random Forests, Support Vector Machines, and Gradient Boosting) on nominal training telemetry. Random Forest consistently demonstrated the highest stability and was chosen as the underlying classifier.
+During Phase~4 exploratory benchmarking, multiple standard classifiers (Logistic Regression, Decision Trees, Random Forests, Support Vector Machines, and Gradient Boosting) were evaluated on nominal telemetry. Random Forest demonstrated the highest empirical stability and was chosen as the primary classification engine.
+
+In Random Forest inference, the model output represents an empirical tree-vote fraction:
+\begin{equation}
+s(y=c) = \frac{1}{M} \sum_{m=1}^M \mathbb{I}(h_m(\mathbf{x}) = c)
+\label{eq:rf_score}
+\end{equation}
+where $M=100$ is the number of decision trees and $h_m(\mathbf{x})$ is the binary prediction of the $m$-th tree. Because formal probability calibration (such as Platt scaling or isotonic regression) was not independently fitted, $s(y=c)$ is interpreted as an uncalibrated model confidence score or vote fraction rather than a true posterior probability. For binary alert generation, standard majority voting ($\tau = 0.5$) is applied.
 
 For the final evaluation, we examine six standardized detection configurations:
 \begin{itemize}
     \item \textbf{M1 (A0) --- Fixed Threshold Baseline:} Predicts a fault when raw observed voltage or current exceeds $\mu_{\text{train}} \pm 2.5\sigma_{\text{train}}$.
-    \item \textbf{M2 (A1) --- Static Random Forest:} 100 decision trees (maximum depth 8) trained on raw unnormalized 26-feature vectors from nominal training data.
+    \item \textbf{M2 (A1) --- Static Random Forest:} 100 decision trees (maximum depth 8) trained on raw unnormalized 26-feature vectors from nominal training telemetry.
     \item \textbf{M3 (A2) --- Initial Reference Calibration:} Features normalized relative to the initial $5.0\,\text{s}$ healthy baseline, evaluated with a Random Forest trained on normalized nominal features.
     \item \textbf{M4 (A3) --- Confidence-Gated Adaptive Calibration:} Normalized Random Forest with online baseline updates governed by multi-stage safety gates.
     \item \textbf{M5 (A2+P) --- Initial Calibration + Persistence ($N=2$):} Architecture M3 augmented with a causal two-window persistence filter.
@@ -223,12 +226,12 @@ In configuration M4, the baseline is permitted to adapt online via an Exponentia
 
 To prevent the baseline estimator from absorbing slow-developing faults, updates are admitted only when all of the following six safety conditions are satisfied:
 \begin{enumerate}
-    \item \textbf{Initialization Exemption:} The current window index exceeds the initial $5.0\,\text{s}$ calibration period.
-    \item \textbf{Model Confidence Gate:} Model predicted probability of healthy operation satisfies $P(y=0) \ge \tau_{\text{conf}} = 0.85$.
-    \item \textbf{Current Stability Gate:} Window current variance satisfies $\sigma_I^2 \le 0.040\,\text{A}^2$, rejecting transient load steps.
-    \item \textbf{Step Size Bound:} Incremental change $|\Delta V| \le 0.030\,\text{V}$.
-    \item \textbf{Outlier Multiplier Check:} Residual error does not exceed $2.5\times$ the initial baseline standard deviation.
-    \item \textbf{Cooldown and Recovery Logic:} No anomaly has been detected within the preceding 4 windows, and stable conditions have persisted for at least 5 consecutive windows.
+    \item \textbf{Initialization Exemption:} The sliding window index exceeds the initial $5.0\,\text{s}$ calibration interval ($k > 19$).
+    \item \textbf{Model Confidence Gate:} The tree-vote confidence score for healthy operation satisfies $s(y=0) \ge \tau_{\text{conf}} = 0.95$.
+    \item \textbf{Current Stability Gate:} The window current standard deviation $\sigma_I$ (extracted from feature \texttt{current\_std\_a}, defined in configuration by parameter \texttt{max\_current\_variance} = $0.015$) satisfies $\sigma_I \le 0.015\,\text{A}$ (equivalent to current variance $\sigma_I^2 \le 2.25 \times 10^{-4}\,\text{A}^2$), inhibiting updates during load transitions and elevated current jitter.
+    \item \textbf{Step Size Bound:} Incremental baseline change satisfies $|\Delta \hat{V}| \le 0.030\,\text{V}$.
+    \item \textbf{Outlier Multiplier Check:} Residual error does not exceed $2.5\times$ the initial reference standard deviation.
+    \item \textbf{Cooldown and Recovery Logic:} No anomaly has been flagged within the preceding 4 windows, and stable conditions have persisted for at least 5 consecutive windows.
 \end{enumerate}
 
 \section{Temporal Persistence Filtering}
@@ -288,7 +291,7 @@ M6 & Adaptive + Persistence $N=2$ & \textbf{0.9321} & \textbf{0.9335} & \textbf{
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig2_id_vs_ood_comparative_performance.png}
+\includegraphics[width=0.92\columnwidth]{figures/fig2_id_vs_ood_comparative_performance.png}
 \caption{In-Distribution (ID) versus Out-of-Distribution (OOD) comparative performance across methods. While static Random Forest (M2) degrades significantly under OOD shifts, initial calibration with persistence (M5) maintains high balanced accuracy (0.9335) and F1-score (0.8559).}
 \label{fig:id_vs_ood}
 \end{figure}
@@ -323,14 +326,14 @@ M6 vs M4 & Persistence vs. Raw Adaptive Calib. & $+0.0932$ & $[+0.0684, +0.1223]
 \endgroup
 \end{table*}
 
-The comparison between M4 (adaptive calibration) and M3 (initial calibration) yields $\Delta\text{F1} = 0.0000$ across all 1,000 bootstrap resamples ($p = 1.0000$). Continuous adaptive updates provided zero incremental benefit over initial reference calibration. Conversely, persistence filtering (M5 vs M3) produces a statistically significant improvement ($\Delta\text{F1} = +0.0932$, 95\% CI $[+0.0684, +0.1223]$, $p < 0.01$).
+The paired bootstrap comparison between M4 (adaptive calibration) and M3 (initial calibration) yields $\Delta\text{F1} = 0.0000$ across all 1,000 bootstrap resamples ($p = 1.0000$) on the OOD evaluation partition. On these 50 OOD test runs (11,950 sliding windows), defensive safety gates remained active during anomalous intervals, causing M4 to generate classifications identical to M3. On in-distribution test runs, a minor single-window divergence occurs (ID F1 of 0.9483 for M3 vs 0.9478 for M4). Thus, continuous adaptive updates provided zero incremental benefit over initial reference calibration under shifted operating conditions. Conversely, persistence filtering (M5 vs M3) produces a statistically significant improvement ($\Delta\text{F1} = +0.0932$, 95\% CI $[+0.0684, +0.1223]$, $p < 0.01$).
 
 \subsection{Scenario-Specific Breakdown and Failure Modes}
 Table~\ref{tab:scenario_breakdown} and Fig.~\ref{fig:scenarios} detail model performance across all ten scenarios.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.88\textwidth,height=6.0cm,keepaspectratio]{figures/fig3_scenario_breakdown.png}
+\includegraphics[width=0.85\textwidth,height=5.2cm,keepaspectratio]{figures/fig3_scenario_breakdown.png}
 \caption{Detailed scenario-by-scenario performance across all ten controlled physical regimes in the OOD test set, demonstrating the catastrophic failure of static ML (M2) on S7 (heavy load) and S2 (elevated resistance), and the restoration of performance by M3 and M5.}
 \label{fig:scenarios}
 \end{figure*}
@@ -392,7 +395,7 @@ Table~\ref{tab:persistence} and Fig.~\ref{fig:persistence} illustrate the trade-
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig4_persistence_tradeoff_curve.png}
+\includegraphics[width=0.92\columnwidth]{figures/fig4_persistence_tradeoff_curve.png}
 \caption{Temporal persistence filter trade-off curve across filter lengths $N \in \{1, 2, 3, 4, 5\}$. Length $N=2$ provides substantial false-alarm reduction (38.83\%) with zero event recall loss, while $N \ge 4$ causes fault events to be missed.}
 \label{fig:persistence}
 \end{figure}
@@ -418,14 +421,16 @@ $N$ & \textbf{Acc.} & \textbf{F1} & \textbf{Spec.} & \textbf{Ev. Rec.} & \textbf
 \endgroup
 \end{table}
 
-At $N=2$, false-alarm events decrease from 515 to 315 (a 38.83\% reduction) while preserving all 59 detected events (Event Recall remains 92.19\%). Median causal detection delay increases by $+0.2085\,\text{s}$ (from 0.1322\,s to 0.3407\,s). When $N \ge 4$, brief intermittent micro-interruptions are filtered out, causing Event Recall to drop to 90.62\% ($N=4$) and 85.94\% ($N=5$). Thus, $N=2$ represents the optimal operational operating point.
+While window-level F1-score continues to rise for $N=3$ (0.9039) and $N=4$ (0.9163) due to continued suppression of false-positive windows, longer persistence filters introduce substantial latency penalties: median detection delay increases by $+0.4614\,\text{s}$ for $N=3$ (total delay $0.5936\,\text{s}$) and $+0.7099\,\text{s}$ for $N=4$ (total delay $0.8421\,\text{s}$). Crucially, when $N \ge 4$, short intermittent micro-interruptions are filtered out, causing Event Recall to degrade to 90.62\% at $N=4$ (missing 6 events) and 85.94\% at $N=5$ (missing 9 events). 
+
+Filter length $N=2$ was therefore selected not as a universally optimal parameter, but as an effective lower-latency engineering compromise: it reduces false-alarm events by 38.83\% ($515 \to 315$) while maintaining 100\% of the fault events detected by raw calibration (Event Recall remains 92.19\%, 59 of 64 events) at an added median latency of $+0.2085\,\text{s}$ (total median delay $0.3407\,\text{s}$).
 
 \subsection{Gating Integrity and Tracker Contamination}
 Table~\ref{tab:gating} and Fig.~\ref{fig:gating} evaluate gating performance on Scenario S9 (Slow Developing Fault).
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig5_contamination_prevention_trajectory.png}
+\includegraphics[width=0.92\columnwidth]{figures/fig5_contamination_prevention_trajectory.png}
 \caption{Baseline voltage tracking trajectory during Scenario S9 (Slow Developing Fault). Ungated tracking adapts into the fault, shifting the baseline by 3.53\,mV (2.11\% contamination). Multi-stage defensive gating successfully freezes adaptation (0.00\% contamination).}
 \label{fig:gating}
 \end{figure}
@@ -454,8 +459,8 @@ In ungated tracking, the tracker adapted during fault activity, resulting in a 2
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig6_prediction_timeline_overlay.png}
-\caption{Prediction timeline overlay comparing ground truth with M1, M2, M3, and M5. M1 triggers continuous false alarms during shifted conditions; M2 misses events under load; M3 detects all events but produces noisy spikes; M5 suppresses spikes cleanly while tracking fault onsets.}
+\includegraphics[width=0.92\columnwidth]{figures/fig6_prediction_timeline_overlay.png}
+\caption{Prediction timeline overlay for a single representative simulation run comparing ground truth against M1, M2, M3, and M5. The overlay illustrates typical behavior on this individual run: M1 triggers false alarms during shifted conditions; M2 misses events under heavy load; M3 detects fault onsets with high sensitivity but produces transient noise spikes; M5 suppresses isolated spikes while tracking fault onsets. This trace illustrates individual sliding-window behavior on one run rather than uniform detection across all simulation runs.}
 \label{fig:timeline}
 \end{figure}
 
@@ -479,11 +484,11 @@ Table~\ref{tab:scorecard} summarizes the definitive findings for the five resear
 \midrule
 \textbf{RQ2: Reference Calib.} & A 5.0\,s initial reference calibration interval restores detection performance without continuous tracking. & Initial calibration (M3) restores Event Recall to 92.19\% (+15.63\% over M2) and BalAcc to 0.9028 ($\Delta\text{BalAcc} = +0.0896, p < 0.01$). & \textbf{Supported for Sensitivity:} Reference calibration successfully recovers obscured faults, though raw FAs require filtering. \\
 \midrule
-\textbf{RQ3: Adaptive Value} & Continuous confidence-gated adaptive calibration provides significant performance improvement over initial calibration. & Adaptive ML (M4) matches Initial Calibration (M3) identically: $\Delta\text{F1} = 0.0000$ (95\% CI $[0.0000, 0.0000]$, $p = 1.0000$). & \textbf{Refuted:} Continuous online adaptation provides zero measurable gain over a 5.0\,s initial reference baseline. \\
+\textbf{RQ3: Adaptive Value} & Continuous confidence-gated adaptive calibration provides significant performance improvement over initial calibration. & Adaptive ML (M4) matches Initial Calibration (M3) identically: $\Delta\text{F1} = 0.0000$ (95\% CI $[0.0000, 0.0000]$, $p = 1.0000$). & \textbf{Refuted on OOD:} Continuous online adaptation provides zero measurable gain over a 5.0\,s initial reference baseline on the OOD partition ($\Delta\text{F1} = 0.0000, p = 1.0000$). \\
 \midrule
-\textbf{RQ4: Gating Integrity} & Multi-stage confidence and stability gating prevents tracker contamination during slow creeping faults. & Contamination rate drops from 2.11\% (ungated) to 0.00\% (M4/A3) on Scenario S9. & \textbf{Supported:} Defensive safety gates completely shield the baseline from adapting into genuine gradual fault resistance increases. \\
+\textbf{RQ4: Gating Integrity} & Multi-stage confidence and stability gating prevents tracker contamination during slow creeping faults. & Contamination rate drops from 2.11\% (ungated) to 0.00\% (M4/A3) on Scenario S9. & \textbf{Supported:} Defensive safety gates effectively prevent the baseline estimator from adapting into gradual fault resistance increases in this scenario. \\
 \midrule
-\textbf{RQ5: Persistence} & Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost. & Persistence $N=2$ (M5) cuts false alarms by 38.83\% ($515 \to 315$) and elevates F1 to 0.8559 ($p < 0.01$) at $+0.2085\,\text{s}$ latency. & \textbf{Supported:} Two-window persistence provides optimal noise suppression without event loss. \\
+\textbf{RQ5: Persistence} & Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost. & Persistence $N=2$ (M5) cuts false alarms by 38.83\% ($515 \to 315$) and elevates F1 to 0.8559 ($p < 0.01$) at $+0.2085\,\text{s}$ latency. & \textbf{Supported:} Two-window persistence provides effective noise suppression (38.83\% fewer false-alarm events) while preserving all detected fault events. \\
 \bottomrule
 \end{tabularx}
 \endgroup
@@ -506,17 +511,17 @@ To maintain rigorous scientific standards, several explicit limitations must be 
 \begin{enumerate}
     \item \textbf{Simulation-Only Study:} All findings are derived entirely from software simulation using an equivalent circuit. No physical USB-C cables, hardware test benches, or analog acquisition circuits were used.
     \item \textbf{Simplified Circuit Physics:} The simulator uses lumped-parameter resistance models. High-frequency RF transmission line effects, parasitic capacitances, contact arc physics, and thermal feedback are not modeled.
-    \item \textbf{No Protocol Negotiation:} The model does not simulate USB Power Delivery (USB-PD) Configuration Channel (CC) communication, state-machine handshakes, or dynamic contract renegotiations~\cite{usbtypec2022, usbpd2023}.
+    \item \textbf{No Protocol Negotiation:} The model does not simulate USB Power Delivery (USB-PD) Configuration Channel (CC) communication, state-machine handshakes, or dynamic contract renegotiations (e.g., USB Type-C Release 2.2~\cite{usbtypec2022} and USB Power Delivery Revision 3.1 Version 1.7~\cite{usbpd2023}).
     \item \textbf{Known-Healthy Initialization:} The framework requires an initial $5.0\,\text{s}$ operating window that is guaranteed to be fault-free. If a system is initialized with an existing severe contact fault, the baseline will calibrate to the faulty state.
     \item \textbf{No Fault Localization:} Detections indicate anomalous path resistance but do not localize whether degradation originates in the receptacle, plug, cable wire, or solder joints.
     \item \textbf{Incomplete Detection and Residual False Alarms:} Method M5 achieved 92.19\% event recall (missing 5 of 64 events) and produced 7.92 false alarms per minute. It does not provide perfect detection.
 \end{enumerate}
 
 \section{Conclusion}
-This study presented FlexPulse-ML, a simulation-based research framework evaluating reference-calibrated machine learning for intermittent fault detection in USB-C-inspired power paths. Through systematic experiments across ten controlled physical and operating scenarios, we demonstrated that conventional static machine learning classifiers degrade severely under distribution shift, missing nearly a quarter of fault events and failing entirely under load transitions. An initial five-second reference calibration interval substantially restores fault sensitivity, recovering event recall to 92.19\%. Combining initial calibration with a causal two-window persistence filter suppresses false-alarm events by 38.83\% and achieves an OOD F1-score of 0.8559 with a modest detection latency penalty of 0.2085\,seconds. Furthermore, our evaluation confirmed that continuous online adaptation provided zero incremental benefit over initial reference calibration. Future work should transition these simulated architectures to physical experimental test benches to evaluate real-world noise distributions and hardware constraints.
+This study presented FlexPulse-ML, a simulation-based research framework evaluating reference-calibrated machine learning for intermittent fault detection in USB-C-inspired power paths. Through systematic experiments across ten controlled physical and operating scenarios, we demonstrated that conventional static machine learning classifiers degrade severely under distribution shift, missing nearly a quarter of fault events and failing entirely under load transitions. An initial five-second reference calibration interval substantially restores fault sensitivity, recovering event recall to 92.19\%. Combining initial calibration with a causal two-window persistence filter suppresses false-alarm events by 38.83\% and achieves an OOD F1-score of 0.8559 with an additional median detection latency of 0.2085\,seconds (total median delay 0.3407\,seconds). Furthermore, our evaluation confirmed that continuous online adaptation provided zero incremental benefit over initial reference calibration. Future work should transition these simulated architectures to physical experimental test benches to evaluate real-world noise distributions and hardware constraints.
 
 \section*{Acknowledgment}
-The authors thank the Department of Computer Science and Engineering at Presidency University, Bengaluru, for providing academic guidance and resources for this machine learning research project.
+The author thanks the Department of Computer Science and Engineering at Presidency University, Bengaluru, for providing computing resources and academic guidance throughout this machine learning coursework project.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

@@ -2,6 +2,7 @@
 
 **Manuscript Title:** *FlexPulse-ML: A Simulation-Based Evaluation of Reference-Calibrated Machine Learning for Intermittent Fault Detection in USB-C-Inspired Power Paths*  
 **Evaluation Dataset:** `flexpulse_final_test_v5` (Seed `20261202`)  
+**Model Training Dataset:** `flexpulse_calibration_v2` (Seed `42`, frozen in `models/phase5/`)  
 **Historical Predecessor:** `flexpulse_final_test_v4` (Seed `20261201`, superseded due to S4 labeling defect)  
 **Academic Context:** Presidency University, Bengaluru | Department of Computer Science and Engineering  
 **Audit Date:** 16 November 2026  
@@ -103,7 +104,7 @@ No metrics or values in the paper have been estimated, rounded arbitrarily, or f
 | Filter Length $N$ | Accuracy | F1-Score | Specificity | Event Recall | FA Event Reduction | Added Median Latency | Verified Source File |
 |---|---|---|---|---|---|---|---|
 | $N=1$ (Raw) | 0.8722 | 0.7633 | 0.8491 | 92.19% (59/64) | 0.00% (515 FAs) | $+0.0000\,\text{s}$ | `table5_persistence_ablation.csv` row 1 |
-| $N=2$ (Optimal) | 0.9321 | 0.8559 | 0.9311 | 92.19% (59/64) | 38.83% (315 FAs) | $+0.2085\,\text{s}$ | `table5_persistence_ablation.csv` row 2 |
+| $N=2$ (Selected Lower-Latency Compromise) | 0.9321 | 0.8559 | 0.9311 | 92.19% (59/64) | 38.83% (315 FAs) | $+0.2085\,\text{s}$ | `table5_persistence_ablation.csv` row 2 |
 | $N=3$ | 0.9582 | 0.9039 | 0.9703 | 92.19% (59/64) | 73.59% (136 FAs) | $+0.4614\,\text{s}$ | `table5_persistence_ablation.csv` row 3 |
 | $N=4$ | 0.9649 | 0.9163 | 0.9852 | 90.62% (58/64) | 88.16% (61 FAs) | $+0.7099\,\text{s}$ | `table5_persistence_ablation.csv` row 4 |
 | $N=5$ | 0.9652 | 0.9149 | 0.9918 | 85.94% (55/64) | 94.37% (29 FAs) | $+0.9717\,\text{s}$ | `table5_persistence_ablation.csv` row 5 |
