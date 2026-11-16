@@ -1,0 +1,14 @@
+| Partition | Method ID | Method Name | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | Event Recall | FA Rate (FA/min) | Median Delay (s) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ID Test | M1 | Fixed Threshold Envelope (A0) | 0.8816 | 0.8822 | 0.4990 | 0.8830 | 0.8814 | 0.6376 | 1.0 | 2.07 | 0.0863 |
+| ID Test | M2 | Static Random Forest (A1) | 0.8303 | 0.8071 | 0.3900 | 0.7766 | 0.8375 | 0.5193 | 0.7273 | 0.11 | 0.1195 |
+| ID Test | M3 | Initial Ref Calibration + RF (A2) | 0.8933 | 0.9088 | 0.5272 | 0.9291 | 0.8885 | 0.6727 | 0.9091 | 1.29 | 0.0863 |
+| ID Test | M4 | Confidence-Gated Adaptive RF (A3) | 0.8931 | 0.9079 | 0.5267 | 0.9273 | 0.8885 | 0.6718 | 0.9091 | 1.29 | 0.0863 |
+| ID Test | M5 | Initial Ref Calib + Persistence N=2 | 0.8941 | 0.8939 | 0.5305 | 0.8936 | 0.8942 | 0.6658 | 0.9091 | 0.5 | 0.3363 |
+| ID Test | M6 | Adaptive Calib + Persistence N=2 | 0.8939 | 0.893 | 0.5300 | 0.8918 | 0.8942 | 0.6649 | 0.9091 | 0.5 | 0.3363 |
+| OOD Test | M1 | Fixed Threshold Envelope (A0) | 0.377 | 0.6234 | 0.1595 | 0.9504 | 0.2964 | 0.2732 | 1.0 | 9.04 | 0.1066 |
+| OOD Test | M2 | Static Random Forest (A1) | 0.8404 | 0.8092 | 0.4193 | 0.7677 | 0.8506 | 0.5424 | 0.7414 | 0.16 | 0.1172 |
+| OOD Test | M3 | Initial Ref Calibration + RF (A2) | 0.7792 | 0.8458 | 0.3511 | 0.9341 | 0.7575 | 0.5104 | 0.9138 | 12.25 | 0.1093 |
+| OOD Test | M4 | Confidence-Gated Adaptive RF (A3) | 0.7792 | 0.8458 | 0.3511 | 0.9341 | 0.7575 | 0.5104 | 0.9138 | 12.25 | 0.1093 |
+| OOD Test | M5 | Initial Ref Calib + Persistence N=2 | 0.8433 | 0.8698 | 0.4347 | 0.9049 | 0.8347 | 0.5873 | 0.9138 | 7.24 | 0.3321 |
+| OOD Test | M6 | Adaptive Calib + Persistence N=2 | 0.8433 | 0.8698 | 0.4347 | 0.9049 | 0.8347 | 0.5873 | 0.9138 | 7.24 | 0.3321 |

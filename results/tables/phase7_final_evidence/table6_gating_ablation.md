@@ -1,0 +1,6 @@
+| Adaptation Configuration | Contamination Rate (%) | Peak False Shift (mV) | F1-Score (S9) | Balanced Acc (S9) | Specificity (S9) | False Alarm Events |
+| --- | --- | --- | --- | --- | --- | --- |
+| Ungated Tracking | 2.12 | 5.12 | 0.8979 | 0.9125 | 0.8405 | 49 |
+| No Confidence Gate | 2.12 | 5.12 | 0.8955 | 0.9103 | 0.836 | 52 |
+| No Current Stability Gate | 0.0 | 5.06 | 0.8895 | 0.9046 | 0.8227 | 52 |
+| Fully Gated Adaptive (A3) | 0.0 | 5.06 | 0.8895 | 0.9046 | 0.8227 | 52 |

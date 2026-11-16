@@ -1,0 +1,62 @@
+| Scenario ID | Scenario Description | Method ID | GT Pos Windows | Accuracy | Balanced Acc | Precision | Recall | Specificity | F1-Score | FP Windows |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| S8 | Abrupt load change | M1 | 0 | 0.3356 | 0.3356 | N/A | N/A | 0.3356 | N/A | 794 |
+| S8 | Abrupt load change | M2 | 0 | 0.9992 | 0.9992 | N/A | N/A | 0.9992 | N/A | 1 |
+| S8 | Abrupt load change | M3 | 0 | 0.9054 | 0.9054 | N/A | N/A | 0.9054 | N/A | 113 |
+| S8 | Abrupt load change | M4 | 0 | 0.9054 | 0.9054 | N/A | N/A | 0.9054 | N/A | 113 |
+| S8 | Abrupt load change | M5 | 0 | 0.9548 | 0.9548 | N/A | N/A | 0.9548 | N/A | 54 |
+| S8 | Abrupt load change | M6 | 0 | 0.9548 | 0.9548 | N/A | N/A | 0.9548 | N/A | 54 |
+| S10 | Combined operating shifts | M1 | 170 | 0.3372 | 0.6137 | 0.1767 | 1.0000 | 0.2273 | 0.3004 | 792 |
+| S10 | Combined operating shifts | M2 | 170 | 0.9247 | 0.7353 | 1.0000 | 0.4706 | 1.0 | 0.6400 | 0 |
+| S10 | Combined operating shifts | M3 | 170 | 0.8946 | 0.7177 | 0.6897 | 0.4706 | 0.9649 | 0.5594 | 36 |
+| S10 | Combined operating shifts | M4 | 170 | 0.8946 | 0.7177 | 0.6897 | 0.4706 | 0.9649 | 0.5594 | 36 |
+| S10 | Combined operating shifts | M5 | 170 | 0.9088 | 0.7138 | 0.8427 | 0.4412 | 0.9863 | 0.5792 | 14 |
+| S10 | Combined operating shifts | M6 | 170 | 0.9088 | 0.7138 | 0.8427 | 0.4412 | 0.9863 | 0.5792 | 14 |
+| S4 | Gradual resistance drift | M1 | 0 | 0.328 | 0.328 | N/A | N/A | 0.328 | N/A | 803 |
+| S4 | Gradual resistance drift | M2 | 0 | 0.4075 | 0.4075 | N/A | N/A | 0.4075 | N/A | 708 |
+| S4 | Gradual resistance drift | M3 | 0 | 0.0753 | 0.0753 | N/A | N/A | 0.0753 | N/A | 1105 |
+| S4 | Gradual resistance drift | M4 | 0 | 0.0753 | 0.0753 | N/A | N/A | 0.0753 | N/A | 1105 |
+| S4 | Gradual resistance drift | M5 | 0 | 0.0937 | 0.0937 | N/A | N/A | 0.0937 | N/A | 1083 |
+| S4 | Gradual resistance drift | M6 | 0 | 0.0937 | 0.0937 | N/A | N/A | 0.0937 | N/A | 1083 |
+| S1 | Healthy nominal baseline | M1 | 0 | 0.3314 | 0.3314 | N/A | N/A | 0.3314 | N/A | 799 |
+| S1 | Healthy nominal baseline | M2 | 0 | 1.0 | 1.0 | N/A | N/A | 1.0 | N/A | 0 |
+| S1 | Healthy nominal baseline | M3 | 0 | 0.769 | 0.769 | N/A | N/A | 0.769 | N/A | 276 |
+| S1 | Healthy nominal baseline | M4 | 0 | 0.769 | 0.769 | N/A | N/A | 0.769 | N/A | 276 |
+| S1 | Healthy nominal baseline | M5 | 0 | 0.8862 | 0.8862 | N/A | N/A | 0.8862 | N/A | 136 |
+| S1 | Healthy nominal baseline | M6 | 0 | 0.8862 | 0.8862 | N/A | N/A | 0.8862 | N/A | 136 |
+| S2 | Increased path resistance | M1 | 339 | 0.5238 | 0.6676 | 0.3733 | 1.0000 | 0.3353 | 0.5437 | 569 |
+| S2 | Increased path resistance | M2 | 339 | 0.2837 | 0.5 | 0.2837 | 1.0000 | 0.0 | 0.4420 | 856 |
+| S2 | Increased path resistance | M3 | 339 | 0.8669 | 0.9071 | 0.6807 | 1.0000 | 0.8143 | 0.8100 | 159 |
+| S2 | Increased path resistance | M4 | 339 | 0.8669 | 0.9071 | 0.6807 | 1.0000 | 0.8143 | 0.8100 | 159 |
+| S2 | Increased path resistance | M5 | 339 | 0.9397 | 0.9535 | 0.8329 | 0.9853 | 0.9217 | 0.9027 | 67 |
+| S2 | Increased path resistance | M6 | 339 | 0.9397 | 0.9535 | 0.8329 | 0.9853 | 0.9217 | 0.9027 | 67 |
+| S3 | Intermittent contact faults | M1 | 106 | 0.3749 | 0.657 | 0.1243 | 1.0000 | 0.314 | 0.2211 | 747 |
+| S3 | Intermittent contact faults | M2 | 106 | 1.0 | 1.0 | 1.0000 | 1.0000 | 1.0 | 1.0000 | 0 |
+| S3 | Intermittent contact faults | M3 | 106 | 0.795 | 0.8875 | 0.3020 | 1.0000 | 0.775 | 0.4639 | 245 |
+| S3 | Intermittent contact faults | M4 | 106 | 0.795 | 0.8875 | 0.3020 | 1.0000 | 0.775 | 0.4639 | 245 |
+| S3 | Intermittent contact faults | M5 | 106 | 0.8937 | 0.8991 | 0.4507 | 0.9057 | 0.8926 | 0.6019 | 117 |
+| S3 | Intermittent contact faults | M6 | 106 | 0.8937 | 0.8991 | 0.4507 | 0.9057 | 0.8926 | 0.6019 | 117 |
+| S7 | Load operating shift | M1 | 180 | 0.4444 | 0.6729 | 0.2133 | 1.0000 | 0.3458 | 0.3516 | 664 |
+| S7 | Load operating shift | M2 | 180 | 0.8494 | 0.5 | 0.0000 | 0.0000 | 1.0 | 0.0000 | 0 |
+| S7 | Load operating shift | M3 | 180 | 0.8862 | 0.933 | 0.5696 | 1.0000 | 0.866 | 0.7258 | 136 |
+| S7 | Load operating shift | M4 | 180 | 0.8862 | 0.933 | 0.5696 | 1.0000 | 0.866 | 0.7258 | 136 |
+| S7 | Load operating shift | M5 | 180 | 0.9573 | 0.9543 | 0.8028 | 0.9500 | 0.9586 | 0.8702 | 42 |
+| S7 | Load operating shift | M6 | 180 | 0.9573 | 0.9543 | 0.8028 | 0.9500 | 0.9586 | 0.8702 | 42 |
+| S6 | Measurement noise shift | M1 | 159 | 0.195 | 0.5357 | 0.1418 | 1.0000 | 0.0714 | 0.2484 | 962 |
+| S6 | Measurement noise shift | M2 | 159 | 1.0 | 1.0 | 1.0000 | 1.0000 | 1.0 | 1.0000 | 0 |
+| S6 | Measurement noise shift | M3 | 159 | 0.7238 | 0.8407 | 0.3252 | 1.0000 | 0.6815 | 0.4907 | 330 |
+| S6 | Measurement noise shift | M4 | 159 | 0.7238 | 0.8407 | 0.3252 | 1.0000 | 0.6815 | 0.4907 | 330 |
+| S6 | Measurement noise shift | M5 | 159 | 0.851 | 0.8901 | 0.4702 | 0.9434 | 0.8369 | 0.6276 | 169 |
+| S6 | Measurement noise shift | M6 | 159 | 0.851 | 0.8901 | 0.4702 | 0.9434 | 0.8369 | 0.6276 | 169 |
+| S5 | Measurement offset drift | M1 | 0 | 0.3431 | 0.3431 | N/A | N/A | 0.3431 | N/A | 785 |
+| S5 | Measurement offset drift | M2 | 0 | 1.0 | 1.0 | N/A | N/A | 1.0 | N/A | 0 |
+| S5 | Measurement offset drift | M3 | 0 | 0.9824 | 0.9824 | N/A | N/A | 0.9824 | N/A | 21 |
+| S5 | Measurement offset drift | M4 | 0 | 0.9824 | 0.9824 | N/A | N/A | 0.9824 | N/A | 21 |
+| S5 | Measurement offset drift | M5 | 0 | 0.995 | 0.995 | N/A | N/A | 0.995 | N/A | 6 |
+| S5 | Measurement offset drift | M6 | 0 | 0.995 | 0.995 | N/A | N/A | 0.995 | N/A | 6 |
+| S9 | Slow-developing fault | M1 | 518 | 0.5565 | 0.592 | 0.4933 | 0.8591 | 0.325 | 0.6268 | 457 |
+| S9 | Slow-developing fault | M2 | 518 | 0.9397 | 0.9305 | 1.0000 | 0.8610 | 1.0 | 0.9253 | 0 |
+| S9 | Slow-developing fault | M3 | 518 | 0.8937 | 0.9046 | 0.8098 | 0.9865 | 0.8227 | 0.8895 | 120 |
+| S9 | Slow-developing fault | M4 | 518 | 0.8937 | 0.9046 | 0.8098 | 0.9865 | 0.8227 | 0.8895 | 120 |
+| S9 | Slow-developing fault | M5 | 518 | 0.9531 | 0.9559 | 0.9200 | 0.9768 | 0.935 | 0.9476 | 44 |
+| S9 | Slow-developing fault | M6 | 518 | 0.9531 | 0.9559 | 0.9200 | 0.9768 | 0.935 | 0.9476 | 44 |

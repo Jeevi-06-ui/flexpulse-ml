@@ -1,0 +1,11 @@
+[
+  {
+    "event_id": "EV_IR_01",
+    "fault_type": "INCREASED_RESISTANCE",
+    "start_time_s": 10.863513562151473,
+    "end_time_s": 23.355879192859433,
+    "duration_s": 12.4924,
+    "resistance_increase_ohm": 0.3901,
+    "sampled_event": true
+  }
+]

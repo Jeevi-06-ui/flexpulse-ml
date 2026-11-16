@@ -1,0 +1,15 @@
+{
+  "python_version": "3.12.16 (main, Oct 25 2026, 18:24:37) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "processor": "arm",
+  "timestamp_utc": "2026-11-16T05:06:27.726994+00:00",
+  "installed_packages": {
+    "numpy": "installed",
+    "pandas": "installed",
+    "scikit-learn": "installed",
+    "joblib": "installed",
+    "matplotlib": "installed",
+    "pytest": "installed"
+  }
+}

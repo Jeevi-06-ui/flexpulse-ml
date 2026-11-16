@@ -1,0 +1,20 @@
+{
+  "run_id": "run_ood_increased_path_resistance_005",
+  "scenario": "INCREASED_PATH_RESISTANCE",
+  "random_seed": 1368955357,
+  "simulation_configuration": {
+    "is_ood": true,
+    "base_resistance": 0.2599999999999999,
+    "noise_v_std": 0.015,
+    "noise_i_std": 0.022
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "shifted",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_final_test_v4",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}

@@ -1,0 +1,10 @@
+{
+  "evaluation_timestamp": "2026-11-16T05:06:26.333337+00:00",
+  "dataset_id": "flexpulse_final_test_v4",
+  "root_random_seed": 20261201,
+  "n_bootstraps": 200,
+  "id_runs_count": 20,
+  "ood_runs_count": 50,
+  "id_windows_count": 4780,
+  "ood_windows_count": 11950
+}

@@ -1,0 +1,20 @@
+{
+  "run_id": "run_ood_abrupt_load_change_002",
+  "scenario": "ABRUPT_LOAD_CHANGE",
+  "random_seed": 21597794,
+  "simulation_configuration": {
+    "is_ood": true,
+    "base_resistance": 0.14000000000000004,
+    "noise_v_std": 0.015,
+    "noise_i_std": 0.022
+  },
+  "sampling_frequency_hz": 100.0,
+  "simulation_duration_s": 60.0,
+  "condition_profile": "shifted",
+  "simulator_version": "0.2.0",
+  "dataset_identifier": "flexpulse_final_test_v4",
+  "synthetic_data": true,
+  "split": "ood_test",
+  "is_out_of_distribution": true,
+  "noise_multiplier": 3.0
+}
