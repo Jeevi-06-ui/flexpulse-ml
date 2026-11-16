@@ -171,8 +171,8 @@ class FinalResearchPackageBuilder:
             "significant (Delta F1 = -0.0391, 95% CI [-0.1347, 0.0509], p = 0.3700). Window F1 improves only when "
             "coupled with causal persistence filtering (M5 F1 = 0.5873).\n\n"
             "## 5. Statistical Bootstrap Resolution Limits\n"
-            "Bootstrap paired comparisons are evaluated using B = 200 resamples at the complete-run level. "
-            "With 200 resamples, the minimum empirical non-zero frequency resolution is 1/200 = 0.005. "
+            "Bootstrap paired comparisons are evaluated using B = 1,000 resamples at the complete-run level. "
+            "With 1,000 resamples, the minimum empirical non-zero frequency resolution is 1/1,000 = 0.001. "
             "Where zero resample differences cross the null boundary, empirical p-values are reported with their "
             "appropriate bound (p < 0.01) rather than unsupported infinite precision (e.g. p < 0.0001).\n\n"
             "## 6. Pre-Registration Protocol Status\n"
@@ -221,6 +221,9 @@ class FinalResearchPackageBuilder:
 
         m2_id = t1[(t1["Partition"] == "ID Test") & (t1["Method ID"] == "M2")].iloc[0]
 
+        m3_vs_m2_boot = t2[t2["Comparison"] == "M3 vs M2"].iloc[0]
+        m5_vs_m3_boot = t2[t2["Comparison"] == "M5 vs M3"].iloc[0]
+
         evidence_md = (
             "# FlexPulse-ML: Master IEEE Research Paper Evidence Package\n\n"
             "**Document ID:** `DOC-IEEE-EVIDENCE-2026-V1`  \n"
@@ -241,7 +244,7 @@ class FinalResearchPackageBuilder:
             f"- **Initial Reference Calibration Trade-Off (M3):** Initial 5.0 s known-healthy baseline centering restores Event Recall to "
             f"**91.38%** (53/58 events detected) and Balanced Accuracy to **{m3_ood['Balanced Acc']}**. However, increased sensitivity to transient "
             f"fluctuations generates more false alarm windows (FA Rate={m3_ood['FA Rate (FA/min)']} FA/min, Specificity={m3_ood['Specificity']}), resulting "
-            f"in an OOD F1 of **{m3_ood['F1-Score']}**. The paired bootstrap difference with M2 is Delta F1 = -0.0391 (95% CI [-0.1347, 0.0509], p = 0.3700), "
+            f"in an OOD F1 of **{m3_ood['F1-Score']}**. The paired bootstrap difference with M2 is Delta F1 = {m3_vs_m2_boot['Delta F1 (Mean)']:+.4f} (95% CI {m3_vs_m2_boot['95% CI F1']}, p = {m3_vs_m2_boot['Empirical p-value']}), "
             "confirming that M3 significantly restores event sensitivity without statistically improving overall window F1 (Table 1, Table 2).\n"
             f"- **Equivalence of Online Adaptive Tracking (M4 vs M3):** Online confidence-gated adaptive calibration matches static reference calibration "
             f"identically across all 11,950 OOD windows (Delta F1 = 0.0000, 95% CI [0.0000, 0.0000], empirical p = 1.0000). "
@@ -262,7 +265,7 @@ class FinalResearchPackageBuilder:
             "| :--- | :--- | :--- | :--- |\n"
             f"| **Abstract / Intro** | Static ML exhibits inadequate fault sensitivity under operational shifts | OOD Event Recall = 74.14% (15/58 events missed); FNR = 23.23% | Table 1, Table 4, Fig 2 |\n"
             f"| **Abstract / Results** | Initial reference calibration recovers missed fault events (+10 events) | OOD Event Recall recovers to 91.38% (53/58 events); Bal Acc = {m3_ood['Balanced Acc']} | Table 1, Table 4, Fig 2 |\n"
-            f"| **Results / RQ2** | Initial calibration increases false alarms, yielding no significant F1 change vs M2 | Delta F1 = -0.0391 (95% CI [-0.1347, 0.0509], p = 0.3700) | Table 2, Table 7 |\n"
+            f"| **Results / RQ2** | Initial calibration increases false alarms, yielding no significant F1 change vs M2 | Delta F1 = {m3_vs_m2_boot['Delta F1 (Mean)']:+.4f} (95% CI {m3_vs_m2_boot['95% CI F1']}, p = {m3_vs_m2_boot['Empirical p-value']}) | Table 2, Table 7 |\n"
             "| **Methodology / RQ3** | Online adaptive tracking yields no measurable gain over reference calibration | Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], p = 1.0000) | Table 2, Table 7 |\n"
             "| **Robustness / RQ4** | Multi-stage safety gates prevent creeping fault absorption | Contamination: 0.00% (gated) vs 2.12% (ungated); Shift: 5.06 mV vs 5.12 mV | Table 6, Fig 5 |\n"
             f"| **Post-Processing / RQ5** | Causal persistence filter (N=2) cuts false alarms by 40.88% at +0.2228 s delay | FA Events: 543 -> 321; F1: {m3_ood['F1-Score']} -> {m5_ood['F1-Score']}; Recall: 91.38% | Table 4, Table 5, Fig 4 |\n"
@@ -272,7 +275,7 @@ class FinalResearchPackageBuilder:
             "## 3. Publication Tables Summary\n\n"
             "### Table 1: Overall Comparative Performance Benchmark\n"
             f"{dataframe_to_markdown(t1)}\n\n"
-            "### Table 2: Paired Bootstrap Statistical Significance (200 Iterations)\n"
+            "### Table 2: Paired Bootstrap Statistical Significance (1,000 Iterations)\n"
             f"{dataframe_to_markdown(t2)}\n\n"
             "### Table 3: Scenario-by-Scenario Breakdown (OOD Test Partition)\n"
             f"{dataframe_to_markdown(t3)}\n\n"

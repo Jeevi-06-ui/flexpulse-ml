@@ -3,7 +3,7 @@
   "platform": "macOS-27.2.1-arm64-arm-64bit",
   "machine": "arm64",
   "processor": "arm",
-  "timestamp_utc": "2026-11-16T06:41:03.890359+00:00",
+  "timestamp_utc": "2026-11-16T07:16:09.328871+00:00",
   "bootstrap_resamples": 200,
   "bootstrap_empirical_resolution": "0.005 (p-values capped at <0.01 for 0 crossings)",
   "installed_packages": {

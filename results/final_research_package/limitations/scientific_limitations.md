@@ -16,7 +16,7 @@ During dataset generation for flexpulse_final_test_v4, Scenario S4 (Gradual Resi
 Initial reference calibration (M3) boosts Event Recall from 74.14% (M2) to 91.38% (53/58 events detected). However, by removing DC level offsets, M3 increases sensitivity to transient fluctuations, generating more window-level false positives (OOD Specificity: 0.7575 for M3 vs 0.8506 for M2). Consequently, raw window F1 drops slightly from 0.5424 (M2) to 0.5104 (M3), a difference that is not statistically significant (Delta F1 = -0.0391, 95% CI [-0.1347, 0.0509], p = 0.3700). Window F1 improves only when coupled with causal persistence filtering (M5 F1 = 0.5873).
 
 ## 5. Statistical Bootstrap Resolution Limits
-Bootstrap paired comparisons are evaluated using B = 200 resamples at the complete-run level. With 200 resamples, the minimum empirical non-zero frequency resolution is 1/200 = 0.005. Where zero resample differences cross the null boundary, empirical p-values are reported with their appropriate bound (p < 0.01) rather than unsupported infinite precision (e.g. p < 0.0001).
+Bootstrap paired comparisons are evaluated using B = 1,000 resamples at the complete-run level. With 1,000 resamples, the minimum empirical non-zero frequency resolution is 1/1,000 = 0.001. Where zero resample differences cross the null boundary, empirical p-values are reported with their appropriate bound (p < 0.01) rather than unsupported infinite precision (e.g. p < 0.0001).
 
 ## 6. Pre-Registration Protocol Status
 The protocol document (docs/final_evaluation_protocol.md) was cryptographically locked using SHA-256 prior to executing final model evaluations. This hash serves as an internal tamper-evident configuration audit trail, not an independently hosted third-party pre-registration.

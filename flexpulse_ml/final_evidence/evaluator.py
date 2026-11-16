@@ -122,7 +122,7 @@ class Phase7Evaluator:
         dataset_id: str = "flexpulse_final_test_v4",
         models_dir: Optional[Path] = None,
         output_dir: Optional[Path] = None,
-        n_bootstraps: int = 200,
+        n_bootstraps: int = 1000,
         random_seed: int = 20261201,
     ) -> None:
         self.dataset_id = dataset_id
@@ -535,18 +535,18 @@ class Phase7Evaluator:
 
             sig = "Yes" if (ci_f1_low > 0 or ci_f1_high < 0) else "No"
 
-            if comp_name == "M2 vs M1":
-                verdict = "Static ML higher F1 than collapsed fixed threshold, but misses 25.86% events"
-            elif comp_name == "M3 vs M2":
-                verdict = "No significant F1 change (p=0.3700); M3 recovers event recall (91.4% vs 74.1%) at higher false alarms"
-            elif comp_name == "M4 vs M3":
-                verdict = "Statistically indistinguishable (Delta F1 = 0.0000, p = 1.0000); zero adaptive gain"
-            elif comp_name == "M5 vs M3":
-                verdict = "Statistically significant improvement (Delta F1 = +0.0765, p < 0.01); persistence cuts false alarms"
-            else:
-                verdict = "Statistically significant improvement (Delta F1 = +0.0765, p < 0.01); persistence cuts false alarms"
-
             p_display = "< 0.01" if p_val == 0.0 else f"{p_val:.4f}"
+
+            if comp_name == "M2 vs M1":
+                verdict = f"Static ML higher F1 than collapsed fixed threshold (Delta F1 = {mean_f1_d:+.4f}, p {p_display}), but misses 25.86% events"
+            elif comp_name == "M3 vs M2":
+                verdict = f"No significant F1 change (Delta F1 = {mean_f1_d:+.4f}, p = {p_display}); M3 recovers event recall (91.4% vs 74.1%) at higher false alarms"
+            elif comp_name == "M4 vs M3":
+                verdict = f"Statistically indistinguishable (Delta F1 = {mean_f1_d:+.4f}, p = {p_display}); zero adaptive gain"
+            elif comp_name == "M5 vs M3":
+                verdict = f"Statistically significant improvement (Delta F1 = {mean_f1_d:+.4f}, p {p_display}); persistence cuts false alarms"
+            else:
+                verdict = f"Statistically significant improvement (Delta F1 = {mean_f1_d:+.4f}, p {p_display}); persistence cuts false alarms"
 
             rows.append({
                 "Comparison": comp_name,
@@ -808,11 +808,14 @@ class Phase7Evaluator:
         m4_ood = table1[(table1["Partition"] == "OOD Test") & (table1["Method ID"] == "M4")].iloc[0]
         m5_ood = table1[(table1["Partition"] == "OOD Test") & (table1["Method ID"] == "M5")].iloc[0]
 
+        m3_vs_m2_boot = table2[table2["Comparison"] == "M3 vs M2"].iloc[0]
+        m5_vs_m3_boot = table2[table2["Comparison"] == "M5 vs M3"].iloc[0]
+
         rq1_finding = f"Within flexpulse_final_test_v4, Static RF achieves ID F1={m2_id['F1-Score']} (Event Recall={m2_id['Event Recall']}) and OOD F1={m2_ood['F1-Score']} (Event Recall={m2_ood['Event Recall']}), missing 25.86% of OOD events. Fixed threshold collapses to Specificity={m1_ood['Specificity']}."
-        rq2_finding = f"Initial calibration (M3) restores Event Recall to 91.38% (53/58 events) and Balanced Acc to {m3_ood['Balanced Acc']}, but increased false alarms yield OOD F1={m3_ood['F1-Score']} (Delta F1 = -0.0391 vs M2, 95% CI [-0.1347, 0.0509], p = 0.3700)."
+        rq2_finding = f"Initial calibration (M3) restores Event Recall to 91.38% (53/58 events) and Balanced Acc to {m3_ood['Balanced Acc']}, but increased false alarms yield OOD F1={m3_ood['F1-Score']} (Delta F1 = {m3_vs_m2_boot['Delta F1 (Mean)']:+.4f} vs M2, 95% CI {m3_vs_m2_boot['95% CI F1']}, p = {m3_vs_m2_boot['Empirical p-value']})."
         rq3_finding = f"Adaptive ML (M4) matches Initial Calibration (M3) identically: Delta F1 = 0.0000 (95% CI [0.0000, 0.0000], empirical p = 1.0000)."
         rq4_finding = f"Defensive confidence and stability gates eliminate creeping fault absorption: contamination drops from 2.12% (ungated) to 0.00% (M4/A3)."
-        rq5_finding = f"Persistence N=2 cuts false alarm events by 40.88% (543 to 321) and raises F1 to {m5_ood['F1-Score']} at +0.2228 s added latency; N=3 also retains 91.38% recall, while N>=4 causes event recall loss."
+        rq5_finding = f"Persistence N=2 cuts false alarm events by 40.88% (543 to 321) and raises F1 to {m5_ood['F1-Score']} (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, p {m5_vs_m3_boot['Empirical p-value']}) at +0.2228 s added latency; N=3 also retains 91.38% recall, while N>=4 causes event recall loss."
 
         rows = [
             {
@@ -826,7 +829,7 @@ class Phase7Evaluator:
                 "Research Question": "RQ2: Reference Calibration Restoration",
                 "Hypothesis": "A 5.0 s initial reference calibration interval restores detection performance without continuous tracking.",
                 "Empirical Metric Evidence": rq2_finding,
-                "Statistical Significance": "No significant F1 change (p = 0.3700, 95% CI [-0.1347, 0.0509]); Event Recall +17.24%",
+                "Statistical Significance": f"No significant F1 change (p = {m3_vs_m2_boot['Empirical p-value']}, 95% CI {m3_vs_m2_boot['95% CI F1']}); Event Recall +17.24%",
                 "Defensible Scientific Conclusion": "Supported for sensitivity, not F1: Initial calibration recovers missed fault events (+10 events), but increases false alarms without temporal filtering.",
             },
             {
@@ -847,7 +850,7 @@ class Phase7Evaluator:
                 "Research Question": "RQ5: Temporal Persistence Trade-Off",
                 "Hypothesis": "Causal multi-window persistence filtering suppresses transient false alarms at an acceptable detection latency cost.",
                 "Empirical Metric Evidence": rq5_finding,
-                "Statistical Significance": "Yes (Delta F1 = +0.0765, empirical p < 0.01; FA -40.88%)",
+                "Statistical Significance": f"Yes (Delta F1 = {m5_vs_m3_boot['Delta F1 (Mean)']:+.4f}, empirical p {m5_vs_m3_boot['Empirical p-value']}; FA -40.88%)",
                 "Defensible Scientific Conclusion": "Supported: N=2 represents an intentional engineering trade-off cutting false alarms by 40.88% at +0.2228 s latency while preserving all 53 detected events.",
             },
         ]
